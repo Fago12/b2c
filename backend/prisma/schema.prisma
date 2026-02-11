@@ -1,0 +1,396 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------------------------
+// Better Auth Models
+// --------------------------------------------------------
+
+// --------------------------------------------------------
+// Better Auth Models
+// --------------------------------------------------------
+
+// --------------------------------------------------------
+// Better Auth Models
+// --------------------------------------------------------
+
+model User {
+  id            String   @id @default(cuid()) @map("_id")
+  name          String?
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Better Auth Fields
+  sessions    Session[]
+  accounts    Account[]
+  twoFactors  TwoFactor[]
+  passkeys    Passkey[]
+  members     Member[]
+  invitations Invitation[]
+
+  // Admin Plugin
+  role       String    @default("CUSTOMER") // SUPER_ADMIN | ADMIN | STAFF | CUSTOMER
+  banned     Boolean   @default(false)
+  banReason  String?
+  banExpires DateTime?
+
+  // App Specific
+  favoriteNumber Int? @default(0)
+
+  // Legacy / Hybrid Compatibility Fields
+  password           String?
+  isVerified         Boolean   @default(false)
+  hashedRefreshToken String?
+  verificationToken  String?
+  resetToken         String?
+  resetTokenExpires  DateTime?
+  avatar             String?
+
+  // E-commerce Relations 
+  orders  Order[]
+  reviews Review[]
+
+  // Legacy Enum Role Support
+  legacyRole Role @default(CUSTOMER)
+
+  @@map("user")
+}
+
+model Session {
+  id                   String   @id @default(cuid()) @map("_id")
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
+  impersonatedBy       String?
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid()) @map("_id")
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid()) @map("_id")
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+model TwoFactor {
+  id          String @id @default(cuid()) @map("_id")
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("two_factor")
+}
+
+model Passkey {
+  id           String    @id @default(cuid()) @map("_id")
+  name         String?
+  publicKey    String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime?
+
+  @@map("passkey")
+}
+
+model Organization {
+  id          String       @id @default(cuid()) @map("_id")
+  name        String
+  slug        String?      @unique
+  logo        String?
+  createdAt   DateTime     @default(now())
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime     @default(now())
+
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String       @default("pending")
+  expiresAt      DateTime
+  inviterId      String
+  inviter        User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
+}
+
+// --------------------------------------------------------
+// E-commerce Models
+// --------------------------------------------------------
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String    @unique
+  description String?
+  products    Product[]
+
+  @@map("category")
+}
+
+model Coupon {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  code           String       @unique
+  discountType   DiscountType
+  value          Int
+  minOrderAmount Int?
+  maxUses        Int?
+  usedCount      Int          @default(0)
+  expiresAt      DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+
+  @@map("coupon")
+}
+
+model Order {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String? // Removed @db.ObjectId to match User.id
+  status          OrderStatus
+  total           Int
+  paymentId       String?
+  createdAt       DateTime    @default(now())
+  email           String
+  shippingAddress Json
+  user            User?       @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String  @db.ObjectId
+  productId String  @db.ObjectId
+  quantity  Int
+  price     Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_item")
+}
+
+model Product {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Int
+  salePrice   Int?
+  stock       Int
+  isActive    Boolean     @default(true)
+  images      String[]
+  categoryId  String      @db.ObjectId
+  slug        String      @unique
+  tags        String[]
+  attributes  Json?
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+  category    Category    @relation(fields: [categoryId], references: [id])
+  reviews     Review[]
+
+  @@map("product")
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int
+  comment   String
+  productId String   @db.ObjectId
+  userId    String // Removed @db.ObjectId to match User.id
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("review")
+}
+
+model StoreSettings {
+  id           String   @id @default(cuid()) @map("_id")
+  storeName    String   @default("My Store")
+  description  String?
+  currency     String   @default("NGN")
+  supportEmail String?
+  socialLinks  Json? // { facebook: string, twitter: string, instagram: string }
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("store_settings")
+}
+
+// --------------------------------------------------------
+// Homepage Content Models (Phase 12)
+// --------------------------------------------------------
+
+enum SectionType {
+  ANNOUNCEMENT
+  HERO
+  MARQUEE
+  FEATURED
+  PROMO
+  NEW_ARRIVALS
+}
+
+model HomepageSection {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  type        SectionType
+  referenceId String?
+  order       Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("homepage_section")
+}
+
+model Announcement {
+  id              String    @id @default(cuid()) @map("_id")
+  message         String
+  ctaText         String?
+  ctaLink         String?
+  isActive        Boolean   @default(true)
+  startAt         DateTime?
+  endAt           DateTime?
+  backgroundColor String    @default("#000000")
+  textColor       String    @default("#ffffff")
+  priority        Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("announcement")
+}
+
+model HeroSection {
+  id        String   @id @default(cuid()) @map("_id")
+  title     String
+  subtitle  String?
+  imageUrl  String
+  ctaText   String
+  ctaLink   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("hero_section")
+}
+
+model MarqueeItem {
+  id        String   @id @default(cuid()) @map("_id")
+  icon      String?  // Lucide icon name
+  text      String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("marquee_item")
+}
+
+model FeaturedCollection {
+  id          String   @id @default(cuid()) @map("_id")
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  productIds  String[] @db.ObjectId // Manual reference
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("featured_collection")
+}
+
+model PromoBanner {
+  id             String   @id @default(cuid()) @map("_id")
+  title          String
+  subtitle       String?
+  imageUrl       String
+  ctaText        String
+  ctaLink        String
+  targetAudience String   // MEN | WOMEN | ALL
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("promo_banner")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// Keeping Role enum if needed for logic, though User model uses String for better-auth compatibility
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  CUSTOMER
+}

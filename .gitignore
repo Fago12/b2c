@@ -1,0 +1,11 @@
+# Ignore absolutely everything in this root folder...
+/*
+
+# ...Except the frontend folder...
+!frontend/
+
+# ...And the backend folder...
+!backend/
+
+# ...And this .gitignore file itself
+!.gitignore

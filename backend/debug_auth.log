@@ -1,0 +1,78 @@
+[2026-02-07T19:54:09.727Z] AuthService.register called for: newuser1770494049684@example.com
+[2026-02-07T19:54:10.952Z] AuthService.register: Creating user...
+[2026-02-07T19:54:11.023Z] AuthService.register CRITICAL ERROR: 
+Invalid `this.prisma.user.create()` invocation in
+C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\src\users\users.service.ts:16:45
+
+  13 const salt = await bcrypt.genSalt();
+  14 const hashedPassword = await bcrypt.hash(data.password || '', salt);
+  15 
+→ 16 const user = await this.prisma.user.create({
+       data: {
+         email: "newuser1770494049684@example.com",
+         password: "$2b$10$RJLR3MxZOQ6gcf.mGOsOEumHg3vItB1sIWt.O/8vKj.yBtk2w3Q0O",
+         firstName: "Test",
+         ~~~~~~~~~
+         lastName: "User",
+         verificationToken: "xa7dy4n429nq39du0y0gi",
+         isVerified: false,
+     ?   id?: String,
+     ?   role?: Role,
+     ?   googleId?: String | Null,
+     ?   appleId?: String | Null,
+     ?   avatar?: String | Null,
+     ?   resetToken?: String | Null,
+     ?   resetTokenExpires?: DateTime | Null,
+     ?   hashedRefreshToken?: String | Null,
+     ?   createdAt?: DateTime,
+     ?   orders?: OrderCreateNestedManyWithoutUserInput,
+     ?   reviews?: ReviewCreateNestedManyWithoutUserInput
+       }
+     })
+
+Unknown argument `firstName`. Available options are marked with ?.
+[2026-02-07T19:54:11.025Z] Stack Trace: PrismaClientValidationError: 
+Invalid `this.prisma.user.create()` invocation in
+C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\src\users\users.service.ts:16:45
+
+  13 const salt = await bcrypt.genSalt();
+  14 const hashedPassword = await bcrypt.hash(data.password || '', salt);
+  15 
+→ 16 const user = await this.prisma.user.create({
+       data: {
+         email: "newuser1770494049684@example.com",
+         password: "$2b$10$RJLR3MxZOQ6gcf.mGOsOEumHg3vItB1sIWt.O/8vKj.yBtk2w3Q0O",
+         firstName: "Test",
+         ~~~~~~~~~
+         lastName: "User",
+         verificationToken: "xa7dy4n429nq39du0y0gi",
+         isVerified: false,
+     ?   id?: String,
+     ?   role?: Role,
+     ?   googleId?: String | Null,
+     ?   appleId?: String | Null,
+     ?   avatar?: String | Null,
+     ?   resetToken?: String | Null,
+     ?   resetTokenExpires?: DateTime | Null,
+     ?   hashedRefreshToken?: String | Null,
+     ?   createdAt?: DateTime,
+     ?   orders?: OrderCreateNestedManyWithoutUserInput,
+     ?   reviews?: ReviewCreateNestedManyWithoutUserInput
+       }
+     })
+
+Unknown argument `firstName`. Available options are marked with ?.
+    at wn (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@prisma\client\runtime\library.js:29:1363)
+    at $n.handleRequestError (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@prisma\client\runtime\library.js:121:6958)
+    at $n.handleAndLogRequestError (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at async l (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async UsersService.create (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\src\users\users.service.ts:16:22)
+    at async AuthService.register (C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\src\auth\auth.service.ts:88:25)
+    at async C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\lenovo\.gemini\antigravity\scratch\b2c-ecommerce\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[2026-02-07T19:56:45.188Z] AuthService.register called for: newuser1770494205122@example.com
+[2026-02-07T19:56:46.549Z] AuthService.register: Creating user...
+[2026-02-07T19:56:47.166Z] AuthService.register: Attaching guest orders...
+[2026-02-07T19:56:48.591Z] AuthService.register: Sending verification email...
+[2026-02-07T19:56:55.252Z] Failed to send verification email: Error: You can only send testing emails to your own email address (ayoyemisola@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.

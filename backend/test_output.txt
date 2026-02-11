@@ -1,0 +1,2 @@
+Status: 201
+Body: {"message":"Registration successful. Please check your email to verify your account."}
