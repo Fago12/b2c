@@ -1,0 +1,44 @@
+Checking database for user: ayoyemisola@gmail.com
+User found: {
+  "id": "XR49yAsaYK9dDp8NLaBHfpvBNFQ5Ogoq",
+  "name": "ayoyemisola",
+  "email": "ayoyemisola@gmail.com",
+  "emailVerified": true,
+  "image": null,
+  "createdAt": "2026-02-09T07:41:04.764Z",
+  "updatedAt": "2026-02-09T10:52:17.480Z",
+  "role": "user",
+  "banned": false,
+  "banReason": null,
+  "banExpires": null,
+  "favoriteNumber": 0,
+  "password": null,
+  "isVerified": false,
+  "hashedRefreshToken": null,
+  "verificationToken": null,
+  "resetToken": null,
+  "resetTokenExpires": null,
+  "avatar": null,
+  "legacyRole": "CUSTOMER",
+  "accounts": [
+    {
+      "id": "ikpRnPKOaf7lB06dAQM1Hvo2CfBdC9pq",
+      "accountId": "XR49yAsaYK9dDp8NLaBHfpvBNFQ5Ogoq",
+      "providerId": "credential",
+      "userId": "XR49yAsaYK9dDp8NLaBHfpvBNFQ5Ogoq",
+      "accessToken": null,
+      "refreshToken": null,
+      "idToken": null,
+      "accessTokenExpiresAt": null,
+      "refreshTokenExpiresAt": null,
+      "scope": null,
+      "password": "85e4a4694dfaaa28170326ce6b142aa8:017b1787c681b5eaed9c61feb911233cfebf197922924414b772660e2f4007649b2f42540aca482e7c275806a11b3c5dc2fed80278fca0504385c676290cf9ba",
+      "createdAt": "2026-02-09T07:41:05.385Z",
+      "updatedAt": "2026-02-09T11:26:32.327Z"
+    }
+  ]
+}
+User.password: NULL
+Account Provider: credential
+Account ID: XR49yAsaYK9dDp8NLaBHfpvBNFQ5Ogoq
+Password Hash (first 20 chars): 85e4a4694dfaaa281703...
