@@ -27,9 +27,19 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { SettingsModule } from './settings/settings.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HomepageModule } from './homepage/homepage.module';
+import { ShippingModule } from './shipping/shipping.module';
+import { CmsModule } from './cms/cms.module';
+import { GalleryModule } from './gallery/gallery.module';
+import { CommerceCurrencyModule } from './commerce/currency/currency.module';
+import { CommerceRegionModule } from './commerce/region/region.module';
+import { CommercePricingModule } from './commerce/pricing/pricing.module';
+import { CommerceCustomizationModule } from './commerce/customization/customization.module';
+import { CommerceOrdersModule } from './commerce/orders/orders.module';
+import { CommerceShippingModule } from './commerce/shipping/shipping.module';
 
 @Module({
   imports: [
+    // ... (rest of imports)
     // Config Module for environment variables
     ConfigModule.forRoot({ isGlobal: true }),
     // Infrastructure
@@ -96,6 +106,16 @@ import { HomepageModule } from './homepage/homepage.module';
     SettingsModule,
     CloudinaryModule,
     HomepageModule,
+    ShippingModule,
+    CmsModule,
+    GalleryModule,
+    // New Commerce Modules
+    CommerceCurrencyModule,
+    CommerceRegionModule,
+    CommercePricingModule,
+    CommerceShippingModule,
+    CommerceCustomizationModule,
+    CommerceOrdersModule,
   ],
   controllers: [AppController],
   providers: [

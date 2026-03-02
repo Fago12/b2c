@@ -10,14 +10,18 @@ exports.CommonModule = void 0;
 const common_1 = require("@nestjs/common");
 const lock_service_1 = require("./services/lock.service");
 const idempotency_interceptor_1 = require("./interceptors/idempotency.interceptor");
+const pricing_service_1 = require("./pricing.service");
+const currency_service_1 = require("./currency.service");
+const currency_controller_1 = require("./currency.controller");
 let CommonModule = class CommonModule {
 };
 exports.CommonModule = CommonModule;
 exports.CommonModule = CommonModule = __decorate([
     (0, common_1.Global)(),
     (0, common_1.Module)({
-        providers: [lock_service_1.LockService, idempotency_interceptor_1.IdempotencyInterceptor],
-        exports: [lock_service_1.LockService, idempotency_interceptor_1.IdempotencyInterceptor],
+        controllers: [currency_controller_1.CurrencyController],
+        providers: [lock_service_1.LockService, idempotency_interceptor_1.IdempotencyInterceptor, pricing_service_1.PricingService, currency_service_1.CurrencyService],
+        exports: [lock_service_1.LockService, idempotency_interceptor_1.IdempotencyInterceptor, pricing_service_1.PricingService, currency_service_1.CurrencyService],
     })
 ], CommonModule);
 //# sourceMappingURL=common.module.js.map

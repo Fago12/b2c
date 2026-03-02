@@ -11,14 +11,8 @@ export declare class SettingsController {
         currency: string;
         supportEmail: string | null;
         socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
-    }>;
-    updateSettings(data: {
-        storeName?: string;
-        description?: string;
-        currency?: string;
-        supportEmail?: string;
-        socialLinks?: any;
-    }): Promise<{
+    } | null>;
+    updateSettings(data: any): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -27,5 +21,32 @@ export declare class SettingsController {
         currency: string;
         supportEmail: string | null;
         socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    getShippingConfig(): Promise<{
+        id: string;
+        updatedAt: Date;
+        usFlatRateInCents: number;
+        nigeriaFlatRateInCents: number;
+        indiaFlatRateInCents: number;
+        ghanaFlatRateInCents: number;
+        chinaFlatRateInCents: number;
+        internationalFlatRateInCents: number;
+    } | null>;
+    updateShippingConfig(data: {
+        usFlatRateInCents?: number;
+        nigeriaFlatRateInCents?: number;
+        indiaFlatRateInCents?: number;
+        ghanaFlatRateInCents?: number;
+        chinaFlatRateInCents?: number;
+        internationalFlatRateInCents?: number;
+    }): Promise<{
+        id: string;
+        updatedAt: Date;
+        usFlatRateInCents: number;
+        nigeriaFlatRateInCents: number;
+        indiaFlatRateInCents: number;
+        ghanaFlatRateInCents: number;
+        chinaFlatRateInCents: number;
+        internationalFlatRateInCents: number;
     }>;
 }

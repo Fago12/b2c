@@ -9,6 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @Controller('admin/homepage')
 @UseGuards(BetterAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
+// Cinema Hero Update: Standardized media field for video/image uploads
 export class AdminHomepageController {
   constructor(
     private prisma: PrismaService,
@@ -19,9 +20,33 @@ export class AdminHomepageController {
 
   @Get('sections')
   async getSections() {
-    return this.prisma.homepageSection.findMany({
+    const sections = await this.prisma.homepageSection.findMany({
       orderBy: { order: 'asc' }
     });
+
+    // Enrich with titles for the Admin UI
+    return Promise.all(sections.map(async (section) => {
+      let title = section.type.replace('_', ' ');
+      
+      if (section.referenceId) {
+        try {
+          if (section.type === 'FEATURED') {
+            const coll = await this.prisma.featuredCollection.findUnique({ where: { id: section.referenceId } });
+            if (coll) title = `Featured: ${coll.title}`;
+          } else if (section.type === 'HERO') {
+            const hero = await this.prisma.heroSection.findUnique({ where: { id: section.referenceId } });
+            if (hero) title = `Hero: ${hero.title}`;
+          } else if (section.type === 'ANNOUNCEMENT') {
+             const ann = await this.prisma.announcement.findUnique({ where: { id: section.referenceId } });
+             if (ann) title = `Announce: ${ann.message.slice(0, 20)}...`;
+          }
+        } catch (e) {
+          console.error(`Failed to fetch title for ${section.type} ${section.referenceId}`, e);
+        }
+      }
+
+      return { ...section, title };
+    }));
   }
 
   @Post('sections')
@@ -32,14 +57,21 @@ export class AdminHomepageController {
 
   @Patch('sections/reorder')
   async reorderSections(@Body() items: { id: string; order: number }[]) {
-    // Execute in transaction to ensure consistency
-    const updates = items.map((item) =>
-      this.prisma.homepageSection.update({
-        where: { id: item.id },
-        data: { order: item.order },
-      })
-    );
-    return this.prisma.$transaction(updates);
+    try {
+      console.log(`[DEBUG] Reordering ${items.length} sections`);
+      const results = [];
+      for (const item of items) {
+        // Use updateMany to quietly skip if an ID was deleted but remains in browser state
+        await this.prisma.homepageSection.updateMany({
+          where: { id: item.id },
+          data: { order: item.order },
+        });
+      }
+      return { success: true };
+    } catch (error) {
+      console.error(`[DEBUG] Reorder Error:`, error);
+      throw error;
+    }
   }
 
   @Patch('sections/:id')
@@ -85,58 +117,66 @@ export class AdminHomepageController {
   @Post('heroes')
   @UseInterceptors(FileInterceptor('image'))
   async createHero(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
-    const { title, subtitle, ctaText, ctaLink, isActive } = body;
-    let imageUrl = body.imageUrl;
+    const { title, isActive, mediaType } = body;
+    let imageUrl = null;
+    let videoUrl = null;
     
     if (file) {
-      const upload = await this.cloudinary.uploadImage(file);
-      imageUrl = upload.secure_url;
+      if (mediaType === 'VIDEO') {
+        const upload = await this.cloudinary.uploadVideo(file);
+        videoUrl = upload.secure_url;
+      } else {
+        const upload = await this.cloudinary.uploadImage(file);
+        imageUrl = upload.secure_url;
+      }
     }
     
+    const heroData: any = {
+      title,
+      mediaType: mediaType || 'IMAGE',
+      isActive: isActive === 'true' || isActive === true
+    };
+
+    if (imageUrl) heroData.imageUrl = imageUrl;
+    if (videoUrl) heroData.videoUrl = videoUrl;
+    
     return this.prisma.heroSection.create({
-      data: {
-        title,
-        subtitle,
-        ctaText,
-        ctaLink,
-        imageUrl,
-        isActive: isActive === 'true' || isActive === true
-      }
+      data: heroData
     });
   }
 
   @Patch('heroes/:id')
   @UseInterceptors(FileInterceptor('image'))
   async updateHero(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() body: any) {
+    console.log(`[CINEMA LOG] updateHero hit for ${id}`);
     try {
-      console.log(`[DEBUG] Updating Hero ${id}`, { body, file: !!file });
-      const { title, subtitle, ctaText, ctaLink, isActive } = body;
+      const { title, isActive, mediaType } = body;
       
       let data: any = {};
       if (title !== undefined) data.title = title;
-      if (subtitle !== undefined) data.subtitle = subtitle;
-      if (ctaText !== undefined) data.ctaText = ctaText;
-      if (ctaLink !== undefined) data.ctaLink = ctaLink;
+      if (mediaType !== undefined) data.mediaType = mediaType;
       if (isActive !== undefined) {
          data.isActive = isActive === 'true' || isActive === true;
       }
 
       if (file) {
-        const upload = await this.cloudinary.uploadImage(file);
-        data.imageUrl = upload.secure_url;
-      } else if (body.imageUrl) {
-        data.imageUrl = body.imageUrl;
+        if (mediaType === 'VIDEO') {
+          const upload = await this.cloudinary.uploadVideo(file);
+          data.videoUrl = upload.secure_url;
+          data.imageUrl = null; // Clear image if it's now a video
+        } else {
+          const upload = await this.cloudinary.uploadImage(file);
+          data.imageUrl = upload.secure_url;
+          data.videoUrl = null; // Clear video if it's now an image
+        }
       }
 
-      const result = await this.prisma.heroSection.update({ 
+      return await this.prisma.heroSection.update({ 
         where: { id }, 
         data 
       });
-      console.log(`[DEBUG] Update Success:`, result.id);
-      return result;
     } catch (error) {
-      console.error(`[DEBUG] Update Hero Error:`, error);
-      require('fs').appendFileSync('debug_upload.log', `[${new Date().toISOString()}] Hero Update Error ${id}: ${error.stack}\nBody: ${JSON.stringify(body)}\n\n`);
+      console.error(`[AdminHomepageController] Update Hero Error:`, error);
       throw error;
     }
   }

@@ -48,14 +48,16 @@ let AnalyticsService = class AnalyticsService {
             where: { createdAt: { gte: yesterday, lt: today } }
         });
         const totalCustomers = await this.prisma.user.count({
-            where: { role: 'CUSTOMER' }
+            where: {
+                role: { in: ['CUSTOMER', 'user'] }
+            }
         });
-        const revenueChange = this.calculatePercentageChange(todayRevenue._sum.total || 0, yesterdayRevenue._sum.total || 0);
+        const revenueChange = this.calculatePercentageChange(todayRevenue._sum.totalUSD || 0, yesterdayRevenue._sum.totalUSD || 0);
         const ordersChange = this.calculatePercentageChange(todayOrders, yesterdayOrders);
         return {
             revenue: {
-                total: totalRevenue._sum.total || 0,
-                today: todayRevenue._sum.total || 0,
+                total: totalRevenue._sum.totalUSD || 0,
+                today: todayRevenue._sum.totalUSD || 0,
                 change: revenueChange
             },
             orders: {
@@ -80,7 +82,7 @@ let AnalyticsService = class AnalyticsService {
             },
             select: {
                 createdAt: true,
-                total: true
+                totalUSD: true
             }
         });
         const grouped = new Map();
@@ -90,10 +92,10 @@ let AnalyticsService = class AnalyticsService {
             const dateStr = d.toISOString().split('T')[0];
             grouped.set(dateStr, 0);
         }
-        orders.forEach(order => {
+        orders.forEach((order) => {
             const dateStr = order.createdAt.toISOString().split('T')[0];
             const current = grouped.get(dateStr) || 0;
-            grouped.set(dateStr, current + order.total);
+            grouped.set(dateStr, current + (order.totalUSD || 0));
         });
         return Array.from(grouped.entries()).map(([date, amount]) => ({
             date,

@@ -1,118 +1,205 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { CommercePricingService } from '../commerce/pricing/pricing.service';
+import { RegionService } from '../commerce/region/region.service';
 export declare class ProductsService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private pricingService;
+    private regionService;
+    constructor(prisma: PrismaService, pricingService: CommercePricingService, regionService: RegionService);
     create(createProductDto: Prisma.ProductCreateInput): Prisma.Prisma__ProductClient<{
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    findAll(): Prisma.PrismaPromise<({
+    findAll(regionCode?: string): Promise<{
+        regional: {
+            basePrice: number;
+            finalPrice: number;
+            currency: string;
+            symbol: string;
+            exchangeRateUsed: string;
+            isOverride: boolean;
+            variantId?: string;
+        };
         category: {
             name: string;
             id: string;
-            description: string | null;
             slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
         };
-    } & {
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
-    })[]>;
-    findOne(id: string): Prisma.Prisma__ProductClient<({
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
+    }[]>;
+    findOne(id: string, regionCode?: string): Promise<{
+        regional: {
+            basePrice: number;
+            finalPrice: number;
+            currency: string;
+            symbol: string;
+            exchangeRateUsed: string;
+            isOverride: boolean;
+            variantId?: string;
+        };
         category: {
             name: string;
             id: string;
-            description: string | null;
             slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
         };
-    } & {
+        _count: {
+            orderItems: number;
+        };
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
-    }) | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
-    findBySlug(slug: string): Prisma.Prisma__ProductClient<{
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
+    }>;
+    findOneBySlug(slug: string, regionCode?: string): Promise<{
+        regional: {
+            basePrice: number;
+            finalPrice: number;
+            currency: string;
+            symbol: string;
+            exchangeRateUsed: string;
+            isOverride: boolean;
+            variantId?: string;
+        };
+        category: {
+            name: string;
+            id: string;
+            slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
+        };
+        _count: {
+            orderItems: number;
+        };
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
-    } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
+    }>;
     update(id: string, updateProductDto: Prisma.ProductUpdateInput): Prisma.Prisma__ProductClient<{
         category: {
             name: string;
             id: string;
-            description: string | null;
             slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
         };
     } & {
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     remove(id: string): Prisma.Prisma__ProductClient<{
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     findAllAdmin(params: {
         search?: string;
@@ -124,23 +211,35 @@ export declare class ProductsService {
             category: {
                 name: string;
                 id: string;
-                description: string | null;
                 slug: string;
+                description: string | null;
+                isActive: boolean;
+                isComingSoon: boolean;
+                displayOrder: number;
+                imageUrl: string | null;
+            };
+            _count: {
+                orderItems: number;
             };
         } & {
             name: string;
             id: string;
             createdAt: Date;
-            price: number;
             tags: string[];
+            slug: string;
             description: string;
-            salePrice: number | null;
+            basePriceUSD: number;
+            salePriceUSD: number | null;
             stock: number;
             isActive: boolean;
             images: string[];
             categoryId: string;
-            slug: string;
             attributes: Prisma.JsonValue | null;
+            hasVariants: boolean;
+            weightKG: number;
+            options: Prisma.JsonValue | null;
+            variants: Prisma.JsonValue | null;
+            customizationOptions: Prisma.JsonValue | null;
         })[];
         pagination: {
             page: number;
@@ -152,64 +251,94 @@ export declare class ProductsService {
     createProduct(data: {
         name: string;
         description: string;
-        price: number;
+        basePriceUSD: number;
+        salePriceUSD?: number;
         stock: number;
         categoryId: string;
         images: string[];
+        slug: string;
         tags?: string[];
         attributes?: any;
+        customizationOptions?: any;
+        options?: any;
+        variants?: any;
+        isActive?: boolean;
     }): Promise<{
         category: {
             name: string;
             id: string;
-            description: string | null;
             slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
         };
     } & {
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
     }>;
     updateProduct(id: string, data: {
         name?: string;
         description?: string;
-        price?: number;
+        basePriceUSD?: number;
+        salePriceUSD?: number;
         stock?: number;
         categoryId?: string;
         images?: string[];
         tags?: string[];
         attributes?: any;
+        customizationOptions?: any;
+        options?: any;
+        variants?: any;
+        isActive?: boolean;
+        slug?: string;
     }): Promise<{
         category: {
             name: string;
             id: string;
-            description: string | null;
             slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
         };
     } & {
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
     }>;
     getProductStats(): Promise<{
         total: number;
@@ -221,22 +350,31 @@ export declare class ProductsService {
         category: {
             name: string;
             id: string;
-            description: string | null;
             slug: string;
+            description: string | null;
+            isActive: boolean;
+            isComingSoon: boolean;
+            displayOrder: number;
+            imageUrl: string | null;
         };
     } & {
         name: string;
         id: string;
         createdAt: Date;
-        price: number;
         tags: string[];
+        slug: string;
         description: string;
-        salePrice: number | null;
+        basePriceUSD: number;
+        salePriceUSD: number | null;
         stock: number;
         isActive: boolean;
         images: string[];
         categoryId: string;
-        slug: string;
         attributes: Prisma.JsonValue | null;
+        hasVariants: boolean;
+        weightKG: number;
+        options: Prisma.JsonValue | null;
+        variants: Prisma.JsonValue | null;
+        customizationOptions: Prisma.JsonValue | null;
     }>;
 }

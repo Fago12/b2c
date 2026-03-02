@@ -14,12 +14,13 @@ const homepage_service_1 = require("./homepage.service");
 const prisma_module_1 = require("../prisma/prisma.module");
 const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 const auth_module_1 = require("../auth/auth.module");
+const pricing_module_1 = require("../commerce/pricing/pricing.module");
 let HomepageModule = class HomepageModule {
 };
 exports.HomepageModule = HomepageModule;
 exports.HomepageModule = HomepageModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, cloudinary_module_1.CloudinaryModule, auth_module_1.AuthModule],
+        imports: [prisma_module_1.PrismaModule, cloudinary_module_1.CloudinaryModule, auth_module_1.AuthModule, pricing_module_1.CommercePricingModule],
         controllers: [homepage_controller_1.HomepageController, admin_homepage_controller_1.AdminHomepageController],
         providers: [homepage_service_1.HomepageService],
     })

@@ -1,0 +1,39 @@
+--- Deep Database Analysis ---
+User [ayoyemisola@gmail.com]: EXISTS (ID: PljscxJALYyaXfdfWt2u3LNszDKnraQM, Role: user)
+Orders found with explicit email [ayoyemisola@gmail.com]: 14
+ - Order 698987569b3f4e29e4c811af: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T07:05:58.046Z, Total=70000, Status=PENDING
+ - Order 698a35b54913b6f85bb64e70: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T19:29:57.281Z, Total=45000, Status=PENDING
+ - Order 698a373f0aee8f20ab1341df: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T19:36:31.144Z, Total=45000, Status=PENDING
+ - Order 698a3988f91622e993bd2855: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T19:46:16.793Z, Total=45000, Status=PENDING
+ - Order 698a3ae8f89f78d08bcaccd4: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T19:52:08.181Z, Total=73000, Status=PENDING
+ - Order 698a3bd2f286ec51544c4234: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T19:56:02.909Z, Total=28000, Status=PENDING
+ - Order 698a3cdc114a7f4d7100989d: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T20:00:28.348Z, Total=50000, Status=PENDING
+ - Order 698a3dcd114a7f4d7100989f: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-09T20:04:29.380Z, Total=25000, Status=PENDING
+ - Order 698af841d57273fbcc063fc6: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-10T09:20:01.534Z, Total=25000, Status=PENDING
+ - Order 698afa225cbbc5464bc95ff5: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-10T09:28:02.600Z, Total=70000, Status=PENDING
+ - Order 698afadd5cbbc5464bc95ff8: UserID=PljscxJALYyaXfdfWt2u3LNszDKnraQM, Created=2026-02-10T09:31:09.166Z, Total=45000, Status=PAID
+ - Order 698dd1fa98544a4a06c8f899: UserID=cmlgfxdc30000s0noefwcdvo0, Created=2026-02-12T13:13:30.566Z, Total=20000, Status=PAID
+ - Order 698e5b02f7c76dbbc9095063: UserID=cmlgfxdc30000s0noefwcdvo0, Created=2026-02-12T22:58:10.209Z, Total=27500, Status=PAID
+ - Order 698e5e305faabaa8240e4bbb: UserID=cmlgfxdc30000s0noefwcdvo0, Created=2026-02-12T23:11:44.515Z, Total=52500, Status=PAID
+Orders explicitly linked to UserID [PljscxJALYyaXfdfWt2u3LNszDKnraQM]: 11
+ - Order 698987569b3f4e29e4c811af: Email=ayoyemisola@gmail.com, Created=2026-02-09T07:05:58.046Z
+ - Order 698a35b54913b6f85bb64e70: Email=ayoyemisola@gmail.com, Created=2026-02-09T19:29:57.281Z
+ - Order 698a373f0aee8f20ab1341df: Email=ayoyemisola@gmail.com, Created=2026-02-09T19:36:31.144Z
+ - Order 698a3988f91622e993bd2855: Email=ayoyemisola@gmail.com, Created=2026-02-09T19:46:16.793Z
+ - Order 698a3ae8f89f78d08bcaccd4: Email=ayoyemisola@gmail.com, Created=2026-02-09T19:52:08.181Z
+ - Order 698a3bd2f286ec51544c4234: Email=ayoyemisola@gmail.com, Created=2026-02-09T19:56:02.909Z
+ - Order 698a3cdc114a7f4d7100989d: Email=ayoyemisola@gmail.com, Created=2026-02-09T20:00:28.348Z
+ - Order 698a3dcd114a7f4d7100989f: Email=ayoyemisola@gmail.com, Created=2026-02-09T20:04:29.380Z
+ - Order 698af841d57273fbcc063fc6: Email=ayoyemisola@gmail.com, Created=2026-02-10T09:20:01.534Z
+ - Order 698afa225cbbc5464bc95ff5: Email=ayoyemisola@gmail.com, Created=2026-02-10T09:28:02.600Z
+ - Order 698afadd5cbbc5464bc95ff8: Email=ayoyemisola@gmail.com, Created=2026-02-10T09:31:09.166Z
+
+User [ayoyemishola@gmail.com]: MISSING
+Orders found with explicit email [ayoyemishola@gmail.com]: 0
+
+Total Recent Orders (>= Feb 11): 3
+ - ayoyemisola@gmail.com | UserID: cmlgfxdc30000s0noefwcdvo0 | Created: 2026-02-12T13:13:30.566Z | Total: 20000
+ - ayoyemisola@gmail.com | UserID: cmlgfxdc30000s0noefwcdvo0 | Created: 2026-02-12T22:58:10.209Z | Total: 27500
+ - ayoyemisola@gmail.com | UserID: cmlgfxdc30000s0noefwcdvo0 | Created: 2026-02-12T23:11:44.515Z | Total: 52500
+
+User Roles Distribution: [{"_count":{"_all":2},"role":"ADMIN"},{"_count":{"_all":2},"role":"user"},{"_count":{"_all":1},"role":"SUPER_ADMIN"}]

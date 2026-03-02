@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './ChatMessage.module.css';
+import { formatPrice } from '@/lib/utils';
 
 export interface Message {
     role: 'user' | 'assistant';
@@ -13,6 +14,10 @@ export interface Message {
         price: number;
         images: string[];
         category: string;
+        regional?: {
+            symbol: string;
+            finalPrice: number;
+        };
     }>;
     timestamp: Date;
 }
@@ -54,7 +59,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
                                 <div className={styles.productInfo}>
                                     <span className={styles.productName}>{product.name}</span>
                                     <span className={styles.productCategory}>{product.category}</span>
-                                    <span className={styles.productPrice}>₦{product.price.toLocaleString()}</span>
+                                    <span className={styles.productPrice}>
+                                        {formatPrice(
+                                            product.regional?.finalPrice || product.price,
+                                            product.regional ? 'NGN' : 'NGN' // Default to NGN for chat if not specified, 
+                                            // or use a smarter default. Given the context, NGN is the most likely target for chat.
+                                        )}
+                                    </span>
                                 </div>
                             </Link>
                         ))}

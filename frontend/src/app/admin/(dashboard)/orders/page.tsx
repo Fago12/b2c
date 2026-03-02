@@ -19,7 +19,9 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { Search, ChevronLeft, ChevronRight, Eye, RefreshCw } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 
 interface Order {
     id: string;
@@ -29,10 +31,14 @@ interface Order {
     createdAt: string;
     shippingAddress: any;
     user?: { email: string } | null;
+    isCustomOrder?: boolean;
+    customerPhone?: string;
+    currency?: string;
     items: Array<{
         id: string;
         quantity: number;
         price: number;
+        customization?: any;
         product: { name: string; images: string[] };
     }>;
 }
@@ -86,7 +92,7 @@ export default function OrdersPage() {
             if (statusFilter) params.append("status", statusFilter);
             if (search) params.append("search", search);
 
-            const data = await fetchApi(`/orders/admin/list?${params}`);
+            const data = await fetchAdminApi(`/orders/admin/list?${params}`);
             setOrders(data.orders);
             setPagination(data.pagination);
         } catch (error) {
@@ -103,7 +109,7 @@ export default function OrdersPage() {
     const handleStatusUpdate = async (orderId: string, newStatus: string) => {
         setUpdating(true);
         try {
-            await fetchApi(`/orders/admin/${orderId}/status`, {
+            await fetchAdminApi(`/orders/admin/${orderId}/status`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: newStatus }),
             });
@@ -124,13 +130,13 @@ export default function OrdersPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-sans">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
-                    <p className="text-muted-foreground">Manage and track all orders</p>
+                    <h1 className="text-2xl font-bold text-slate-900 font-vogue">Orders</h1>
+                    <p className="text-muted-foreground font-sans">Manage and track all orders</p>
                 </div>
-                <Button onClick={fetchOrders} variant="outline" size="sm">
+                <Button onClick={fetchOrders} variant="outline" size="sm" className="font-sans">
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
                     Refresh
                 </Button>
@@ -171,14 +177,14 @@ export default function OrdersPage() {
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-slate-50 border-b">
+                            <thead className="bg-slate-50 border-b font-sans">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Order ID</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Customer</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Total</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Order ID</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Customer</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Status</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Total</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Date</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -197,14 +203,26 @@ export default function OrdersPage() {
                                 ) : (
                                     orders.map((order) => (
                                         <tr key={order.id} className="border-b hover:bg-slate-50">
-                                            <td className="px-4 py-3 font-mono text-sm">{order.id.slice(0, 8)}...</td>
-                                            <td className="px-4 py-3">{order.email}</td>
+                                            <td className="px-4 py-3 font-mono text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    {order.id.slice(0, 8)}...
+                                                    {order.isCustomOrder && (
+                                                        <Badge className="bg-[#480100] text-[#F7DFB9] text-[9px] h-4">CUSTOM</Badge>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="px-4 py-3">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                                <div className="flex flex-col">
+                                                    <span>{order.email}</span>
+                                                    {order.customerPhone && <span className="text-[10px] text-muted-foreground">{order.customerPhone}</span>}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className={`px-2 py-0.5 rounded-none text-[9px] uppercase font-bold tracking-widest ${getStatusColor(order.status)}`}>
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3">₦{order.total.toLocaleString()}</td>
+                                            <td className="px-4 py-3 font-semibold">{formatPrice(order.total, order.currency || 'NGN')}</td>
                                             <td className="px-4 py-3 text-sm text-muted-foreground">
                                                 {new Date(order.createdAt).toLocaleDateString()}
                                             </td>
@@ -283,9 +301,15 @@ export default function OrdersPage() {
                                 </div>
 
                                 {/* Customer Info */}
-                                <div>
-                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Customer</h3>
-                                    <p>{selectedOrder.email}</p>
+                                <div className="grid grid-cols-2 gap-4 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Email</h3>
+                                        <p className="text-sm">{selectedOrder.email}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Contact Phone</h3>
+                                        <p className="text-sm">{selectedOrder.customerPhone || 'N/A'}</p>
+                                    </div>
                                 </div>
 
                                 {/* Shipping Address */}
@@ -307,15 +331,39 @@ export default function OrdersPage() {
 
                                 {/* Order Items */}
                                 <div>
-                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Items</h3>
-                                    <div className="space-y-2">
+                                    <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-3">Items & Customizations</h3>
+                                    <div className="space-y-3">
                                         {selectedOrder.items.map((item) => (
-                                            <div key={item.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                                                <div>
-                                                    <p className="font-medium">{item.product.name}</p>
-                                                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                            <div key={item.id} className="bg-slate-50 border rounded-lg overflow-hidden">
+                                                <div className="flex justify-between items-center p-3 border-b bg-white">
+                                                    <div>
+                                                        <p className="font-bold text-sm font-vogue">{item.product.name}</p>
+                                                        <p className="text-[10px] text-muted-foreground font-sans">Qty: {item.quantity} | Price: {formatPrice(item.price, selectedOrder.currency || 'NGN')}</p>
+                                                    </div>
+                                                    <p className="font-bold font-sans">{formatPrice(item.price * item.quantity, selectedOrder.currency || 'NGN')}</p>
                                                 </div>
-                                                <p className="font-medium">₦{(item.price * item.quantity).toLocaleString()}</p>
+                                                {item.customization && (
+                                                    <div className="p-3 bg-muted/30 space-y-2">
+                                                        <h4 className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Customization Details:</h4>
+                                                        <div className="grid grid-cols-1 gap-2">
+                                                            {item.customization.embroidery && (
+                                                                <div className="text-xs bg-white p-2 rounded shadow-sm border border-[#480100]/10 flex justify-between">
+                                                                    <span>Embroidery: <b className="text-[#480100]">{item.customization.embroidery}</b></span>
+                                                                </div>
+                                                            )}
+                                                            {item.customization.customColor && (
+                                                                <div className="text-xs bg-white p-2 rounded shadow-sm border border-[#480100]/10">
+                                                                    <span>Custom Color: <b>{item.customization.customColor}</b></span>
+                                                                </div>
+                                                            )}
+                                                            {item.customization.note && (
+                                                                <div className="text-xs bg-white p-2 rounded shadow-sm border border-[#480100]/10 italic">
+                                                                    &ldquo;{item.customization.note}&rdquo;
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -323,8 +371,8 @@ export default function OrdersPage() {
 
                                 {/* Total */}
                                 <div className="flex justify-between items-center pt-4 border-t">
-                                    <span className="font-medium">Total</span>
-                                    <span className="text-xl font-bold">₦{selectedOrder.total.toLocaleString()}</span>
+                                    <span className="font-bold">Total</span>
+                                    <span className="text-xl font-bold text-[#480100]">{formatPrice(selectedOrder.total, selectedOrder.currency || 'NGN')}</span>
                                 </div>
 
                                 {/* Actions */}

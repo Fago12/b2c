@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { fetchApi } from "@/lib/api";
+import { fetchAdminApi } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DashboardStats {
@@ -38,8 +39,8 @@ export default function AdminDashboardPage() {
         const loadData = async () => {
             try {
                 const [statsData, chartDataResponse] = await Promise.all([
-                    fetchApi("/analytics/dashboard"),
-                    fetchApi("/analytics/charts?days=7"),
+                    fetchAdminApi("/analytics/dashboard"),
+                    fetchAdminApi("/analytics/charts?days=7"),
                 ]);
                 setStats(statsData);
                 setChartData(chartDataResponse);
@@ -59,7 +60,7 @@ export default function AdminDashboardPage() {
     const cards = [
         {
             title: "Total Revenue",
-            value: `₦${(stats?.revenue.total || 0).toLocaleString()}`,
+            value: formatPrice(stats?.revenue.total || 0, 'NGN'), // Default to Naira for Admin in NG context
             change: stats?.revenue.change || 0,
             icon: DollarSign,
         },
@@ -147,7 +148,7 @@ export default function AdminDashboardPage() {
                                     tickMargin={10}
                                 />
                                 <Tooltip
-                                    formatter={(value: number) => [`₦${value.toLocaleString()}`, "Revenue"]}
+                                    formatter={(value: number | string | undefined) => [`₦${Number(value || 0).toLocaleString()}`, "Revenue"]}
                                     labelFormatter={(label) => new Date(label).toLocaleDateString()}
                                 />
                                 <Area

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { Loader2, Save, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,24 +19,20 @@ export default function HeroPage() {
 
     // Form State
     const [title, setTitle] = useState("");
-    const [subtitle, setSubtitle] = useState("");
-    const [ctaText, setCtaText] = useState("");
-    const [ctaLink, setCtaLink] = useState("");
+    const [mediaType, setMediaType] = useState<"IMAGE" | "VIDEO">("IMAGE");
     const [isActive, setIsActive] = useState(true);
 
     const fetchHero = async () => {
         try {
-            const data = await fetchApi("/admin/homepage/heroes");
+            const data = await fetchAdminApi("/admin/homepage/heroes");
             // Assuming getHeroes returns array, we take the latest
             if (data && data.length > 0) {
                 const latest = data[0];
                 setHero(latest);
                 setTitle(latest.title);
-                setSubtitle(latest.subtitle || "");
-                setCtaText(latest.ctaText);
-                setCtaLink(latest.ctaLink);
+                setMediaType(latest.mediaType || "IMAGE");
                 setIsActive(latest.isActive);
-                setPreview(latest.imageUrl);
+                setPreview(latest.mediaType === "VIDEO" ? latest.videoUrl : latest.imageUrl);
             }
         } catch (error) {
             console.error(error);
@@ -63,15 +59,11 @@ export default function HeroPage() {
         try {
             const formData = new FormData();
             formData.append("title", title);
-            formData.append("subtitle", subtitle);
-            formData.append("ctaText", ctaText);
-            formData.append("ctaLink", ctaLink);
+            formData.append("mediaType", mediaType);
             formData.append("isActive", String(isActive));
 
             if (file) {
                 formData.append("image", file);
-            } else if (hero) {
-                formData.append("imageUrl", hero.imageUrl);
             }
 
             let url = "/admin/homepage/heroes";
@@ -83,7 +75,7 @@ export default function HeroPage() {
             }
 
             // Using fetchApi which now handles FormData correctly and includes Authorization header
-            await fetchApi(url, {
+            await fetchAdminApi(url, {
                 method,
                 body: formData,
             });
@@ -110,51 +102,75 @@ export default function HeroPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={onSubmit} className="space-y-6">
-                        {/* Image Upload */}
+                        {/* Media Type Selection */}
+                        <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
+                            <Button
+                                type="button"
+                                variant={mediaType === "IMAGE" ? "default" : "ghost"}
+                                size="sm"
+                                onClick={() => setMediaType("IMAGE")}
+                                className="px-6"
+                            >
+                                Image
+                            </Button>
+                            <Button
+                                type="button"
+                                variant={mediaType === "VIDEO" ? "default" : "ghost"}
+                                size="sm"
+                                onClick={() => setMediaType("VIDEO")}
+                                className="px-6"
+                            >
+                                Video
+                            </Button>
+                        </div>
+
+                        {/* Media Upload */}
                         <div className="space-y-2">
-                            <Label>Hero Image</Label>
-                            <div className="border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                            <Label>Hero {mediaType === "VIDEO" ? "Video" : "Image"}</Label>
+                            <div className="border border-dashed rounded-lg p-4 bg-gray-50/50">
                                 {preview ? (
-                                    <div className="relative w-full aspect-video rounded overflow-hidden">
-                                        <Image src={preview} alt="Preview" fill className="object-cover" />
+                                    <div className="relative w-full aspect-video rounded overflow-hidden shadow-inner bg-black">
+                                        {mediaType === "VIDEO" ? (
+                                            <video src={preview} controls className="w-full h-full object-contain" />
+                                        ) : (
+                                            <Image src={preview} alt="Preview" fill className="object-cover" />
+                                        )}
+                                        {/* Overlay Button to change media */}
+                                        <div className="absolute top-2 right-2 z-20">
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() => document.getElementById("hero-media-input")?.click()}
+                                                className="shadow-lg h-8 text-xs"
+                                            >
+                                                <Upload className="w-3 h-3 mr-1" />
+                                                Change {mediaType === "VIDEO" ? "Video" : "Image"}
+                                            </Button>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="text-muted-foreground flex flex-col items-center">
-                                        <Upload className="w-8 h-8 mb-2" />
-                                        <span>Click to upload image</span>
+                                    <div
+                                        className="text-muted-foreground flex flex-col items-center justify-center w-full min-h-[200px] cursor-pointer hover:text-black transition-colors"
+                                        onClick={() => document.getElementById("hero-media-input")?.click()}
+                                    >
+                                        <Upload className="w-8 h-8 mb-2 opacity-50" />
+                                        <span className="text-sm font-medium">Click to upload {mediaType.toLowerCase()}</span>
                                     </div>
                                 )}
                                 <input
+                                    id="hero-media-input"
                                     type="file"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    className="hidden"
                                     onChange={handleFileChange}
-                                    accept="image/*"
+                                    accept={mediaType === "VIDEO" ? "video/*" : "image/*"}
                                 />
                             </div>
                         </div>
 
-                        <div className="grid gap-4">
-                            <div className="space-y-2">
-                                <Label>Headline</Label>
-                                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Summer Collection 2024" required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Subtitle</Label>
-                                <Input value={subtitle} onChange={e => setSubtitle(e.target.value)} placeholder="e.g. up to 50% off" />
-                            </div>
-                        </div>
+                        {/* Media Upload (as before) ... */}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>CTA Text</Label>
-                                <Input value={ctaText} onChange={e => setCtaText(e.target.value)} placeholder="Shop Now" required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>CTA Link</Label>
-                                <Input value={ctaLink} onChange={e => setCtaLink(e.target.value)} placeholder="/products/category" required />
-                            </div>
-                        </div>
-
+                        {/* Status (as before) ... */}
                         <div className="flex items-center space-x-2">
                             <Switch id="active" checked={isActive} onCheckedChange={setIsActive} />
                             <Label htmlFor="active">Active Status</Label>

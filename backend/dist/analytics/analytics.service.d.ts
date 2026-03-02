@@ -4,8 +4,8 @@ export declare class AnalyticsService {
     constructor(prisma: PrismaService);
     getDashboardStats(): Promise<{
         revenue: {
-            total: number;
-            today: number;
+            total: any;
+            today: any;
             change: number;
         };
         orders: {

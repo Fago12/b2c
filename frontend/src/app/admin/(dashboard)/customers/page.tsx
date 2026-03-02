@@ -19,7 +19,8 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { Search, ChevronLeft, ChevronRight, RefreshCw, Users, Shield, UserCheck, Eye } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 
 interface User {
     id: string;
@@ -72,8 +73,8 @@ export default function CustomersPage() {
             if (search) params.append("search", search);
 
             const [usersData, statsData] = await Promise.all([
-                fetchApi(`/users/admin/list?${params}`),
-                fetchApi("/users/admin/stats"),
+                fetchAdminApi(`/users/admin/list?${params}`),
+                fetchAdminApi("/users/admin/stats"),
             ]);
 
             setUsers(usersData.users);
@@ -92,7 +93,7 @@ export default function CustomersPage() {
 
     const openUserDetails = async (user: User) => {
         try {
-            const fullUser = await fetchApi(`/users/admin/${user.id}`);
+            const fullUser = await fetchAdminApi(`/users/admin/${user.id}`);
             setSelectedUser(fullUser);
             setSheetOpen(true);
         } catch (error) {
@@ -328,7 +329,7 @@ export default function CustomersPage() {
                                                         </p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="font-medium">₦{order.total.toLocaleString()}</p>
+                                                        <p className="font-medium">{formatPrice(order.total, 'NGN')}</p>
                                                         <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{order.status}</span>
                                                     </div>
                                                 </div>

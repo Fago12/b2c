@@ -16,14 +16,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentController = void 0;
 const common_1 = require("@nestjs/common");
 const stripe_service_1 = require("./stripe.service");
+const cart_service_1 = require("../cart/cart.service");
 let PaymentController = PaymentController_1 = class PaymentController {
     stripeService;
+    cartService;
     logger = new common_1.Logger(PaymentController_1.name);
-    constructor(stripeService) {
+    constructor(stripeService, cartService) {
         this.stripeService = stripeService;
+        this.cartService = cartService;
     }
-    async createPaymentIntent(body) {
-        return this.stripeService.createPaymentIntent(body.amount, 'usd', body.metadata);
+    getSessionId(req) {
+        return req.cookies?.['guest_session_id'];
+    }
+    async createPaymentIntent(req, body) {
+        const sessionId = body.sessionId || this.getSessionId(req);
+        if (!sessionId) {
+            throw new common_1.HttpException('No session found', common_1.HttpStatus.BAD_REQUEST);
+        }
+        const cart = await this.cartService.getCart(sessionId);
+        if (!cart || cart.items.length === 0) {
+            this.logger.warn(`Cart empty for session ${sessionId}`);
+            throw new common_1.HttpException('Cart is empty', common_1.HttpStatus.BAD_REQUEST);
+        }
+        this.logger.log(`Creating PaymentIntent for session ${sessionId}: ${cart.chargeTotal} ${cart.chargeCurrency} (Display: ${cart.displayTotal} ${cart.displayCurrency})`);
+        return this.stripeService.createPaymentIntent(cart.chargeTotal, cart.chargeCurrency, {
+            ...body.metadata,
+            sessionId: sessionId,
+            regionCode: cart.regionCode,
+            displayTotal: cart.displayTotal,
+            displayCurrency: cart.displayCurrency,
+        });
     }
     async updatePaymentIntent(body) {
         this.logger.log(`Received update for PI: ${body.paymentIntentId}`);
@@ -39,9 +61,10 @@ let PaymentController = PaymentController_1 = class PaymentController {
 exports.PaymentController = PaymentController;
 __decorate([
     (0, common_1.Post)('create-payment-intent'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "createPaymentIntent", null);
 __decorate([
@@ -53,6 +76,7 @@ __decorate([
 ], PaymentController.prototype, "updatePaymentIntent", null);
 exports.PaymentController = PaymentController = PaymentController_1 = __decorate([
     (0, common_1.Controller)('payments'),
-    __metadata("design:paramtypes", [stripe_service_1.StripeService])
+    __metadata("design:paramtypes", [stripe_service_1.StripeService,
+        cart_service_1.CartService])
 ], PaymentController);
 //# sourceMappingURL=payment.controller.js.map

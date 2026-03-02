@@ -11,7 +11,7 @@ export function HeroSection() {
             />
 
             <div className="relative z-10 container mx-auto px-4 text-center">
-                <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight drop-shadow-md">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-vogue font-bold text-white mb-6 tracking-tight drop-shadow-2xl">
                     Redefining Elegance
                 </h1>
                 <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-sm">

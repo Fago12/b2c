@@ -55,6 +55,27 @@ export class QueueService {
   }
 
   /**
+   * Send purchase receipt (rich template)
+   */
+  async sendPurchaseReceipt(
+    email: string,
+    orderId: string,
+    total: number,
+    items: any[],
+  ): Promise<void> {
+    await this.sendEmail(
+      {
+        to: email,
+        subject: `Order Receipt: ${orderId}`,
+        html: '',
+        template: 'purchase-receipt',
+        data: { orderId, total, items },
+      },
+      1,
+    );
+  }
+
+  /**
    * Send password reset email
    */
   async sendPasswordResetEmail(email: string, resetUrl: string): Promise<void> {

@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from '../orders/orders.module';
 import { CartModule } from '../cart/cart.module';
 import { MailModule } from '../mail/mail.module';
+import { QueueModule } from '../queues/queue.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MailModule } from '../mail/mail.module';
     OrdersModule,
     CartModule,
     MailModule,
+    QueueModule,
   ],
   controllers: [PaymentController, StripeController],
   providers: [StripeService],

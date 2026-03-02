@@ -1,28 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import {
-    Bell,
+    PanelLeftClose,
+    PanelLeftOpen,
     CircleUser,
-    Home,
-    LineChart,
-    Menu,
-    Package,
-    Package2,
     Search,
-    ShoppingCart,
-    Users,
+    Shield,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -32,55 +18,79 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileAdminSidebar } from "./AdminSidebar";
-import { authClient } from "@/lib/auth-client";
+import { adminAuthClient } from "@/lib/admin-auth-client";
 import { useRouter } from "next/navigation";
 
-export function AdminHeader() {
+interface AdminHeaderProps {
+    isCollapsed?: boolean;
+    onToggle?: () => void;
+}
+
+export function AdminHeader({ isCollapsed, onToggle }: AdminHeaderProps) {
     const router = useRouter();
-    const { data: session } = authClient.useSession();
+    const { data: session } = adminAuthClient.useSession();
 
     const handleLogout = async () => {
-        await authClient.signOut();
+        await adminAuthClient.signOut();
         router.push("/admin/login");
     };
 
     return (
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-            <MobileAdminSidebar />
-            <div className="w-full flex-1">
-                <form>
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Search products, orders, customers..."
-                            className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                        />
-                    </div>
-                </form>
+        <header className="flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+            <div className="flex items-center gap-3 lg:gap-4 shrink-0">
+                <MobileAdminSidebar />
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onToggle}
+                    className="hidden md:flex h-9 w-9 text-muted-foreground hover:text-accent-foreground transition-colors"
+                >
+                    {isCollapsed ? (
+                        <PanelLeftOpen className="h-5 w-5" />
+                    ) : (
+                        <PanelLeftClose className="h-5 w-5" />
+                    )}
+                    <span className="sr-only">Toggle Sidebar</span>
+                </Button>
             </div>
+
+            <div className="w-full flex-1">
+                <div className="relative max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Quick search..."
+                        className="w-full appearance-none bg-muted/50 pl-10 h-9 border-none focus-visible:ring-1 focus-visible:ring-[#480100] transition-all font-sans"
+                    />
+                </div>
+            </div>
+
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" size="icon" className="rounded-full">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-muted-foreground/20 overflow-hidden">
                         <CircleUser className="h-5 w-5" />
                         <span className="sr-only">Toggle user menu</span>
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>
-                        <div className="flex flex-col">
-                            <span>{session?.user?.name || "My Account"}</span>
-                            <span className="text-xs text-muted-foreground font-normal">{session?.user?.email}</span>
-                            <span className="text-xs text-muted-foreground font-normal uppercase mt-1">Role: {session?.user?.role}</span>
+                <DropdownMenuContent align="end" className="w-56 font-sans">
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1 px-1 py-1.5">
+                            <span className="text-sm font-bold leading-none">{session?.user?.name || "Admin User"}</span>
+                            <span className="text-xs text-muted-foreground font-normal leading-none truncate">{session?.user?.email}</span>
+                            <div className="flex items-center pt-2">
+                                <Shield className="h-3 w-3 mr-1 text-[#480100]" />
+                                <span className="text-[10px] font-bold text-[#480100] uppercase tracking-widest">{session?.user?.role}</span>
+                            </div>
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>Settings</DropdownMenuItem>
-                    <DropdownMenuItem>Support</DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer uppercase text-[10px] font-bold tracking-widest">Account Settings</DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer uppercase text-[10px] font-bold tracking-widest">Global Settings</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest">
+                        Logout
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </header>

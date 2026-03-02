@@ -11,10 +11,9 @@ export interface Announcement {
 export interface HeroSection {
     id: string;
     title: string;
-    subtitle?: string;
-    imageUrl: string;
-    ctaText: string;
-    ctaLink: string;
+    imageUrl?: string;
+    videoUrl?: string;
+    mediaType: 'IMAGE' | 'VIDEO';
     isActive: boolean;
 }
 
@@ -30,10 +29,16 @@ export interface Product { // Simplified product for cards
     id: string;
     name: string;
     slug: string;
-    price: number;
-    salePrice?: number;
+    basePriceUSD: number;
+    salePriceUSD?: number;
     images: string[];
     category: { name: string };
+    regional?: {
+        basePrice: number;
+        finalPrice: number;
+        currency: string;
+        symbol: string;
+    };
 }
 
 export interface FeaturedCollection {
@@ -55,7 +60,7 @@ export interface PromoBanner {
     isActive: boolean;
 }
 
-export type SectionType = 'ANNOUNCEMENT' | 'HERO' | 'MARQUEE' | 'FEATURED' | 'PROMO' | 'NEW_ARRIVALS';
+export type SectionType = 'ANNOUNCEMENT' | 'HERO' | 'MARQUEE' | 'FEATURED' | 'PROMO' | 'NEW_ARRIVALS' | 'MOST_POPULAR' | 'FLASH_SALE';
 
 export interface HomepageSection {
     id: string;

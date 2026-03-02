@@ -8,12 +8,16 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   app.enableCors({ 
-    origin: 'http://localhost:3000', 
+    origin: [
+      'http://localhost:3000', 
+      'http://127.0.0.1:3000',
+      'http://[::1]:3000'
+    ], 
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'stripe-signature', 'Idempotency-Key'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'stripe-signature', 'Idempotency-Key', 'x-admin-request', 'x-region-code'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
-  // Listen on 0.0.0.0 to avoid IPv4/IPv6 resolution issues
-  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
+  // Listen on all interfaces
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

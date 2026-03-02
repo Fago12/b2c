@@ -20,18 +20,21 @@ const stripe_1 = __importDefault(require("stripe"));
 const orders_service_1 = require("../orders/orders.service");
 const cart_service_1 = require("../cart/cart.service");
 const mail_service_1 = require("../mail/mail.service");
+const queue_service_1 = require("../queues/queue.service");
 let StripeService = StripeService_1 = class StripeService {
     configService;
     ordersService;
     cartService;
     mailService;
+    queueService;
     stripe;
     logger = new common_1.Logger(StripeService_1.name);
-    constructor(configService, ordersService, cartService, mailService) {
+    constructor(configService, ordersService, cartService, mailService, queueService) {
         this.configService = configService;
         this.ordersService = ordersService;
         this.cartService = cartService;
         this.mailService = mailService;
+        this.queueService = queueService;
         const apiKey = this.configService.get('STRIPE_SECRET_KEY');
         if (!apiKey) {
             this.logger.error('STRIPE_SECRET_KEY not found in environment variables');
@@ -47,7 +50,7 @@ let StripeService = StripeService_1 = class StripeService {
         try {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: Math.round(amount),
-                currency,
+                currency: currency.toLowerCase(),
                 metadata,
                 automatic_payment_methods: {
                     enabled: true,
@@ -57,6 +60,9 @@ let StripeService = StripeService_1 = class StripeService {
         }
         catch (error) {
             this.logger.error(`Error creating payment intent: ${error.message}`);
+            if (error.raw) {
+                this.logger.error(`Stripe Raw Error: ${JSON.stringify(error.raw, null, 2)}`);
+            }
             throw error;
         }
     }
@@ -127,13 +133,13 @@ let StripeService = StripeService_1 = class StripeService {
                 this.logger.log(`Cleared cart for session ${sessionId}`);
             }
             if (order.email) {
-                this.logger.log(`Sending email to ${order.email}`);
-                await this.mailService.sendPurchaseReceipt(order.email, order.id, order.total, order.items.map((item) => ({
+                this.logger.log(`Queueing receipt email for ${order.email}`);
+                await this.queueService.sendPurchaseReceipt(order.email, order.id, order.total, order.items.map((item) => ({
                     name: item.product?.name || 'Product',
                     quantity: item.quantity,
                     price: item.price
                 })));
-                this.logger.log('Email sent successfully');
+                this.logger.log('Receipt email job added to queue');
             }
         }
         catch (e) {
@@ -147,6 +153,7 @@ exports.StripeService = StripeService = StripeService_1 = __decorate([
     __metadata("design:paramtypes", [config_1.ConfigService,
         orders_service_1.OrdersService,
         cart_service_1.CartService,
-        mail_service_1.MailService])
+        mail_service_1.MailService,
+        queue_service_1.QueueService])
 ], StripeService);
 //# sourceMappingURL=stripe.service.js.map

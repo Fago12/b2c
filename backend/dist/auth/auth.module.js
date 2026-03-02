@@ -27,7 +27,7 @@ exports.AuthModule = AuthModule = __decorate([
         imports: [
             users_module_1.UsersModule,
             prisma_module_1.PrismaModule,
-            orders_module_1.OrdersModule,
+            (0, common_1.forwardRef)(() => orders_module_1.OrdersModule),
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
                 secret: jwt_strategy_1.jwtConstants.secret,

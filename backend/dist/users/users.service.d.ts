@@ -73,16 +73,17 @@ export declare class UsersService {
     }>;
     findAllAdmin(params: {
         search?: string;
-        role?: Role;
+        role?: Role | string;
         page?: number;
         limit?: number;
     }): Promise<{
         users: {
+            isVerified: boolean;
             id: string;
             email: string;
+            emailVerified: boolean;
             createdAt: Date;
             role: string;
-            isVerified: boolean;
             _count: {
                 orders: number;
             };
@@ -97,16 +98,23 @@ export declare class UsersService {
     findById(id: string): Promise<{
         id: string;
         email: string;
+        emailVerified: boolean;
         createdAt: Date;
         role: string;
         isVerified: boolean;
         orders: ({
             items: {
                 id: string;
-                orderId: string;
+                weightKG: number | null;
                 productId: string;
+                variantId: string | null;
                 quantity: number;
+                customization: Prisma.JsonValue | null;
                 price: number;
+                exchangeRateUsed: string;
+                unitPriceUSD: number;
+                unitPriceFinal: number;
+                orderId: string;
             }[];
         } & {
             id: string;
@@ -114,9 +122,20 @@ export declare class UsersService {
             createdAt: Date;
             userId: string | null;
             total: number;
-            status: import(".prisma/client").$Enums.OrderStatus;
-            paymentId: string | null;
+            currency: string;
+            isCustomOrder: boolean;
+            customerPhone: string | null;
             shippingAddress: Prisma.JsonValue;
+            regionCode: string;
+            exchangeRateUsed: string;
+            chargeCurrency: string;
+            chargeTotal: number;
+            status: import(".prisma/client").$Enums.OrderStatus;
+            displayCurrency: string;
+            displayTotal: number;
+            totalUSD: number;
+            paymentId: string | null;
+            shippingCost: number;
         })[];
     } | null>;
     updateRole(id: string, role: Role): Promise<{
@@ -128,6 +147,7 @@ export declare class UsersService {
         name: string | null;
         id: string;
         email: string;
+        emailVerified: boolean;
         image: string | null;
         createdAt: Date;
         role: string;

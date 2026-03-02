@@ -3,34 +3,54 @@ import { Prisma } from '@prisma/client';
 export declare class CategoriesService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(createCategoryDto: Prisma.CategoryCreateInput): Prisma.Prisma__CategoryClient<{
+    create(createCategoryDto: Prisma.CategoryCreateInput): Promise<{
         name: string;
         id: string;
-        description: string | null;
         slug: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    findAll(): Prisma.PrismaPromise<{
+        description: string | null;
+        isActive: boolean;
+        isComingSoon: boolean;
+        displayOrder: number;
+        imageUrl: string | null;
+    }>;
+    findAll(isActive?: boolean): Prisma.PrismaPromise<{
         name: string;
         id: string;
-        description: string | null;
         slug: string;
+        description: string | null;
+        isActive: boolean;
+        isComingSoon: boolean;
+        displayOrder: number;
+        imageUrl: string | null;
     }[]>;
     findOne(id: string): Prisma.Prisma__CategoryClient<{
         name: string;
         id: string;
-        description: string | null;
         slug: string;
+        description: string | null;
+        isActive: boolean;
+        isComingSoon: boolean;
+        displayOrder: number;
+        imageUrl: string | null;
     } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
-    update(id: string, updateCategoryDto: Prisma.CategoryUpdateInput): Prisma.Prisma__CategoryClient<{
+    update(id: string, updateCategoryDto: Prisma.CategoryUpdateInput): Promise<{
         name: string;
         id: string;
-        description: string | null;
         slug: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+        description: string | null;
+        isActive: boolean;
+        isComingSoon: boolean;
+        displayOrder: number;
+        imageUrl: string | null;
+    }>;
     remove(id: string): Prisma.Prisma__CategoryClient<{
         name: string;
         id: string;
-        description: string | null;
         slug: string;
+        description: string | null;
+        isActive: boolean;
+        isComingSoon: boolean;
+        displayOrder: number;
+        imageUrl: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
 }

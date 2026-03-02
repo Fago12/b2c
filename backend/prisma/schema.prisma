@@ -7,18 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --------------------------------------------------------
-// Better Auth Models
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// Better Auth Models
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// Better Auth Models
-// --------------------------------------------------------
-
 model User {
   id            String   @id @default(cuid()) @map("_id")
   name          String?
@@ -57,6 +45,7 @@ model User {
   // E-commerce Relations 
   orders  Order[]
   reviews Review[]
+  cart    Cart?
 
   // Legacy Enum Role Support
   legacyRole Role @default(CUSTOMER)
@@ -180,11 +169,15 @@ model Invitation {
 // --------------------------------------------------------
 
 model Category {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  slug        String    @unique
-  description String?
-  products    Product[]
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  slug         String    @unique
+  description  String?
+  isActive     Boolean   @default(true)
+  isComingSoon Boolean   @default(false)
+  displayOrder Int       @default(0)
+  imageUrl     String?
+  products     Product[]
 
   @@map("category")
 }
@@ -204,52 +197,181 @@ model Coupon {
   @@map("coupon")
 }
 
+model Region {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  code      String   @unique // US, NG, GH, etc.
+  currency  String   @default("USD")
+  symbol    String   @default("$")
+  isActive  Boolean  @default(true)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ProductRegionalPrice ProductRegionalPrice[]
+  Cart                 Cart[]
+  Order                Order[]
+
+  @@map("region")
+}
+
+model ExchangeRate {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  currency  String   @unique // NGN, GHS, etc.
+  rate      String   // Rate against USD (Stored as string for precision)
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("exchange_rate")
+}
+
+model Product {
+  id                   String      @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  description          String
+  basePriceUSD         Int         // Base price in USD (cents)
+  salePriceUSD         Int?        // (cents)
+  stock                Int
+  isActive             Boolean     @default(true)
+  images               String[]
+  categoryId           String      @db.ObjectId
+  slug                 String      @unique
+  tags                 String[]
+  attributes           Json?
+  hasVariants          Boolean     @default(false)
+  weightKG             Float       @default(0)
+  
+  // Overhaul Fields
+  options              Json?       // Key-based options: {"Color": ["Red", "Blue"], "Size": ["S", "M"]}
+  variants             Json?       // Embedded variants: [{"sku": "..", "priceUSD": 5000, "options": {"Color": "Red"}}]
+  customizationOptions Json? // { allowEmbroidery: boolean, embroideryPriceUSD: number, allowCustomColor: boolean, allowInstructions: boolean }
+  
+  regionalPrices       ProductRegionalPrice[]
+  
+  createdAt            DateTime    @default(now())
+  orderItems           OrderItem[]
+  category             Category    @relation(fields: [categoryId], references: [id])
+  reviews              Review[]
+  cartItems            CartItem[]
+
+  @@map("product")
+}
+
+model ProductRegionalPrice {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String @db.ObjectId
+  regionCode String // US, NG, etc.
+  price      Int    // Price in regional currency (cents)
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  region     Region  @relation(fields: [regionCode], references: [code])
+
+  @@unique([productId, regionCode])
+  @@map("product_regional_price")
+}
+
+model Cart {
+  id               String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String?    @unique
+  regionCode       String
+  currency         String
+  exchangeRateUsed String     // Stored as string
+  
+  // Deterministic Charge Persistence
+  chargeCurrency   String?
+  chargeTotal      Int?       // (cents)
+  displaySubtotal  Int?       // (cents)
+
+  items            CartItem[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  user             User?      @relation(fields: [userId], references: [id])
+  region           Region     @relation(fields: [regionCode], references: [code])
+
+  @@map("cart")
+}
+
+model CartItem {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  cartId        String  @db.ObjectId
+  productId     String  @db.ObjectId
+  quantity      Int
+  customization Json?
+  cart          Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product       Product @relation(fields: [productId], references: [id])
+
+  @@map("cart_item")
+}
+
 model Order {
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String? // Removed @db.ObjectId to match User.id
-  status          OrderStatus
-  total           Int
-  paymentId       String?
-  createdAt       DateTime    @default(now())
-  email           String
-  shippingAddress Json
-  user            User?       @relation(fields: [userId], references: [id])
-  items           OrderItem[]
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String?
+  status           OrderStatus
+  
+  // Architectural Dual-Currency Fields (Unambiguous)
+  displayCurrency  String      @default("USD")
+  displayTotal     Int         @default(0) // (cents)
+  chargeCurrency   String      @default("USD")
+  chargeTotal      Int         @default(0) // (cents)
+  totalUSD         Int         @default(0) // (canonical base in cents)
+  
+  // Legacy / Basic Totals
+  total            Int         @default(0) // (cents)
+  currency         String      @default("USD")
+  
+  paymentId        String?
+  createdAt        DateTime    @default(now())
+  email            String
+  shippingAddress  Json
+  user             User?       @relation(fields: [userId], references: [id])
+  items            OrderItem[]
+
+  // Commerce Strategy Fields
+  regionCode       String
+  exchangeRateUsed String
+  shippingCost     Int         @default(0) // (cents)
+  isCustomOrder    Boolean     @default(false)
+  customerPhone    String?
+  
+  region           Region      @relation(fields: [regionCode], references: [code])
 
   @@map("order")
 }
 
 model OrderItem {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  orderId   String  @db.ObjectId
-  productId String  @db.ObjectId
-  quantity  Int
-  price     Int
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId          String  @db.ObjectId
+  productId        String  @db.ObjectId
+  variantId        String?
+  quantity         Int
+  unitPriceUSD     Int     // (cents)
+  exchangeRateUsed String
+  unitPriceFinal   Int     // Final unit price (after regional override or FX)
+  weightKG         Float?
+  
+  price            Int     // Legacy: Total line price (final * qty)
+  customization    Json?   // Store customization snapshot
+  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product          Product @relation(fields: [productId], references: [id])
 
   @@map("order_item")
 }
 
-model Product {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  price       Int
-  salePrice   Int?
-  stock       Int
-  isActive    Boolean     @default(true)
-  images      String[]
-  categoryId  String      @db.ObjectId
-  slug        String      @unique
-  tags        String[]
-  attributes  Json?
-  createdAt   DateTime    @default(now())
-  orderItems  OrderItem[]
-  category    Category    @relation(fields: [categoryId], references: [id])
-  reviews     Review[]
+model ShippingZone {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  name        String           // US-EAST, Nigeria-Default, etc.
+  type        ShippingZoneType
+  countryCode String           // US, NG, etc.
+  states      String[]         // ["NY", "NJ"] or ["*"]
+  flatRateUSD Int              // Base rate in USD
+  
+  @@unique([type, countryCode])
+  @@map("shipping_zone")
+}
 
-  @@map("product")
+enum ShippingZoneType {
+  REGIONAL_FLAT
+  COUNTRY_DEFAULT
+  GLOBAL_DEFAULT
 }
 
 model Review {
@@ -257,7 +379,7 @@ model Review {
   rating    Int
   comment   String
   productId String   @db.ObjectId
-  userId    String // Removed @db.ObjectId to match User.id
+  userId    String
   createdAt DateTime @default(now())
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -271,16 +393,54 @@ model StoreSettings {
   description  String?
   currency     String   @default("NGN")
   supportEmail String?
-  socialLinks  Json? // { facebook: string, twitter: string, instagram: string }
+  socialLinks  Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@map("store_settings")
 }
 
-// --------------------------------------------------------
-// Homepage Content Models (Phase 12)
-// --------------------------------------------------------
+model ShippingConfig {
+  id                            String   @id @default(auto()) @map("_id") @db.ObjectId
+  usFlatRateInCents             Int      @default(1500)
+  nigeriaFlatRateInCents        Int      @default(2500)
+  indiaFlatRateInCents          Int      @default(2500)
+  ghanaFlatRateInCents          Int      @default(2500)
+  chinaFlatRateInCents          Int      @default(2500)
+  internationalFlatRateInCents  Int      @default(2500) // "Others" category
+  updatedAt                     DateTime @updatedAt
+
+  @@map("shipping_config")
+}
+
+model CmsPage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug      String   @unique
+  title     String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cms_page")
+}
+
+model GalleryItem {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  type         GalleryItemType
+  url          String
+  tag          String?
+  displayOrder Int             @default(0)
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+
+  @@map("gallery_item")
+}
+
+enum GalleryItemType {
+  IMAGE
+  VIDEO
+}
 
 enum SectionType {
   ANNOUNCEMENT
@@ -289,6 +449,9 @@ enum SectionType {
   FEATURED
   PROMO
   NEW_ARRIVALS
+  MOST_POPULAR
+  FLASH_SALE
+  CATEGORIES
 }
 
 model HomepageSection {
@@ -321,22 +484,21 @@ model Announcement {
 }
 
 model HeroSection {
-  id        String   @id @default(cuid()) @map("_id")
-  title     String
-  subtitle  String?
-  imageUrl  String
-  ctaText   String
-  ctaLink   String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid()) @map("_id")
+  title      String   // Massive Headline
+  imageUrl   String?
+  videoUrl   String?
+  mediaType  String   @default("IMAGE") // IMAGE | VIDEO
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("hero_section")
 }
 
 model MarqueeItem {
   id        String   @id @default(cuid()) @map("_id")
-  icon      String?  // Lucide icon name
+  icon      String?
   text      String
   order     Int      @default(0)
   isActive  Boolean  @default(true)
@@ -351,7 +513,7 @@ model FeaturedCollection {
   title       String
   description String?
   isActive    Boolean  @default(true)
-  productIds  String[] @db.ObjectId // Manual reference
+  productIds  String[] @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -365,7 +527,7 @@ model PromoBanner {
   imageUrl       String
   ctaText        String
   ctaLink        String
-  targetAudience String   // MEN | WOMEN | ALL
+  targetAudience String
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -388,7 +550,6 @@ enum OrderStatus {
   REFUNDED
 }
 
-// Keeping Role enum if needed for logic, though User model uses String for better-auth compatibility
 enum Role {
   SUPER_ADMIN
   ADMIN

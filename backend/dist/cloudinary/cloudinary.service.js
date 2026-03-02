@@ -56,6 +56,18 @@ let CloudinaryService = class CloudinaryService {
             streamifier.createReadStream(file.buffer).pipe(uploadStream);
         });
     }
+    uploadVideo(file) {
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary_1.v2.uploader.upload_stream({ resource_type: 'video' }, (error, result) => {
+                if (error)
+                    return reject(error);
+                if (!result)
+                    return reject(new Error('Cloudinary upload failed'));
+                resolve(result);
+            });
+            streamifier.createReadStream(file.buffer).pipe(uploadStream);
+        });
+    }
     async deleteImage(publicId) {
         return cloudinary_1.v2.uploader.destroy(publicId);
     }

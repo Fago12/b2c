@@ -6,16 +6,18 @@ import Link from "next/link";
 
 interface AnnouncementBarProps {
     announcement: Announcement | null;
+    isScrolled?: boolean;
 }
 
-export default function AnnouncementBar({ announcement }: AnnouncementBarProps) {
+export default function AnnouncementBar({ announcement, isScrolled = false }: AnnouncementBarProps) {
     if (!announcement || !announcement.isActive) return null;
 
     return (
         <div
-            className="w-full py-2.5 px-4 text-center text-sm font-medium flex items-center justify-center gap-2 relative z-50 transition-colors"
+            className={`w-full py-2.5 px-4 text-center text-sm font-medium flex items-center justify-center gap-2 relative z-50 transition-all duration-500 ease-in-out ${isScrolled ? "backdrop-blur-md opacity-90 shadow-sm" : ""
+                }`}
             style={{
-                backgroundColor: announcement.backgroundColor,
+                backgroundColor: isScrolled ? `${announcement.backgroundColor}e6` : announcement.backgroundColor,
                 color: announcement.textColor
             }}
         >

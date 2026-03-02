@@ -11,12 +11,24 @@ const common_1 = require("@nestjs/common");
 const cart_controller_1 = require("./cart.controller");
 const cart_service_1 = require("./cart.service");
 const prisma_module_1 = require("../prisma/prisma.module");
+const pricing_module_1 = require("../commerce/pricing/pricing.module");
+const currency_module_1 = require("../commerce/currency/currency.module");
+const shipping_module_1 = require("../commerce/shipping/shipping.module");
+const region_module_1 = require("../commerce/region/region.module");
+const customization_module_1 = require("../commerce/customization/customization.module");
 let CartModule = class CartModule {
 };
 exports.CartModule = CartModule;
 exports.CartModule = CartModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [
+            prisma_module_1.PrismaModule,
+            pricing_module_1.CommercePricingModule,
+            currency_module_1.CommerceCurrencyModule,
+            shipping_module_1.CommerceShippingModule,
+            region_module_1.CommerceRegionModule,
+            customization_module_1.CommerceCustomizationModule,
+        ],
         controllers: [cart_controller_1.CartController],
         providers: [cart_service_1.CartService],
         exports: [cart_service_1.CartService],

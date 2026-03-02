@@ -5,9 +5,10 @@ import { HomepageService } from './homepage.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { AuthModule } from '../auth/auth.module';
+import { CommercePricingModule } from '../commerce/pricing/pricing.module';
 
 @Module({
-  imports: [PrismaModule, CloudinaryModule, AuthModule],
+  imports: [PrismaModule, CloudinaryModule, AuthModule, CommercePricingModule],
   controllers: [HomepageController, AdminHomepageController],
   providers: [HomepageService],
 })

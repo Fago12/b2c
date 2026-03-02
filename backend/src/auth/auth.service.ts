@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Logger, Inject, forwardRef } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -15,6 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
     private resendService: ResendService,
     private prisma: PrismaService,
+    @Inject(forwardRef(() => OrdersService))
     private ordersService: OrdersService,
   ) {}
 

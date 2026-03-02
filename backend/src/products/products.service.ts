@@ -1,30 +1,83 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { CommercePricingService } from '../commerce/pricing/pricing.service';
+import { RegionService } from '../commerce/region/region.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private pricingService: CommercePricingService,
+    private regionService: RegionService,
+  ) {}
 
   create(createProductDto: Prisma.ProductCreateInput) {
     return this.prisma.product.create({ data: createProductDto });
   }
 
-  findAll() {
-    return this.prisma.product.findMany({
+  async findAll(regionCode?: string) {
+    const products = await this.prisma.product.findMany({
       include: { category: true },
+      where: { isActive: true },
     });
+
+    const defaultRegion = await this.regionService.getDefaultRegion();
+    const activeRegionCode = regionCode || defaultRegion?.code || 'US';
+
+    return Promise.all(
+      products.map(async (p) => {
+        const regional = await this.pricingService.getProductPrice(p.id, activeRegionCode);
+        return {
+          ...p,
+          regional,
+        };
+      }),
+    );
   }
 
-  findOne(id: string) {
-    return this.prisma.product.findUnique({ 
+  async findOne(id: string, regionCode?: string) {
+    const product = await this.prisma.product.findUnique({
       where: { id },
-      include: { category: true },
+      include: { 
+        category: true,
+        _count: {
+          select: { orderItems: true }
+        }
+      },
     });
+    if (!product) throw new NotFoundException('Product not found');
+
+    const defaultRegion = await this.regionService.getDefaultRegion();
+    const activeRegionCode = regionCode || defaultRegion?.code || 'US';
+    const regional = await this.pricingService.getProductPrice(product.id, activeRegionCode);
+
+    return {
+      ...product,
+      regional,
+    };
   }
-  
-  findBySlug(slug: string) {
-    return this.prisma.product.findUnique({ where: { slug } });
+
+  async findOneBySlug(slug: string, regionCode?: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { slug },
+      include: { 
+        category: true,
+        _count: {
+          select: { orderItems: true }
+        }
+      },
+    });
+    if (!product || !product.isActive) throw new NotFoundException('Product not found or inactive');
+
+    const defaultRegion = await this.regionService.getDefaultRegion();
+    const activeRegionCode = regionCode || defaultRegion?.code || 'US';
+    const regional = await this.pricingService.getProductPrice(product.id, activeRegionCode);
+
+    return {
+      ...product,
+      regional,
+    };
   }
 
   update(id: string, updateProductDto: Prisma.ProductUpdateInput) {
@@ -66,7 +119,12 @@ export class ProductsService {
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
-        include: { category: true },
+        include: { 
+          category: true,
+          _count: {
+            select: { orderItems: true }
+          }
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -88,27 +146,25 @@ export class ProductsService {
   async createProduct(data: {
     name: string;
     description: string;
-    price: number;
+    basePriceUSD: number;
+    salePriceUSD?: number;
     stock: number;
     categoryId: string;
     images: string[];
+    slug: string;
     tags?: string[];
     attributes?: any;
+    customizationOptions?: any;
+    options?: any;
+    variants?: any;
+    isActive?: boolean;
   }) {
-    const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    
+    const { categoryId, ...productData } = data;
     return this.prisma.product.create({
       data: {
-        name: data.name,
-        description: data.description,
-        price: data.price,
-        stock: data.stock,
-        images: data.images,
-        tags: data.tags || [],
-        attributes: data.attributes || {},
-        slug: `${slug}-${Date.now()}`,
-        category: { connect: { id: data.categoryId } },
-      },
+        ...productData,
+        category: { connect: { id: categoryId } },
+      } as any, // Cast to any to bypass strict type check if schema is in flux
       include: { category: true },
     });
   }
@@ -116,18 +172,24 @@ export class ProductsService {
   async updateProduct(id: string, data: {
     name?: string;
     description?: string;
-    price?: number;
+    basePriceUSD?: number;
+    salePriceUSD?: number;
     stock?: number;
     categoryId?: string;
     images?: string[];
     tags?: string[];
     attributes?: any;
+    customizationOptions?: any;
+    options?: any;
+    variants?: any;
+    isActive?: boolean;
+    slug?: string;
   }) {
-    const updateData: any = { ...data };
+    const { categoryId, ...productData } = data;
+    const updateData: any = { ...productData };
     
-    if (data.categoryId) {
-      updateData.category = { connect: { id: data.categoryId } };
-      delete updateData.categoryId;
+    if (categoryId) {
+      updateData.category = { connect: { id: categoryId } };
     }
 
     return this.prisma.product.update({

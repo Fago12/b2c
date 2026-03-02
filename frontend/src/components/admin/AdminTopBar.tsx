@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Bell, User, LogOut, ChevronDown } from "lucide-react";
+import { Search, Bell, LogOut, ChevronDown, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,10 +12,16 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/context/AuthContext";
+import { adminAuthClient } from "@/lib/admin-auth-client";
 
 export function AdminTopBar() {
-    const { user, logout } = useAuth();
+    const { data: session } = adminAuthClient.useSession();
+    const user = session?.user;
+
+    const logout = async () => {
+        await adminAuthClient.signOut();
+        window.location.href = "/admin/login";
+    };
     const [searchQuery, setSearchQuery] = useState("");
 
     return (
@@ -55,7 +61,7 @@ export function AdminTopBar() {
                             </div>
                             <div className="px-3 py-2 hover:bg-slate-50 cursor-pointer">
                                 <p className="text-sm font-medium">New Order</p>
-                                <p className="text-xs text-muted-foreground">Order #10234 received - ₦45,000</p>
+                                <p className="text-xs text-muted-foreground">Order #10234 received - $45.00</p>
                             </div>
                             <div className="px-3 py-2 hover:bg-slate-50 cursor-pointer">
                                 <p className="text-sm font-medium">Payment Failed</p>
@@ -73,7 +79,7 @@ export function AdminTopBar() {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="flex items-center gap-2">
                             <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center">
-                                <User className="h-4 w-4" />
+                                <UserIcon className="h-4 w-4" />
                             </div>
                             <span className="text-sm font-medium hidden md:inline">{user?.email || "Admin"}</span>
                             <ChevronDown className="h-4 w-4" />

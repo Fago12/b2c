@@ -24,6 +24,13 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        brand: {
+          maroon: "#480100",
+          beige: "#E6DED3",
+          black: "#0A0A0A",
+          peach: "#F7DFB9",
+          green: "#013821",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -52,6 +59,11 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      fontFamily: {
+        sans: ["var(--font-garant-pro)", "var(--font-geist-sans)", "ui-sans-serif", "system-ui"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular"],
+        vogue: ["var(--font-classy-vogue)", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

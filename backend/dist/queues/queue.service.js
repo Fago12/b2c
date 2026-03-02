@@ -48,6 +48,15 @@ let QueueService = QueueService_1 = class QueueService {
             data: { orderId, total, name },
         }, 1);
     }
+    async sendPurchaseReceipt(email, orderId, total, items) {
+        await this.sendEmail({
+            to: email,
+            subject: `Order Receipt: ${orderId}`,
+            html: '',
+            template: 'purchase-receipt',
+            data: { orderId, total, items },
+        }, 1);
+    }
     async sendPasswordResetEmail(email, resetUrl) {
         await this.sendEmail({
             to: email,

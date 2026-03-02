@@ -11,6 +11,7 @@ export declare class AdminService {
         name: string | null;
         id: string;
         email: string;
+        emailVerified: boolean;
         image: string | null;
         createdAt: Date;
         role: string;

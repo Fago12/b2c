@@ -121,6 +121,7 @@ let UsersService = class UsersService {
                 select: {
                     id: true,
                     email: true,
+                    emailVerified: true,
                     role: true,
                     isVerified: true,
                     createdAt: true,
@@ -132,8 +133,12 @@ let UsersService = class UsersService {
             }),
             this.prisma.user.count({ where }),
         ]);
+        const mappedUsers = users.map(user => ({
+            ...user,
+            isVerified: user.emailVerified || user.isVerified
+        }));
         return {
-            users,
+            users: mappedUsers,
             pagination: {
                 page,
                 limit,
@@ -143,11 +148,12 @@ let UsersService = class UsersService {
         };
     }
     async findById(id) {
-        return this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: { id },
             select: {
                 id: true,
                 email: true,
+                emailVerified: true,
                 role: true,
                 isVerified: true,
                 createdAt: true,
@@ -158,6 +164,10 @@ let UsersService = class UsersService {
                 },
             },
         });
+        if (user) {
+            user.isVerified = user.emailVerified || user.isVerified;
+        }
+        return user;
     }
     async updateRole(id, role) {
         return this.prisma.user.update({
@@ -177,6 +187,7 @@ let UsersService = class UsersService {
                 email: true,
                 role: true,
                 isVerified: true,
+                emailVerified: true,
                 createdAt: true,
                 image: true,
             },
@@ -187,9 +198,17 @@ let UsersService = class UsersService {
         const [total, admins, customers, verified, unverified] = await Promise.all([
             this.prisma.user.count(),
             this.prisma.user.count({ where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } } }),
-            this.prisma.user.count({ where: { role: 'CUSTOMER' } }),
-            this.prisma.user.count({ where: { isVerified: true } }),
-            this.prisma.user.count({ where: { isVerified: false } }),
+            this.prisma.user.count({ where: { role: { in: ['CUSTOMER', 'user'] } } }),
+            this.prisma.user.count({
+                where: {
+                    OR: [{ isVerified: true }, { emailVerified: true }]
+                }
+            }),
+            this.prisma.user.count({
+                where: {
+                    AND: [{ isVerified: false }, { emailVerified: false }]
+                }
+            }),
         ]);
         return { total, admins, customers, verified, unverified };
     }

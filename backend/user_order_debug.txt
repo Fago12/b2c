@@ -1,0 +1,22 @@
+USERS IN DB:
+ID: cmlecnxyb0000byi70sehbqmk | Email: [test-debug-user@gmail.com] | Role: user
+ID: cmlgfxdc30000s0noefwcdvo0 | Email: [admin@store.com] | Role: SUPER_ADMIN
+ID: cmlgk1r920000qdukwxsigtko | Email: [test-invite@store.com] | Role: ADMIN
+ID: cmlgm2zoc000064mxn5s50gyl | Email: [stephenfagoroye@gmail.com] | Role: ADMIN
+ID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Role: user
+
+ORDERS IN DB:
+ID: 698987569b3f4e29e4c811af | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T07:05:58.046Z
+ID: 698a35b54913b6f85bb64e70 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T19:29:57.281Z
+ID: 698a373f0aee8f20ab1341df | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T19:36:31.144Z
+ID: 698a3988f91622e993bd2855 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T19:46:16.793Z
+ID: 698a3ae8f89f78d08bcaccd4 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T19:52:08.181Z
+ID: 698a3bd2f286ec51544c4234 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T19:56:02.909Z
+ID: 698a3cdc114a7f4d7100989d | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T20:00:28.348Z
+ID: 698a3dcd114a7f4d7100989f | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-09T20:04:29.380Z
+ID: 698af841d57273fbcc063fc6 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-10T09:20:01.534Z
+ID: 698afa225cbbc5464bc95ff5 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-10T09:28:02.600Z
+ID: 698afadd5cbbc5464bc95ff8 | UserID: PljscxJALYyaXfdfWt2u3LNszDKnraQM | Email: [ayoyemisola@gmail.com] | Created: 2026-02-10T09:31:09.166Z
+ID: 698dd1fa98544a4a06c8f899 | UserID: cmlgfxdc30000s0noefwcdvo0 | Email: [ayoyemisola@gmail.com] | Created: 2026-02-12T13:13:30.566Z
+ID: 698e5b02f7c76dbbc9095063 | UserID: cmlgfxdc30000s0noefwcdvo0 | Email: [ayoyemisola@gmail.com] | Created: 2026-02-12T22:58:10.209Z
+ID: 698e5e305faabaa8240e4bbb | UserID: cmlgfxdc30000s0noefwcdvo0 | Email: [ayoyemisola@gmail.com] | Created: 2026-02-12T23:11:44.515Z

@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, TrendingUp, DollarSign, ShoppingCart, Package, Users, Star } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 
 interface AnalyticsData {
     orders: {
@@ -38,10 +39,10 @@ export default function AnalyticsPage() {
         setLoading(true);
         try {
             const [ordersStats, productsStats, customersStats, reviewsStats] = await Promise.all([
-                fetchApi("/orders/admin/stats"),
-                fetchApi("/products/admin/stats"),
-                fetchApi("/users/admin/stats"),
-                fetchApi("/reviews/admin/stats").catch(() => ({ total: 0, averageRating: 0 })),
+                fetchAdminApi("/orders/admin/stats"),
+                fetchAdminApi("/products/admin/stats"),
+                fetchAdminApi("/users/admin/stats"),
+                fetchAdminApi("/reviews/admin/stats").catch(() => ({ total: 0, averageRating: 0 })),
             ]);
 
             setData({
@@ -104,7 +105,7 @@ export default function AnalyticsPage() {
                         </div>
                         <div>
                             <p className="text-green-100">Total Revenue</p>
-                            <p className="text-4xl font-bold">₦{(data.orders.totalRevenue || 0).toLocaleString()}</p>
+                            <p className="text-4xl font-bold">{formatPrice(data.orders.totalRevenue || 0, 'NGN')}</p>
                         </div>
                     </div>
                 </CardContent>

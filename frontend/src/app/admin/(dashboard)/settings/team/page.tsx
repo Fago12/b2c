@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Mail, Shield, User } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 
 interface TeamMember {
     id: string;
@@ -24,7 +24,7 @@ export default function TeamPage() {
     const fetchTeam = useCallback(async () => {
         setFetching(true);
         try {
-            const data = await fetchApi("/admin/team");
+            const data = await fetchAdminApi("/admin/team");
             setMembers(data);
         } catch (error) {
             console.error("Failed to fetch team:", error);
@@ -43,7 +43,7 @@ export default function TeamPage() {
         setMessage(null);
 
         try {
-            const data = await fetchApi("/admin/invite", {
+            const data = await fetchAdminApi("/admin/invite", {
                 method: "POST",
                 body: JSON.stringify({ email: inviteEmail }),
             });

@@ -34,9 +34,19 @@ let CartController = class CartController {
         }
         return sessionId;
     }
+    getRegionCode(req) {
+        return req.headers['x-region-code'] || req.cookies?.['region_code'] || 'US';
+    }
     async getCart(req, res) {
         const sessionId = this.getSessionId(req, res);
-        const cart = await this.cartService.getCart(sessionId);
+        const regionCode = this.getRegionCode(req);
+        console.log(`[CartController.getCart] Session: ${sessionId}, Region: ${regionCode}`);
+        const cart = await this.cartService.getCart(sessionId, regionCode);
+        if (cart.regionCode !== regionCode && cart.items.length > 0) {
+            console.log(`[CartController.getCart] Region mismatch (${cart.regionCode} -> ${regionCode}). Recalculating...`);
+            cart.regionCode = regionCode;
+            await this.cartService.recalculateCart(sessionId, cart);
+        }
         const totals = this.cartService.getCartTotal(cart);
         return {
             ...cart,
@@ -46,8 +56,10 @@ let CartController = class CartController {
     }
     async addItem(req, res, body) {
         const sessionId = this.getSessionId(req, res);
+        const regionCode = this.getRegionCode(req);
+        console.log(`[CartController.addItem] Session: ${sessionId}, Region: ${regionCode}, Product: ${body.productId}`);
         try {
-            const cart = await this.cartService.addItem(sessionId, body.productId, body.quantity || 1);
+            const cart = await this.cartService.addItem(sessionId, body.productId, body.quantity || 1, body.customization, regionCode, body.variantId);
             const totals = this.cartService.getCartTotal(cart);
             return {
                 ...cart,
@@ -61,7 +73,8 @@ let CartController = class CartController {
     async updateItem(req, res, productId, body) {
         const sessionId = this.getSessionId(req, res);
         try {
-            const cart = await this.cartService.updateQuantity(sessionId, productId, body.quantity);
+            const regionCode = this.getRegionCode(req);
+            const cart = await this.cartService.updateQuantity(sessionId, productId, body.quantity, regionCode, body.variantId);
             const totals = this.cartService.getCartTotal(cart);
             return {
                 ...cart,
@@ -74,7 +87,9 @@ let CartController = class CartController {
     }
     async removeItem(req, res, productId) {
         const sessionId = this.getSessionId(req, res);
-        const cart = await this.cartService.removeItem(sessionId, productId);
+        const regionCode = this.getRegionCode(req);
+        const variantId = req.query.variantId;
+        const cart = await this.cartService.removeItem(sessionId, productId, regionCode, variantId);
         const totals = this.cartService.getCartTotal(cart);
         return {
             ...cart,
@@ -88,6 +103,8 @@ let CartController = class CartController {
             items: [],
             subtotal: 0,
             itemCount: 0,
+            shippingCost: 0,
+            total: 0,
             updatedAt: new Date(),
         };
     }
@@ -96,7 +113,23 @@ let CartController = class CartController {
         if (!guestSessionId) {
             throw new common_1.HttpException('No guest cart found', common_1.HttpStatus.BAD_REQUEST);
         }
-        const cart = await this.cartService.mergeCart(guestSessionId, body.userSessionId);
+        const regionCode = this.getRegionCode(req);
+        const cart = await this.cartService.mergeCart(guestSessionId, body.userSessionId, regionCode);
+        const totals = this.cartService.getCartTotal(cart);
+        return {
+            ...cart,
+            ...totals,
+        };
+    }
+    async updateRegion(req, res, body) {
+        const sessionId = this.getSessionId(req, res);
+        const cart = await this.cartService.setRegion(sessionId, body.regionCode);
+        res.cookie('region_code', body.regionCode, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
         const totals = this.cartService.getCartTotal(cart);
         return {
             ...cart,
@@ -158,6 +191,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], CartController.prototype, "mergeCart", null);
+__decorate([
+    (0, common_1.Post)('region'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], CartController.prototype, "updateRegion", null);
 exports.CartController = CartController = __decorate([
     (0, common_1.Controller)('cart'),
     __metadata("design:paramtypes", [cart_service_1.CartService])

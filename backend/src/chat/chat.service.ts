@@ -6,7 +6,7 @@ export interface ProductSearchResult {
   id: string;
   name: string;
   description: string;
-  price: number;
+  basePrice: number;
   images: string[];
   category: string;
 }
@@ -133,8 +133,8 @@ export class ChatService {
       where: {
         AND: [
           // Price filters
-          ...(maxPrice ? [{ price: { lte: maxPrice } }] : []),
-          ...(minPrice ? [{ price: { gte: minPrice } }] : []),
+          ...(maxPrice ? [{ basePriceUSD: { lte: maxPrice } }] : []),
+          ...(minPrice ? [{ basePriceUSD: { gte: minPrice } }] : []),
           // Keyword search
           ...(keywords.length > 0 ? [
             {
@@ -156,9 +156,9 @@ export class ChatService {
       id: p.id,
       name: p.name,
       description: p.description,
-      price: p.price,
+      basePrice: p.basePriceUSD,
       images: p.images,
-      category: p.category?.name || 'Uncategorized',
+      category: (p as any).category?.name || 'Uncategorized',
     }));
   }
 

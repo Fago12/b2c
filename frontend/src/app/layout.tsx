@@ -1,23 +1,22 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from 'next/font/local';
 import "./globals.css";
-import { Providers } from "./providers";
+import { AuthProvider } from "@/context/AuthContext";
 import { UmamiAnalytics } from "@/components/analytics/Umami";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const classyVogue = localFont({
+  src: '../../public/fonts/ClassyVogue-Regular.otf',
+  variable: '--font-classy-vogue',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: "Woven Kulture",
   description: "Redefining Elegance",
 };
+
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -26,11 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${classyVogue.variable} antialiased font-sans`}>
         <UmamiAnalytics />
-        <Providers>
+        <AuthProvider>
           {children}
-        </Providers>
+        </AuthProvider>
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );

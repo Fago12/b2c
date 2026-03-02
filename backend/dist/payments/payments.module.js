@@ -15,6 +15,7 @@ const config_1 = require("@nestjs/config");
 const orders_module_1 = require("../orders/orders.module");
 const cart_module_1 = require("../cart/cart.module");
 const mail_module_1 = require("../mail/mail.module");
+const queue_module_1 = require("../queues/queue.module");
 let PaymentsModule = class PaymentsModule {
 };
 exports.PaymentsModule = PaymentsModule;
@@ -25,6 +26,7 @@ exports.PaymentsModule = PaymentsModule = __decorate([
             orders_module_1.OrdersModule,
             cart_module_1.CartModule,
             mail_module_1.MailModule,
+            queue_module_1.QueueModule,
         ],
         controllers: [payment_controller_1.PaymentController, stripe_controller_1.StripeController],
         providers: [stripe_service_1.StripeService],

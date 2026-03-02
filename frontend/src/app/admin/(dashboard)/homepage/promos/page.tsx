@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { Loader2, Plus, Trash2, Edit, Save, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +43,7 @@ export default function PromosPage() {
     const fetchPromos = async () => {
         try {
             // Missing endpoint again, need to add to controller
-            const data = await fetchApi("/admin/homepage/promos");
+            const data = await fetchAdminApi("/admin/homepage/promos");
             setPromos(data);
         } catch (error) {
             console.error(error);
@@ -115,7 +115,7 @@ export default function PromosPage() {
             }
 
             // Using fetchApi which handles FormData and auth headers
-            await fetchApi(url, {
+            await fetchAdminApi(url, {
                 method,
                 body: formData,
             });
@@ -134,7 +134,7 @@ export default function PromosPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Delete promo?")) return;
         try {
-            await fetchApi(`/admin/homepage/promos/${id}`, { method: "DELETE" });
+            await fetchAdminApi(`/admin/homepage/promos/${id}`, { method: "DELETE" });
             fetchPromos();
         } catch (error) {
             console.error(error);

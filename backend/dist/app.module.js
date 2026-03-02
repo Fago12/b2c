@@ -39,6 +39,15 @@ const analytics_module_1 = require("./analytics/analytics.module");
 const settings_module_1 = require("./settings/settings.module");
 const cloudinary_module_1 = require("./cloudinary/cloudinary.module");
 const homepage_module_1 = require("./homepage/homepage.module");
+const shipping_module_1 = require("./shipping/shipping.module");
+const cms_module_1 = require("./cms/cms.module");
+const gallery_module_1 = require("./gallery/gallery.module");
+const currency_module_1 = require("./commerce/currency/currency.module");
+const region_module_1 = require("./commerce/region/region.module");
+const pricing_module_1 = require("./commerce/pricing/pricing.module");
+const customization_module_1 = require("./commerce/customization/customization.module");
+const orders_module_2 = require("./commerce/orders/orders.module");
+const shipping_module_2 = require("./commerce/shipping/shipping.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -104,6 +113,15 @@ exports.AppModule = AppModule = __decorate([
             settings_module_1.SettingsModule,
             cloudinary_module_1.CloudinaryModule,
             homepage_module_1.HomepageModule,
+            shipping_module_1.ShippingModule,
+            cms_module_1.CmsModule,
+            gallery_module_1.GalleryModule,
+            currency_module_1.CommerceCurrencyModule,
+            region_module_1.CommerceRegionModule,
+            pricing_module_1.CommercePricingModule,
+            shipping_module_2.CommerceShippingModule,
+            customization_module_1.CommerceCustomizationModule,
+            orders_module_2.CommerceOrdersModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

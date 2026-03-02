@@ -11,12 +11,14 @@ const common_1 = require("@nestjs/common");
 const bullmq_1 = require("@nestjs/bullmq");
 const email_processor_1 = require("./email.processor");
 const queue_service_1 = require("./queue.service");
+const mail_module_1 = require("../mail/mail.module");
 let QueueModule = class QueueModule {
 };
 exports.QueueModule = QueueModule;
 exports.QueueModule = QueueModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            mail_module_1.MailModule,
             bullmq_1.BullModule.registerQueue({
                 name: 'email',
                 defaultJobOptions: {

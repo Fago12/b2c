@@ -1,0 +1,24 @@
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 18.7s
+  Running TypeScript ...
+Failed to compile.
+
+./src/components/common/ProductCard.tsx:22:17
+Type error: Argument of type 'Product' is not assignable to parameter of type 'string'.
+
+[0m [90m 20 |[39m     [36mconst[39m handleAddToCart [33m=[39m (e[33m:[39m [33mReact[39m[33m.[39m[33mMouseEvent[39m) [33m=>[39m {
+ [90m 21 |[39m         e[33m.[39mpreventDefault()[33m;[39m [90m// Prevent navigation if clicking button inside Link wrapper[39m
+[31m[1m>[22m[39m[90m 22 |[39m         addItem(product)[33m;[39m
+ [90m    |[39m                 [31m[1m^[22m[39m
+ [90m 23 |[39m         [90m// Optional: Add toast notification here[39m
+ [90m 24 |[39m     }[33m;[39m
+ [90m 25 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null

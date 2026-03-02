@@ -1,9 +1,9 @@
 "use client";
 
 import { HeroSection } from "@/types/homepage";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { ChevronsDown } from "lucide-react";
 
 interface HeroBannerProps {
     hero: HeroSection | null;
@@ -13,47 +13,48 @@ export default function HeroBanner({ hero }: HeroBannerProps) {
     if (!hero || !hero.isActive) return null;
 
     return (
-        <div className="relative w-full h-[600px] md:h-[700px] overflow-hidden">
-            {/* Background Image */}
+        <section className="fixed inset-0 w-full h-screen bg-black z-0 overflow-hidden pointer-events-none">
+            {/* Background Media */}
             <div className="absolute inset-0">
-                <Image
-                    src={hero.imageUrl}
-                    alt={hero.title}
-                    fill
-                    className="object-cover"
-                    priority
-                    sizes="100vw"
-                />
-                {/* Overlay Gradient for readability */}
-                <div className="absolute inset-0 bg-black/20 md:bg-black/10" />
+                {hero.mediaType === "VIDEO" && hero.videoUrl ? (
+                    <video
+                        src={hero.videoUrl}
+                        autoPlay={true}
+                        muted={true}
+                        loop={true}
+                        playsInline={true}
+                        className="w-full h-full object-cover opacity-50"
+                        onContextMenu={(e) => e.preventDefault()}
+                    />
+                ) : hero.imageUrl ? (
+                    <Image
+                        src={hero.imageUrl}
+                        alt={hero.title}
+                        fill
+                        className="w-full h-full object-cover opacity-50"
+                        priority
+                        sizes="100vw"
+                    />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
             </div>
 
-            {/* Content */}
-            <div className="absolute inset-0 flex items-center justify-center text-center">
-                <div className="container px-4 md:px-6">
-                    <div className="max-w-3xl mx-auto space-y-6">
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-                            {hero.title}
-                        </h1>
-                        {hero.subtitle && (
-                            <p className="text-lg md:text-xl text-white/90 drop-shadow-md">
-                                {hero.subtitle}
-                            </p>
-                        )}
-                        <div className="pt-4">
-                            <Button
-                                asChild
-                                size="lg"
-                                className="rounded-full px-8 h-12 text-base font-semibold bg-white text-black hover:bg-white/90 border-0"
-                            >
-                                <Link href={hero.ctaLink}>
-                                    {hero.ctaText}
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
+            {/* Content Container (No headline) */}
+            <div className="relative z-10 h-full w-full" />
+
+            {/* Scroll Indicator: Underlined text + Chevrons beside each other */}
+            <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-16 left-0 w-full flex justify-center z-20"
+            >
+                <div className="flex items-center gap-3 text-white">
+                    <span className="text-sm font-black uppercase tracking-[0.25em] border-b-2 border-white pb-1">
+                        Scroll Down
+                    </span>
+                    <ChevronsDown className="w-6 h-6 stroke-[3px]" />
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </section>
     );
 }

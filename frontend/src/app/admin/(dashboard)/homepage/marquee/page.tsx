@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { Loader2, Plus, Trash2, Edit, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,7 +35,7 @@ export default function MarqueePage() {
 
     const fetchItems = async () => {
         try {
-            const data = await fetchApi("/admin/homepage/marquee");
+            const data = await fetchAdminApi("/admin/homepage/marquee");
             setItems(data);
         } catch (error) {
             console.error(error);
@@ -51,7 +51,7 @@ export default function MarqueePage() {
     const handleCreate = async () => {
         if (!newItemText) return;
         try {
-            await fetchApi("/admin/homepage/marquee", {
+            await fetchAdminApi("/admin/homepage/marquee", {
                 method: "POST",
                 body: JSON.stringify({
                     text: newItemText,
@@ -70,7 +70,7 @@ export default function MarqueePage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure?")) return;
         try {
-            await fetchApi(`/admin/homepage/marquee/${id}`, { method: "DELETE" });
+            await fetchAdminApi(`/admin/homepage/marquee/${id}`, { method: "DELETE" });
             fetchItems();
         } catch (error) {
             console.error(error);
@@ -79,7 +79,7 @@ export default function MarqueePage() {
 
     const handleToggle = async (item: any) => {
         try {
-            await fetchApi(`/admin/homepage/marquee/${item.id}`, {
+            await fetchAdminApi(`/admin/homepage/marquee/${item.id}`, {
                 method: "PATCH",
                 body: JSON.stringify({ isActive: !item.isActive })
             });
@@ -91,7 +91,7 @@ export default function MarqueePage() {
 
     const handleUpdateOrder = async (item: any, newOrder: number) => {
         try {
-            await fetchApi(`/admin/homepage/marquee/${item.id}`, {
+            await fetchAdminApi(`/admin/homepage/marquee/${item.id}`, {
                 method: "PATCH",
                 body: JSON.stringify({ order: newOrder })
             });

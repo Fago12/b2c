@@ -21,6 +21,7 @@ const roles_decorator_1 = require("../auth/roles.decorator");
 const client_1 = require("@prisma/client");
 const idempotent_decorator_1 = require("../common/decorators/idempotent.decorator");
 const idempotency_interceptor_1 = require("../common/interceptors/idempotency.interceptor");
+const create_order_dto_1 = require("./dto/create-order.dto");
 let OrdersController = class OrdersController {
     ordersService;
     constructor(ordersService) {
@@ -32,7 +33,7 @@ let OrdersController = class OrdersController {
         return result;
     }
     findMyOrders(req) {
-        return this.ordersService.findByUserId(req.user.id);
+        return this.ordersService.findByUserId(req.user.id, req.user.email);
     }
     findAll() {
         return this.ordersService.findAll();
@@ -40,13 +41,19 @@ let OrdersController = class OrdersController {
     findOne(id) {
         return this.ordersService.findOne(id);
     }
-    findAllAdmin(status, search, page, limit) {
-        return this.ordersService.findAllAdmin({
-            status,
-            search,
-            page: page ? parseInt(page) : 1,
-            limit: limit ? parseInt(limit) : 10,
-        });
+    async findAllAdmin(status, search, page, limit) {
+        try {
+            return await this.ordersService.findAllAdmin({
+                status,
+                search,
+                page: page ? parseInt(page) : 1,
+                limit: limit ? parseInt(limit) : 10,
+            });
+        }
+        catch (error) {
+            console.error('[OrdersController.findAllAdmin] FATAL ERROR:', error);
+            throw new common_1.HttpException(error.message || 'Internal server error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     getStats() {
         return this.ordersService.getOrderStats();
@@ -62,7 +69,7 @@ __decorate([
     (0, idempotent_decorator_1.Idempotent)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "create", null);
 __decorate([
@@ -75,12 +82,16 @@ __decorate([
 ], OrdersController.prototype, "findMyOrders", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -96,7 +107,7 @@ __decorate([
     __param(3, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "findAllAdmin", null);
 __decorate([
     (0, common_1.Get)('admin/stats'),

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { Loader2, Plus, Trash2, Edit, Save, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -43,7 +43,7 @@ export default function FeaturedPage() {
 
             // For now, I'll write the frontend assuming the endpoint exists, 
             // and then I will update the controller immediately after.
-            const data = await fetchApi("/admin/homepage/featured-collections");
+            const data = await fetchAdminApi("/admin/homepage/featured-collections");
             setCollections(data);
         } catch (error) {
             console.error(error);
@@ -85,12 +85,12 @@ export default function FeaturedPage() {
             };
 
             if (editingItem) {
-                await fetchApi(`/admin/homepage/featured-collections/${editingItem.id}`, {
+                await fetchAdminApi(`/admin/homepage/featured-collections/${editingItem.id}`, {
                     method: "PATCH",
                     body: JSON.stringify(body)
                 });
             } else {
-                await fetchApi("/admin/homepage/featured-collections", {
+                await fetchAdminApi("/admin/homepage/featured-collections", {
                     method: "POST",
                     body: JSON.stringify(body)
                 });
@@ -123,7 +123,7 @@ export default function FeaturedPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this collection?")) return;
         try {
-            await fetchApi(`/admin/homepage/featured-collections/${id}`, { method: "DELETE" });
+            await fetchAdminApi(`/admin/homepage/featured-collections/${id}`, { method: "DELETE" });
             fetchCollections();
         } catch (error) {
             console.error(error);

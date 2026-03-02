@@ -45,13 +45,15 @@ export class AnalyticsService {
 
     // 3. Customers
     const totalCustomers = await this.prisma.user.count({
-        where: { role: 'CUSTOMER' }
+        where: { 
+            role: { in: ['CUSTOMER', 'user'] } 
+        }
     });
     
     // Calculate percentage changes
     const revenueChange = this.calculatePercentageChange(
-        todayRevenue._sum.total || 0, 
-        yesterdayRevenue._sum.total || 0
+        (todayRevenue._sum as any).totalUSD || 0, 
+        (yesterdayRevenue._sum as any).totalUSD || 0
     );
     
     const ordersChange = this.calculatePercentageChange(
@@ -61,8 +63,8 @@ export class AnalyticsService {
 
     return {
         revenue: {
-            total: totalRevenue._sum.total || 0,
-            today: todayRevenue._sum.total || 0,
+            total: (totalRevenue._sum as any).totalUSD || 0,
+            today: (todayRevenue._sum as any).totalUSD || 0,
             change: revenueChange
         },
         orders: {
@@ -89,8 +91,8 @@ export class AnalyticsService {
         },
         select: {
             createdAt: true,
-            total: true
-        }
+            totalUSD: true
+        } as any
     });
 
     // Group by date
@@ -104,10 +106,10 @@ export class AnalyticsService {
         grouped.set(dateStr, 0);
     }
 
-    orders.forEach(order => {
+    orders.forEach((order: any) => {
         const dateStr = order.createdAt.toISOString().split('T')[0];
         const current = grouped.get(dateStr) || 0;
-        grouped.set(dateStr, current + order.total);
+        grouped.set(dateStr, current + (order.totalUSD || 0));
     });
 
     return Array.from(grouped.entries()).map(([date, amount]) => ({

@@ -8,6 +8,7 @@ interface User {
     id: string;
     email: string;
     name?: string;
+    role?: string | null;
     image?: string | null;
     emailVerified: boolean;
 }
@@ -17,27 +18,32 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     logout: () => void;
+    login: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
-    const { data: session, isPending: isLoading } = authClient.useSession();
+    const { data: session, isPending: isLoading, refetch } = authClient.useSession();
 
     // Filter: If user is an Admin, we treat them as null for the Storefront context
     const rawUser = session?.user;
-    const isAdmin = rawUser?.role === "ADMIN" || rawUser?.role === "SUPER_ADMIN";
+    const isAdmin = (rawUser as any)?.role === "ADMIN" || (rawUser as any)?.role === "SUPER_ADMIN";
     const user = isAdmin ? null : (rawUser || null);
 
     const logout = async () => {
-        await authClient.signOut({
-            fetchOptions: {
-                onSuccess: () => {
-                    router.push("/login");
+        try {
+            await authClient.signOut({
+                fetchOptions: {
+                    onSuccess: () => {
+                        router.push("/login");
+                    },
                 },
-            },
-        });
+            });
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
 
     return (
@@ -45,8 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             value={{
                 user: user ? { ...user, id: user.id || "" } : null,
                 isAuthenticated: !!user,
-                isLoading,
+                isLoading: isLoading || false,
                 logout,
+                login: refetch,
             }}
         >
             {children}
@@ -57,7 +64,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        // Log error with more context
+        console.error("useAuth must be used within an AuthProvider");
+        return {
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            logout: () => console.warn("Logout called outside of AuthProvider"),
+            login: () => console.warn("Login called outside of AuthProvider"),
+        };
     }
     return context;
 }

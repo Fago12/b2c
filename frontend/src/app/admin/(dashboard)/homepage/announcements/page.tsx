@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { Loader2, Plus, Trash2, Edit } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -24,12 +24,12 @@ import { toast } from "sonner"; // Assuming sonner
 
 const announcementSchema = z.object({
     message: z.string().min(1, "Message is required"),
-    ctaText: z.string().optional(),
-    ctaLink: z.string().optional(),
-    backgroundColor: z.string().default("#000000"),
-    textColor: z.string().default("#ffffff"),
-    isActive: z.boolean().default(true),
-    priority: z.coerce.number().default(0),
+    ctaText: z.string(),
+    ctaLink: z.string(),
+    backgroundColor: z.string(),
+    textColor: z.string(),
+    isActive: z.boolean(),
+    priority: z.number().int(),
 });
 
 type AnnouncementFormValues = z.infer<typeof announcementSchema>;
@@ -41,7 +41,7 @@ export default function AnnouncementsPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const form = useForm<AnnouncementFormValues>({
-        resolver: zodResolver(announcementSchema),
+        resolver: zodResolver(announcementSchema) as any,
         defaultValues: {
             message: "",
             ctaText: "",
@@ -55,7 +55,7 @@ export default function AnnouncementsPage() {
 
     const fetchAnnouncements = async () => {
         try {
-            const data = await fetchApi("/admin/homepage/announcements");
+            const data = await fetchAdminApi("/admin/homepage/announcements");
             setAnnouncements(data);
         } catch (error) {
             console.error(error);
@@ -71,12 +71,12 @@ export default function AnnouncementsPage() {
     const onSubmit = async (data: AnnouncementFormValues) => {
         try {
             if (editingId) {
-                await fetchApi(`/admin/homepage/announcements/${editingId}`, {
+                await fetchAdminApi(`/admin/homepage/announcements/${editingId}`, {
                     method: "PATCH",
                     body: JSON.stringify(data),
                 });
             } else {
-                await fetchApi("/admin/homepage/announcements", {
+                await fetchAdminApi("/admin/homepage/announcements", {
                     method: "POST",
                     body: JSON.stringify(data),
                 });
@@ -95,7 +95,7 @@ export default function AnnouncementsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure?")) return;
         try {
-            await fetchApi(`/admin/homepage/announcements/${id}`, { method: "DELETE" });
+            await fetchAdminApi(`/admin/homepage/announcements/${id}`, { method: "DELETE" });
             fetchAnnouncements();
         } catch (error) {
             console.error(error);
@@ -134,7 +134,7 @@ export default function AnnouncementsPage() {
                             <DialogTitle>{editingId ? "Edit Announcement" : "New Announcement"}</DialogTitle>
                         </DialogHeader>
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
                                 <FormField
                                     control={form.control}
                                     name="message"

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 
 import { fetchApi } from "@/lib/api";
 
-export function CheckoutForm({ amount, onBeforeSubmit, clientSecret }: { amount: number, onBeforeSubmit: () => Promise<string | null>, clientSecret: string }) {
+export function CheckoutForm({ amount, currency, onBeforeSubmit, clientSecret }: { amount: number, currency: string, onBeforeSubmit: () => Promise<string | null>, clientSecret: string }) {
     const stripe = useStripe();
     const elements = useElements();
     const [message, setMessage] = useState<string | null>(null);
@@ -75,7 +75,14 @@ export function CheckoutForm({ amount, onBeforeSubmit, clientSecret }: { amount:
             <PaymentElement id="payment-element" options={{ layout: "tabs" }} />
             <Button disabled={isLoading || !stripe || !elements} id="submit" className="w-full" size="lg">
                 <span id="button-text">
-                    {isLoading ? <div className="spinner" id="spinner">Processing...</div> : `Pay $${(amount / 100).toFixed(2)}`}
+                    {isLoading ? (
+                        <div className="spinner" id="spinner">Processing...</div>
+                    ) : (
+                        `Pay ${new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: currency || 'USD',
+                        }).format(amount / 100)}`
+                    )}
                 </span>
             </Button>
             {message && <div id="payment-message" className="text-red-500 text-sm">{message}</div>}

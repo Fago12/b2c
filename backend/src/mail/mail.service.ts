@@ -125,4 +125,18 @@ export class MailService {
     if (!process.env.SMTP_HOST) console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     return info;
   }
+
+  async sendGenericEmail(to: string, subject: string, html: string) {
+    if (!this.transporter) await this.createTransporter();
+
+    const info = await this.transporter.sendMail({
+      from: '"Woven Kulture" <noreply@wovenkulture.com>',
+      to,
+      subject,
+      html,
+    });
+
+    console.log('Generic Email sent: %s', info.messageId);
+    return info;
+  }
 }

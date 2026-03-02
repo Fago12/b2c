@@ -4,79 +4,220 @@ import { useCart } from "@/lib/store/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    CardFooter
+} from "@/components/ui/card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchApi } from "@/lib/api";
+import { formatPrice as utilsFormatPrice } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { v4 as uuidv4 } from 'uuid';
-
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "@/lib/stripe";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
-import { useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
+import { Loader2, Truck, ShieldCheck, CreditCard } from "lucide-react";
+import { toast } from "sonner";
+
+import { Country, State } from "country-state-city";
+
+const COUNTRIES = Country.getAllCountries().map(c => ({
+    code: c.isoCode,
+    name: c.name
+}));
 
 export default function CheckoutPage() {
-    const { items, totalPrice, clearCart } = useCart();
+    const {
+        items,
+        displayTotal,
+        displayCurrency,
+        chargeTotal,
+        chargeCurrency,
+        subtotal,
+        shippingCost,
+        currency,
+        fetchCart,
+        clearCart
+    } = useCart();
     const router = useRouter();
     const [clientSecret, setClientSecret] = useState("");
     const { data: session } = authClient.useSession();
+    const [mounted, setMounted] = useState(false);
+    const [calculatingShipping, setCalculatingShipping] = useState(false);
 
-    // Guest Form State
+    // Form State
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [address, setAddress] = useState({
         line1: "",
         city: "",
+        state: "",
         zip: "",
         country: ""
     });
 
-    useEffect(() => {
-        if (items.length > 0) {
-            fetchApi("/payments/create-payment-intent", {
-                method: "POST",
-                body: JSON.stringify({ amount: totalPrice() * 100 }), // Amount in cents? Wait, totalPrice() usually returns amount in smallest unit or currency? 
-                // In cart store: usually integer. Let's check logic. 
-                // formatPrice divides by 100. So totalPrice returns integer cents.
-                // Stripe expects integer cents.
-                // Backend controller accepts amount directly.
-            }).then((data) => {
-                setClientSecret(data.client_secret);
-            }).catch(err => console.error("Failed to init stripe", err));
-        }
-    }, [items, totalPrice]);
+    const [availableStates, setAvailableStates] = useState<any[]>([]);
 
-    if (items.length === 0) {
+    useEffect(() => {
+        setMounted(true);
+        fetchCart();
+
+        // Load cached checkout data
+        const cachedData = localStorage.getItem('checkout_form');
+        if (cachedData) {
+            try {
+                const { email, phone, address } = JSON.parse(cachedData);
+                if (email) setEmail(email);
+                if (phone) setPhone(phone);
+                if (address) setAddress(address);
+            } catch (e) {
+                console.error("Failed to load cached checkout data", e);
+            }
+        }
+    }, [fetchCart]);
+
+    // Save checkout data to localStorage
+    useEffect(() => {
+        if (mounted) {
+            localStorage.setItem('checkout_form', JSON.stringify({
+                email,
+                phone,
+                address
+            }));
+        }
+    }, [email, phone, address, mounted]);
+
+    useEffect(() => {
+        if (address.country) {
+            const states = State.getStatesOfCountry(address.country);
+            setAvailableStates(states);
+        }
+    }, [address.country]);
+
+    // Update Shipping when country changes
+    useEffect(() => {
+        if (mounted && address.country) {
+            handleCalculateShipping();
+        }
+    }, [address.country, mounted]);
+
+    const handleCalculateShipping = async () => {
+        setCalculatingShipping(true);
+        try {
+            await fetchApi("/cart/region", {
+                method: "POST",
+                body: JSON.stringify({ regionCode: address.country })
+            });
+            await fetchCart();
+        } catch (err) {
+            console.error("Failed to update shipping region", err);
+        } finally {
+            setCalculatingShipping(false);
+        }
+    };
+
+    // Initialize Stripe Payment Intent - Secruely calculated on server
+    useEffect(() => {
+        if (mounted && items.length > 0) {
+            (async () => {
+                try {
+                    // We NO LONGER pass the amount from the client.
+                    // The server will calculate it from the session cart.
+                    const cartData = await fetchApi("/cart");
+                    const data = await fetchApi("/payments/create-payment-intent", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            sessionId: cartData.sessionId
+                        }), // Amount is calculated on server
+                    });
+                    setClientSecret(data.client_secret);
+                } catch (err) {
+                    console.error("Failed to init stripe", err);
+                }
+            })();
+        }
+    }, [items.length, mounted]);
+
+    const formatPrice = (price: number) => {
+        return utilsFormatPrice(price, displayCurrency || 'USD');
+    };
+
+    const formatChargePrice = (price: number) => {
+        return utilsFormatPrice(price, chargeCurrency || 'USD');
+    };
+
+    if (!mounted) {
         return (
-            <div className="container py-20 text-center">
-                <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-                <Button onClick={() => router.push("/shop")}>Go Shopping</Button>
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Initializing Checkout...</p>
             </div>
         );
     }
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(price / 100);
-    };
+    if (items.length === 0) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-6 container">
+                <h1 className="text-3xl font-vogue uppercase tracking-widest text-primary">Your bag is empty</h1>
+                <Button variant="outline" className="rounded-none border-primary text-primary px-12 py-6 uppercase tracking-widest text-xs" onClick={() => router.push('/')}>
+                    Return to Shop
+                </Button>
+            </div>
+        );
+    }
+
 
     const handleCreateOrder = async (): Promise<string | null> => {
-        // Validate
-        if (!email || !address.line1 || !address.city || !address.zip || !address.country) {
-            alert("Please fill in all fields");
+        if (!email || !address.line1 || !address.city || !address.country) {
+            toast.error("Incomplete Details", { description: "Please provide your email and full shipping address." });
+            return null;
+        }
+
+        // Check if any item has customization - if so, phone is mandatory
+        const isCustomOrder = items.some(item =>
+            item.customization?.embroidery ||
+            item.customization?.customColor ||
+            item.customization?.note
+        );
+
+        if (isCustomOrder && !phone) {
+            toast.error("Phone Number Required", { description: "Bespoke orders require a contact number for verification." });
             return null;
         }
 
         try {
             const orderData = {
-                items: items.map(item => ({ productId: item.id, quantity: item.quantity, price: item.price })),
-                total: totalPrice(),
+                items: items.map(item => ({
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    quantity: item.quantity,
+                    price: item.price,
+                    customization: item.customization
+                })),
+                total: displayTotal,
+                displayTotal: displayTotal,
+                displayCurrency: displayCurrency,
+                chargeTotal: chargeTotal,
+                chargeCurrency: chargeCurrency,
                 email,
+                customerPhone: phone,
                 shippingAddress: address,
+                shippingCost,
+                isCustomOrder,
                 userId: session?.user?.id,
             };
 
@@ -88,137 +229,247 @@ export default function CheckoutPage() {
                 body: JSON.stringify(orderData),
             });
 
-            console.log("Order created:", response);
-            // Don't clear cart here - it unmounts the Stripe Elements!
-            // clearCart(); 
             return response.id;
         } catch (error: any) {
-            alert(error.message || "Failed to place order");
+            toast.error("Checkout Failed", { description: error.message || "Something went wrong." });
             return null;
         }
     };
 
     return (
-        <div className="container mx-auto py-10 px-4 grid md:grid-cols-2 gap-8">
-            {/* Left: Guest Form */}
-            <div>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Guest Checkout</CardTitle>
-                        <CardDescription>Enter your details below.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email Address</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="jdoe@example.com"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
+        <div className="bg-slate-50 min-h-screen pt-24 pb-20">
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+                    {/* LEFT: Shipping Details */}
+                    <div className="lg:col-span-7 space-y-8">
+                        <div className="space-y-4">
+                            <h1 className="text-3xl font-vogue font-bold text-primary uppercase tracking-widest">Secure Checkout</h1>
+                            <p className="text-sm text-muted-foreground italic">"Simplicity is the ultimate sophistication." — Complete your order below.</p>
                         </div>
 
-                        <Separator className="my-4" />
-                        <h3 className="font-medium">Shipping Address</h3>
+                        <Card className="rounded-none border-none shadow-sm">
+                            <CardHeader className="border-b border-slate-50">
+                                <CardTitle className="text-xs uppercase tracking-[0.3em] font-bold">1. Contact Information</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-6 space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] uppercase font-bold tracking-widest">Email Address</Label>
+                                    <Input
+                                        type="email"
+                                        className="h-12 rounded-none focus:border-[#480100]"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        placeholder="Enter email for order confirmation"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] uppercase font-bold tracking-widest">Phone Number (Required for Bespoke Items)</Label>
+                                    <Input
+                                        type="tel"
+                                        className="h-12 rounded-none focus:border-[#480100]"
+                                        value={phone}
+                                        onChange={e => setPhone(e.target.value)}
+                                        placeholder="+1 234 567 890"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="line1">Address Line 1</Label>
-                            <Input
-                                id="line1"
-                                required
-                                value={address.line1}
-                                onChange={(e) => setAddress({ ...address, line1: e.target.value })}
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="city">City</Label>
-                                <Input
-                                    id="city"
-                                    required
-                                    value={address.city}
-                                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="zip">Zip / Postal Code</Label>
-                                <Input
-                                    id="zip"
-                                    required
-                                    value={address.zip}
-                                    onChange={(e) => setAddress({ ...address, zip: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="country">Country</Label>
-                            <Input
-                                id="country"
-                                required
-                                value={address.country}
-                                onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Right: Order Summary & Payment */}
-            <div>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Order Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            {items.map((item) => (
-                                <div key={item.id} className="flex gap-4 text-sm">
-                                    <div className="relative h-16 w-16 bg-muted rounded overflow-hidden shrink-0">
-                                        <Image
-                                            src={item.images[0]}
-                                            alt={item.name}
-                                            fill
-                                            className="object-cover"
+                        <Card className="rounded-none border-none shadow-sm">
+                            <CardHeader className="border-b border-slate-50 text-xs uppercase tracking-[0.3em] font-bold">
+                                <div className="flex justify-between items-center">
+                                    <span>2. Shipping Address</span>
+                                    {calculatingShipping && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+                                </div>
+                            </CardHeader>
+                            <CardContent className="pt-6 space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">Country</Label>
+                                        <Select
+                                            value={address.country}
+                                            onValueChange={v => setAddress({ ...address, country: v, state: '' })}
+                                        >
+                                            <SelectTrigger className="h-12 rounded-none">
+                                                <SelectValue placeholder="Select Country" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {COUNTRIES.map(c => (
+                                                    <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">Address Line 1</Label>
+                                        <Input
+                                            className="h-12 rounded-none"
+                                            value={address.line1}
+                                            onChange={e => setAddress({ ...address, line1: e.target.value })}
                                         />
                                     </div>
-                                    <div className="flex-1">
-                                        <p className="font-medium">{item.name}</p>
-                                        <p className="text-muted-foreground">Qty: {item.quantity}</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">City</Label>
+                                        <Input
+                                            className="h-12 rounded-none"
+                                            value={address.city}
+                                            onChange={e => setAddress({ ...address, city: e.target.value })}
+                                        />
                                     </div>
-                                    <div className="font-medium">
-                                        {formatPrice(item.price * item.quantity)}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">State / Province</Label>
+                                        {availableStates.length > 0 ? (
+                                            <Select
+                                                value={address.state}
+                                                onValueChange={v => setAddress({ ...address, state: v })}
+                                            >
+                                                <SelectTrigger className="h-12 rounded-none">
+                                                    <SelectValue placeholder="Select State" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableStates.map(s => (
+                                                        <SelectItem key={s.isoCode} value={s.isoCode}>{s.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        ) : (
+                                            <Input
+                                                className="h-12 rounded-none"
+                                                value={address.state}
+                                                onChange={e => setAddress({ ...address, state: e.target.value })}
+                                                placeholder="Enter State/Province"
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">Zip / Postal</Label>
+                                        <Input
+                                            className="h-12 rounded-none"
+                                            value={address.zip}
+                                            onChange={e => setAddress({ ...address, zip: e.target.value })}
+                                        />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between font-bold text-lg">
-                            <span>Total</span>
-                            <span>{formatPrice(totalPrice())}</span>
-                        </div>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                        <Separator className="my-4" />
+                    {/* RIGHT: Order Summary */}
+                    <div className="lg:col-span-5 space-y-6 sticky top-24">
+                        <Card className="rounded-none border-none shadow-sm bg-white overflow-hidden">
+                            <CardHeader className="bg-primary text-secondary p-6">
+                                <CardTitle className="text-xs uppercase tracking-[0.4em] font-bold">Your Order Summary</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6 space-y-6">
+                                <div className="space-y-4 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
+                                    {items.map((item) => (
+                                        <div key={item.cartItemId} className="flex gap-4">
+                                            <div className="relative h-20 w-16 bg-slate-50 shadow-sm shrink-0 border border-slate-100">
+                                                <Image src={item.images[0]} alt={item.name} fill className="object-cover" />
+                                                <div className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                                                    {item.quantity}
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <h3 className="text-xs font-bold uppercase tracking-wider line-clamp-1">{item.name}</h3>
+                                                {item.customization?.embroidery && (
+                                                    <p className="text-[9px] text-muted-foreground uppercase flex items-center gap-1">
+                                                        <span className="text-[#480100] font-bold font-vogue">Besope:</span> "{item.customization.embroidery}"
+                                                    </p>
+                                                )}
+                                                <p className="text-[10px] font-bold text-primary mt-1 font-sans">{formatPrice(item.price)}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
 
-                        {/* Stripe Elements */}
-                        {clientSecret ? (
-                            <Elements key={clientSecret} stripe={stripePromise} options={{ clientSecret }}>
-                                <CheckoutForm
-                                    amount={totalPrice()}
-                                    onBeforeSubmit={handleCreateOrder}
-                                    clientSecret={clientSecret}
-                                />
-                            </Elements>
-                        ) : (
-                            <div className="flex justify-center py-4">
-                                <span>Loading payment secure gateway...</span>
+                                <Separator className="bg-slate-100" />
+
+                                <div className="space-y-3 text-sm font-sans">
+                                    <div className="flex justify-between text-muted-foreground uppercase text-[10px] font-bold tracking-widest">
+                                        <span>Subtotal</span>
+                                        <span>{formatPrice(subtotal)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-muted-foreground uppercase text-[10px] font-bold tracking-widest">
+                                        <span>Estimated Shipping</span>
+                                        <span>{shippingCost === 0 ? "Free" : formatPrice(shippingCost)}</span>
+                                    </div>
+                                    <Separator className="bg-slate-50" />
+                                    <div className="flex justify-between items-center text-primary pt-2">
+                                        <span className="font-vogue text-xl uppercase tracking-widest font-bold">Total</span>
+                                        <span className="text-xl font-bold tracking-tighter text-[#480100] font-sans">{formatPrice(displayTotal)}</span>
+                                    </div>
+                                    {displayCurrency !== chargeCurrency && (
+                                        <p className="text-[10px] text-right text-muted-foreground italic mt-1">
+                                            You will be charged: <span className="font-bold">{formatChargePrice(chargeTotal)}</span>
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="pt-6 space-y-4">
+                                    {clientSecret ? (
+                                        <Elements key={clientSecret} stripe={stripePromise} options={{
+                                            clientSecret,
+                                            appearance: {
+                                                theme: 'stripe',
+                                                variables: { colorPrimary: '#480100' }
+                                            }
+                                        }}>
+                                            <CheckoutForm
+                                                amount={chargeTotal}
+                                                currency={chargeCurrency}
+                                                onBeforeSubmit={handleCreateOrder}
+                                                clientSecret={clientSecret}
+                                            />
+                                        </Elements>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-8 space-y-3 bg-slate-50/50 rounded-sm italic text-muted-foreground text-xs">
+                                            <CreditCard className="h-8 w-8 opacity-10 animate-pulse text-[#480100]" />
+                                            <span>Establishing secure link...</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Trust Badges */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white p-4 flex items-center gap-3 border border-slate-100 shadow-sm">
+                                <Truck className="h-5 w-5 text-primary opacity-50" />
+                                <div className="space-y-0.5">
+                                    <p className="text-[9px] font-bold uppercase tracking-widest">Verified Delivery</p>
+                                    <p className="text-[8px] text-muted-foreground tracking-tighter">Real-time regional rates</p>
+                                </div>
                             </div>
-                        )}
+                            <div className="bg-white p-4 flex items-center gap-3 border border-slate-100 shadow-sm">
+                                <ShieldCheck className="h-5 w-5 text-primary opacity-50" />
+                                <div className="space-y-0.5">
+                                    <p className="text-[9px] font-bold uppercase tracking-widest">Secure Escrow</p>
+                                    <p className="text-[8px] text-muted-foreground tracking-tighter">Payments held until delivery</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    </CardContent>
-                </Card>
+                </div>
             </div>
+
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #e2e8f0;
+                    border-radius: 10px;
+                }
+            `}</style>
         </div>
     );
 }

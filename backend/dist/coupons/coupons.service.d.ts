@@ -12,8 +12,8 @@ export declare class CouponsService {
             id: string;
             createdAt: Date;
             isActive: boolean;
-            expiresAt: Date | null;
             code: string;
+            expiresAt: Date | null;
             discountType: import(".prisma/client").$Enums.DiscountType;
             value: number;
             minOrderAmount: number | null;
@@ -31,8 +31,8 @@ export declare class CouponsService {
         id: string;
         createdAt: Date;
         isActive: boolean;
-        expiresAt: Date | null;
         code: string;
+        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
@@ -43,8 +43,8 @@ export declare class CouponsService {
         id: string;
         createdAt: Date;
         isActive: boolean;
-        expiresAt: Date | null;
         code: string;
+        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
@@ -63,8 +63,8 @@ export declare class CouponsService {
         id: string;
         createdAt: Date;
         isActive: boolean;
-        expiresAt: Date | null;
         code: string;
+        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
@@ -83,8 +83,8 @@ export declare class CouponsService {
         id: string;
         createdAt: Date;
         isActive: boolean;
-        expiresAt: Date | null;
         code: string;
+        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
@@ -95,8 +95,8 @@ export declare class CouponsService {
         id: string;
         createdAt: Date;
         isActive: boolean;
-        expiresAt: Date | null;
         code: string;
+        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
@@ -115,8 +115,8 @@ export declare class CouponsService {
             id: string;
             createdAt: Date;
             isActive: boolean;
-            expiresAt: Date | null;
             code: string;
+            expiresAt: Date | null;
             discountType: import(".prisma/client").$Enums.DiscountType;
             value: number;
             minOrderAmount: number | null;
@@ -131,8 +131,8 @@ export declare class CouponsService {
         id: string;
         createdAt: Date;
         isActive: boolean;
-        expiresAt: Date | null;
         code: string;
+        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;

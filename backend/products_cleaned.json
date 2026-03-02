@@ -1,0 +1,213 @@
+﻿value":  [
+                  {
+                      "id":  "698984ccc41685062f3925af",
+                      "name":  "Classic Black Hoodie",
+                      "description":  "Comfortable cotton blend hoodie perfect for everyday wear.",
+                      "basePriceUSD":  3000,
+                      "salePriceUSD":  null,
+                      "stock":  44,
+                      "isActive":  true,
+                      "images":  [
+                                     "/images/products/hoodie.jpg"
+                                 ],
+                      "categoryId":  "698984cac41685062f3925ad",
+                      "slug":  "classic-black-hoodie",
+                      "tags":  [
+                                   "clothing",
+                                   "outerwear",
+                                   "bestseller",
+                                   "featured"
+                               ],
+                      "attributes":  null,
+                      "customizationOptions":  null,
+                      "createdAt":  "2026-02-09T06:55:08.810Z",
+                      "category":  {
+                                       "id":  "698984cac41685062f3925ad",
+                                       "name":  "Clothing",
+                                       "slug":  "clothing",
+                                       "description":  "Apparel for everyone",
+                                       "isActive":  true,
+                                       "isComingSoon":  false,
+                                       "displayOrder":  0
+                                   },
+                      "regional":  {
+                                       "basePrice":  3000,
+                                       "finalPrice":  3000,
+                                       "currency":  "USD",
+                                       "symbol":  "$",
+                                       "exchangeRateUsed":  "1",
+                                       "isOverride":  false
+                                   }
+                  },
+                  {
+                      "id":  "698984cdc41685062f3925b0",
+                      "name":  "Essential White T-Shirt",
+                      "description":  "Premium quality cotton t-shirt. A wardrobe staple.",
+                      "basePriceUSD":  1600,
+                      "salePriceUSD":  null,
+                      "stock":  91,
+                      "isActive":  true,
+                      "images":  [
+                                     "/images/products/tshirt1.jpg"
+                                 ],
+                      "categoryId":  "698984cac41685062f3925ad",
+                      "slug":  "essential-white-tshirt",
+                      "tags":  [
+                                   "clothing",
+                                   "tops",
+                                   "new",
+                                   "featured"
+                               ],
+                      "attributes":  null,
+                      "customizationOptions":  null,
+                      "createdAt":  "2026-02-09T06:55:09.547Z",
+                      "category":  {
+                                       "id":  "698984cac41685062f3925ad",
+                                       "name":  "Clothing",
+                                       "slug":  "clothing",
+                                       "description":  "Apparel for everyone",
+                                       "isActive":  true,
+                                       "isComingSoon":  false,
+                                       "displayOrder":  0
+                                   },
+                      "regional":  {
+                                       "basePrice":  1600,
+                                       "finalPrice":  1600,
+                                       "currency":  "USD",
+                                       "symbol":  "$",
+                                       "exchangeRateUsed":  "1",
+                                       "isOverride":  false
+                                   }
+                  },
+                  {
+                      "id":  "698984cec41685062f3925b1",
+                      "name":  "Graphic Print Tee",
+                      "description":  "Stylish graphic tee with a modern fit.",
+                      "basePriceUSD":  1800,
+                      "salePriceUSD":  null,
+                      "stock":  72,
+                      "isActive":  true,
+                      "images":  [
+                                     "/images/products/tshirt2.jpg"
+                                 ],
+                      "categoryId":  "698984cac41685062f3925ad",
+                      "slug":  "graphic-print-tee",
+                      "tags":  [
+                                   "clothing",
+                                   "tops",
+                                   "bestseller"
+                               ],
+                      "attributes":  null,
+                      "customizationOptions":  null,
+                      "createdAt":  "2026-02-09T06:55:10.258Z",
+                      "category":  {
+                                       "id":  "698984cac41685062f3925ad",
+                                       "name":  "Clothing",
+                                       "slug":  "clothing",
+                                       "description":  "Apparel for everyone",
+                                       "isActive":  true,
+                                       "isComingSoon":  false,
+                                       "displayOrder":  0
+                                   },
+                      "regional":  {
+                                       "basePrice":  1800,
+                                       "finalPrice":  1800,
+                                       "currency":  "USD",
+                                       "symbol":  "$",
+                                       "exchangeRateUsed":  "1",
+                                       "isOverride":  false
+                                   }
+                  },
+                  {
+                      "id":  "698984cec41685062f3925b2",
+                      "name":  "Snapback Cap",
+                      "description":  "Adjustable snapback cap with embroidered logo.",
+                      "basePriceUSD":  1300,
+                      "salePriceUSD":  null,
+                      "stock":  34,
+                      "isActive":  true,
+                      "images":  [
+                                     "/images/products/cap.jpg"
+                                 ],
+                      "categoryId":  "698984cbc41685062f3925ae",
+                      "slug":  "snapback-cap",
+                      "tags":  [
+                                   "accessories",
+                                   "headwear",
+                                   "new"
+                               ],
+                      "attributes":  null,
+                      "customizationOptions":  null,
+                      "createdAt":  "2026-02-09T06:55:10.966Z",
+                      "category":  {
+                                       "id":  "698984cbc41685062f3925ae",
+                                       "name":  "Accessories",
+                                       "slug":  "accessories",
+                                       "description":  "Hats and more",
+                                       "isActive":  true,
+                                       "isComingSoon":  false,
+                                       "displayOrder":  0
+                                   },
+                      "regional":  {
+                                       "basePrice":  1300,
+                                       "finalPrice":  1300,
+                                       "currency":  "USD",
+                                       "symbol":  "$",
+                                       "exchangeRateUsed":  "1",
+                                       "isOverride":  false
+                                   }
+                  },
+                  {
+                      "id":  "698cc87915ef1179c3a9ba10",
+                      "name":  "Brand Patterned Napkin",
+                      "description":  "Silky Soft Brand Patterned Napkin",
+                      "basePriceUSD":  500,
+                      "salePriceUSD":  4,
+                      "stock":  7,
+                      "isActive":  true,
+                      "images":  [
+                                     "https://res.cloudinary.com/dzdyc9zed/image/upload/v1770834040/qgchjt8raqvccjbzoelr.jpg"
+                                 ],
+                      "categoryId":  "698984cac41685062f3925ad",
+                      "slug":  "brand-patterned-napkin-1770834041040",
+                      "tags":  [
+
+                               ],
+                      "attributes":  {
+
+                                     },
+                      "customizationOptions":  {
+                                                   "embroidery":  {
+                                                                      "enabled":  true,
+                                                                      "price":  1550
+                                                                  },
+                                                   "customColor":  {
+                                                                       "enabled":  true
+                                                                   },
+                                                   "customerNote":  {
+                                                                        "enabled":  true
+                                                                    }
+                                               },
+                      "createdAt":  "2026-02-11T18:20:41.042Z",
+                      "category":  {
+                                       "id":  "698984cac41685062f3925ad",
+                                       "name":  "Clothing",
+                                       "slug":  "clothing",
+                                       "description":  "Apparel for everyone",
+                                       "isActive":  true,
+                                       "isComingSoon":  false,
+                                       "displayOrder":  0
+                                   },
+                      "regional":  {
+                                       "basePrice":  500,
+                                       "finalPrice":  4,
+                                       "currency":  "USD",
+                                       "symbol":  "$",
+                                       "exchangeRateUsed":  "1",
+                                       "isOverride":  false
+                                   }
+                  }
+              ],
+    "Count":  5
+}
+

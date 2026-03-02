@@ -11,12 +11,20 @@ const common_1 = require("@nestjs/common");
 const orders_service_1 = require("./orders.service");
 const orders_controller_1 = require("./orders.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
+const currency_module_1 = require("../commerce/currency/currency.module");
+const region_module_1 = require("../commerce/region/region.module");
+const shipping_module_1 = require("../commerce/shipping/shipping.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [
+            prisma_module_1.PrismaModule,
+            currency_module_1.CommerceCurrencyModule,
+            region_module_1.CommerceRegionModule,
+            shipping_module_1.CommerceShippingModule,
+        ],
         controllers: [orders_controller_1.OrdersController],
         providers: [orders_service_1.OrdersService],
         exports: [orders_service_1.OrdersService],

@@ -12,25 +12,49 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoriesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
 let CategoriesService = class CategoriesService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createCategoryDto) {
-        return this.prisma.category.create({ data: createCategoryDto });
+    async create(createCategoryDto) {
+        try {
+            return await this.prisma.category.create({ data: createCategoryDto });
+        }
+        catch (error) {
+            if (error instanceof client_1.Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+                throw new common_1.ConflictException(`Category with slug "${createCategoryDto.slug}" already exists`);
+            }
+            throw error;
+        }
     }
-    findAll() {
-        return this.prisma.category.findMany();
+    findAll(isActive) {
+        const where = {};
+        if (isActive !== undefined) {
+            where.isActive = isActive;
+        }
+        return this.prisma.category.findMany({
+            where,
+            orderBy: { displayOrder: 'asc' },
+        });
     }
     findOne(id) {
         return this.prisma.category.findUnique({ where: { id } });
     }
-    update(id, updateCategoryDto) {
-        return this.prisma.category.update({
-            where: { id },
-            data: updateCategoryDto,
-        });
+    async update(id, updateCategoryDto) {
+        try {
+            return await this.prisma.category.update({
+                where: { id },
+                data: updateCategoryDto,
+            });
+        }
+        catch (error) {
+            if (error instanceof client_1.Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+                throw new common_1.ConflictException(`Category with slug "${updateCategoryDto.slug}" already exists`);
+            }
+            throw error;
+        }
     }
     remove(id) {
         return this.prisma.category.delete({ where: { id } });

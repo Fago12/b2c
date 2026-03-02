@@ -5,11 +5,12 @@ export declare class UsersController {
     constructor(usersService: UsersService);
     findAllAdmin(search?: string, role?: Role, page?: string, limit?: string): Promise<{
         users: {
-            id: string;
-            createdAt: Date;
-            email: string;
-            role: string;
             isVerified: boolean;
+            id: string;
+            email: string;
+            emailVerified: boolean;
+            createdAt: Date;
+            role: string;
             _count: {
                 orders: number;
             };
@@ -30,27 +31,45 @@ export declare class UsersController {
     }>;
     findOne(id: string): Promise<{
         id: string;
-        createdAt: Date;
         email: string;
+        emailVerified: boolean;
+        createdAt: Date;
         role: string;
         isVerified: boolean;
         orders: ({
             items: {
                 id: string;
-                quantity: number;
-                price: number;
+                weightKG: number | null;
                 productId: string;
+                variantId: string | null;
+                quantity: number;
+                customization: import("@prisma/client/runtime/library").JsonValue | null;
+                price: number;
+                exchangeRateUsed: string;
+                unitPriceUSD: number;
+                unitPriceFinal: number;
                 orderId: string;
             }[];
         } & {
             id: string;
+            email: string;
             createdAt: Date;
             userId: string | null;
-            email: string;
-            status: import(".prisma/client").$Enums.OrderStatus;
             total: number;
-            paymentId: string | null;
+            currency: string;
+            isCustomOrder: boolean;
+            customerPhone: string | null;
             shippingAddress: import("@prisma/client/runtime/library").JsonValue;
+            regionCode: string;
+            exchangeRateUsed: string;
+            chargeCurrency: string;
+            chargeTotal: number;
+            status: import(".prisma/client").$Enums.OrderStatus;
+            displayCurrency: string;
+            displayTotal: number;
+            totalUSD: number;
+            paymentId: string | null;
+            shippingCost: number;
         })[];
     } | null>;
     updateRole(id: string, role: Role): Promise<{

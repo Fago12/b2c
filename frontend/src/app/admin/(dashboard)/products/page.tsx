@@ -20,7 +20,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight, RefreshCw, Package } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import { ProductForm, ProductFormValues } from "../../_components/ProductForm";
 
 // Fallback if toast not available or use console
@@ -33,12 +34,16 @@ interface Product {
     id: string;
     name: string;
     description: string;
-    price: number;
+    basePriceUSD: number;
+    salePriceUSD?: number;
     stock: number;
     images: string[];
     categoryId: string;
     category: { id: string; name: string };
     tags: string[];
+    hasVariants: boolean;
+    variants?: any[];
+    _count?: { orderItems: number };
     createdAt: string;
 }
 
@@ -76,7 +81,7 @@ export default function ProductsPage() {
             if (search) params.append("search", search);
             if (categoryFilter && categoryFilter !== "all") params.append("category", categoryFilter);
 
-            const data = await fetchApi(`/products/admin/list?${params}`);
+            const data = await fetchAdminApi(`/products/admin/list?${params}`);
             setProducts(data.products);
             setPagination(data.pagination);
         } catch (error) {
@@ -89,7 +94,7 @@ export default function ProductsPage() {
 
     const fetchCategories = useCallback(async () => {
         try {
-            const data = await fetchApi("/categories");
+            const data = await fetchAdminApi("/categories");
             setCategories(data);
         } catch (error) {
             console.error("Failed to fetch categories:", error);
@@ -119,9 +124,31 @@ export default function ProductsPage() {
             const formData = new FormData();
             formData.append("name", data.name);
             formData.append("description", data.description);
-            formData.append("price", String(data.price));
+            formData.append("basePrice", String(data.basePrice || data.price));
             formData.append("stock", String(data.stock));
             formData.append("categoryId", data.categoryId);
+
+            if (data.customizationOptions) {
+                formData.append("customizationOptions", JSON.stringify(data.customizationOptions));
+            }
+            if (data.tags) {
+                formData.append("tags", JSON.stringify(data.tags));
+            }
+            if (data.attributes) {
+                formData.append("attributes", JSON.stringify(data.attributes));
+            }
+            if (data.options) {
+                formData.append("options", JSON.stringify(data.options));
+            }
+            if (data.variants) {
+                formData.append("variants", JSON.stringify(data.variants));
+            }
+
+            if (data.salePrice) {
+                formData.append("salePrice", String(data.salePrice));
+            } else {
+                formData.append("salePrice", "null");
+            }
 
             // Separate existing URLs from new File objects
             const existingImages: string[] = [];
@@ -138,13 +165,13 @@ export default function ProductsPage() {
             }
 
             if (editingProduct) {
-                await fetchApi(`/products/admin/${editingProduct.id}`, {
+                await fetchAdminApi(`/products/admin/${editingProduct.id}`, {
                     method: "PATCH",
                     body: formData,
                 });
                 safeToast("Product updated successfully");
             } else {
-                await fetchApi("/products/admin/create", {
+                await fetchAdminApi("/products/admin/create", {
                     method: "POST",
                     body: formData,
                 });
@@ -161,7 +188,7 @@ export default function ProductsPage() {
     const handleDelete = async () => {
         if (!deletingProduct) return;
         try {
-            await fetchApi(`/products/admin/${deletingProduct.id}`, {
+            await fetchAdminApi(`/products/admin/${deletingProduct.id}`, {
                 method: "DELETE",
             });
             safeToast("Product deleted successfully");
@@ -181,13 +208,13 @@ export default function ProductsPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-sans">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Products</h1>
-                    <p className="text-muted-foreground">Manage your product catalog</p>
+                    <h1 className="text-2xl font-bold text-slate-900 font-vogue">Products</h1>
+                    <p className="text-muted-foreground font-sans">Manage your product catalog</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 font-sans">
                     <Button onClick={fetchProducts} variant="outline" size="sm">
                         <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
                         Refresh
@@ -200,7 +227,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Filters */}
-            <Card>
+            <Card className="font-sans">
                 <CardContent className="pt-6">
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="relative flex-1">
@@ -209,14 +236,14 @@ export default function ProductsPage() {
                                 placeholder="Search products..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9"
+                                className="pl-9 font-sans"
                             />
                         </div>
                         <Select value={categoryFilter || "all"} onValueChange={(v) => setCategoryFilter(v === "all" ? "" : v)}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-[180px] font-sans">
                                 <SelectValue placeholder="All Categories" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="font-sans">
                                 <SelectItem value="all">All Categories</SelectItem>
                                 {categories.map((cat) => (
                                     <SelectItem key={cat.id} value={cat.id}>
@@ -230,37 +257,41 @@ export default function ProductsPage() {
             </Card>
 
             {/* Products Table */}
-            <Card>
+            <Card className="font-sans">
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-slate-50 border-b">
+                            <thead className="bg-slate-50 border-b font-sans">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Product</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Category</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Price</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Stock</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Product</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Category</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Price</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Stock</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Status</th>
+                                    <th className="px-4 py-3 text-left text-xs uppercase font-bold tracking-widest text-muted-foreground">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="font-sans">
                                 {loading && products.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground font-sans">
                                             Loading products...
                                         </td>
                                     </tr>
                                 ) : products.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground font-sans">
                                             <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
                                             No products found
                                         </td>
                                     </tr>
                                 ) : (
                                     products.map((product) => {
-                                        const status = getStockStatus(product.stock);
+                                        const hasVariants = product.hasVariants || (product.variants && (product.variants as any[]).length > 0);
+                                        const totalStock = hasVariants
+                                            ? (product.variants as any[]).reduce((sum, v) => sum + (parseInt(v.stock?.toString() || '0')), 0)
+                                            : product.stock;
+                                        const status = getStockStatus(totalStock);
                                         return (
                                             <tr key={product.id} className="border-b hover:bg-slate-50">
                                                 <td className="px-4 py-3">
@@ -273,16 +304,25 @@ export default function ProductsPage() {
                                                             )}
                                                         </div>
                                                         <div>
-                                                            <p className="font-medium">{product.name}</p>
-                                                            <p className="text-xs text-muted-foreground line-clamp-1">{product.description.slice(0, 50)}...</p>
+                                                            <p className="font-bold text-sm">{product.name}</p>
+                                                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider line-clamp-1">{product.description.slice(0, 50)}...</p>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3">{product.category?.name || "—"}</td>
-                                                <td className="px-4 py-3">₦{product.price.toLocaleString()}</td>
-                                                <td className="px-4 py-3">{product.stock}</td>
+                                                <td className="px-4 py-3 text-sm">{product.category?.name || "—"}</td>
+                                                <td className="px-4 py-3 text-sm font-bold">{formatPrice(product.basePriceUSD || 0)}</td>
+                                                <td className="px-4 py-3 text-sm">
+                                                    {hasVariants ? (
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold text-[#480100]">{totalStock} Total</span>
+                                                            <span className="text-[10px] text-muted-foreground uppercase tracking-tighter">Variant Managed</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span>{totalStock}</span>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                                                    <span className={`px-2 py-0.5 rounded-none text-[9px] uppercase font-bold tracking-widest ${status.color}`}>
                                                         {status.label}
                                                     </span>
                                                 </td>

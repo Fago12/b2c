@@ -4,7 +4,7 @@ export interface ProductSearchResult {
     id: string;
     name: string;
     description: string;
-    price: number;
+    basePrice: number;
     images: string[];
     category: string;
 }

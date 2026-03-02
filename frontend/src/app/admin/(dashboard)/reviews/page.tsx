@@ -12,7 +12,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { RefreshCw, Star, Trash2, MessageSquare } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 
 interface Review {
     id: string;
@@ -55,8 +55,8 @@ export default function ReviewsPage() {
             if (ratingFilter) params.append("rating", ratingFilter.toString());
 
             const [reviewsData, statsData] = await Promise.all([
-                fetchApi(`/reviews/admin/list?${params}`),
-                fetchApi("/reviews/admin/stats"),
+                fetchAdminApi(`/reviews/admin/list?${params}`),
+                fetchAdminApi("/reviews/admin/stats"),
             ]);
 
             setReviews(reviewsData.reviews);
@@ -76,7 +76,7 @@ export default function ReviewsPage() {
     const handleDelete = async () => {
         if (!deletingReview) return;
         try {
-            await fetchApi(`/reviews/admin/${deletingReview.id}`, {
+            await fetchAdminApi(`/reviews/admin/${deletingReview.id}`, {
                 method: "DELETE",
             });
             setDeleteDialogOpen(false);

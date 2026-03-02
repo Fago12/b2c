@@ -12,12 +12,14 @@ const products_service_1 = require("./products.service");
 const products_controller_1 = require("./products.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
 const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
+const pricing_module_1 = require("../commerce/pricing/pricing.module");
+const region_module_1 = require("../commerce/region/region.module");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
 exports.ProductsModule = ProductsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, cloudinary_module_1.CloudinaryModule],
+        imports: [prisma_module_1.PrismaModule, cloudinary_module_1.CloudinaryModule, pricing_module_1.CommercePricingModule, region_module_1.CommerceRegionModule],
         controllers: [products_controller_1.ProductsController],
         providers: [products_service_1.ProductsService],
     })

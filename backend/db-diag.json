@@ -1,0 +1,116 @@
+{
+  "users": [
+    {
+      "email": "test-debug-user@gmail.com",
+      "role": "ADMIN"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN"
+    },
+    {
+      "email": "test-invite@store.com",
+      "role": "ADMIN"
+    },
+    {
+      "email": "stephenfagoroye@gmail.com",
+      "role": "ADMIN"
+    },
+    {
+      "email": "ayoyemisola@gmail.com",
+      "role": "CUSTOMER"
+    }
+  ],
+  "sessions": [
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "ApgTMFXB",
+      "expiresAt": "2026-02-17T11:31:02.537Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "hCsgULOE",
+      "expiresAt": "2026-02-17T12:01:49.652Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "qY3gopds",
+      "expiresAt": "2026-02-17T12:05:07.429Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "Y9SGv3UO",
+      "expiresAt": "2026-02-17T12:18:55.421Z"
+    },
+    {
+      "email": "stephenfagoroye@gmail.com",
+      "role": "ADMIN",
+      "tokenPrefix": "TUjC6gey",
+      "expiresAt": "2026-02-17T13:04:06.220Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "KHPRIDNz",
+      "expiresAt": "2026-02-18T07:02:40.765Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "LO2oBNrZ",
+      "expiresAt": "2026-02-19T12:21:32.175Z"
+    },
+    {
+      "email": "ayoyemisola@gmail.com",
+      "role": "CUSTOMER",
+      "tokenPrefix": "WPwquxdi",
+      "expiresAt": "2026-02-19T23:48:41.078Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "EBgaI2Gt",
+      "expiresAt": "2026-02-19T23:58:52.696Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "B9dHZMXn",
+      "expiresAt": "2026-02-20T00:11:45.434Z"
+    },
+    {
+      "email": "ayoyemisola@gmail.com",
+      "role": "CUSTOMER",
+      "tokenPrefix": "7NSklB5l",
+      "expiresAt": "2026-02-21T08:35:56.363Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "s8oIxqNM",
+      "expiresAt": "2026-02-20T01:46:29.453Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "PJywrpJN",
+      "expiresAt": "2026-02-20T11:00:50.233Z"
+    },
+    {
+      "email": "stephenfagoroye@gmail.com",
+      "role": "ADMIN",
+      "tokenPrefix": "ZxhGMjlm",
+      "expiresAt": "2026-02-20T13:33:04.551Z"
+    },
+    {
+      "email": "admin@store.com",
+      "role": "SUPER_ADMIN",
+      "tokenPrefix": "K5tBB3hE",
+      "expiresAt": "2026-02-21T09:48:45.747Z"
+    }
+  ]
+}

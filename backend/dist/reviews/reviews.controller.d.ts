@@ -9,8 +9,8 @@ export declare class ReviewsController {
                 email: string;
             };
             product: {
-                id: string;
                 name: string;
+                id: string;
                 images: string[];
             };
         } & {

@@ -23,29 +23,52 @@ let SettingsController = class SettingsController {
     constructor(settingsService) {
         this.settingsService = settingsService;
     }
-    async getSettings() {
-        return this.settingsService.getSettings();
+    getSettings() {
+        return this.settingsService.getStoreSettings();
     }
-    async updateSettings(data) {
-        return this.settingsService.updateSettings(data);
+    updateSettings(data) {
+        return this.settingsService.updateStoreSettings(data);
+    }
+    getShippingConfig() {
+        return this.settingsService.getShippingConfig();
+    }
+    updateShippingConfig(data) {
+        return this.settingsService.updateShippingConfig(data);
     }
 };
 exports.SettingsController = SettingsController;
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], SettingsController.prototype, "getSettings", null);
 __decorate([
     (0, common_1.Patch)(),
     (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], SettingsController.prototype, "updateSettings", null);
+__decorate([
+    (0, common_1.Get)('shipping'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], SettingsController.prototype, "getShippingConfig", null);
+__decorate([
+    (0, common_1.Patch)('shipping'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], SettingsController.prototype, "updateShippingConfig", null);
 exports.SettingsController = SettingsController = __decorate([
     (0, common_1.Controller)('settings'),
     __metadata("design:paramtypes", [settings_service_1.SettingsService])

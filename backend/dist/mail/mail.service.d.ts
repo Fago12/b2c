@@ -7,4 +7,5 @@ export declare class MailService {
     sendWelcomeEmail(email: string, firstName: string): Promise<any>;
     sendPurchaseReceipt(email: string, orderId: string, total: number, items: any[]): Promise<any>;
     sendAdminInvite(email: string, inviteUrl: string, inviterName: string): Promise<any>;
+    sendGenericEmail(to: string, subject: string, html: string): Promise<any>;
 }

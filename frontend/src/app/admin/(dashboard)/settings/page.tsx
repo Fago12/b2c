@@ -16,7 +16,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { Loader2, Save } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -47,7 +47,7 @@ export default function SettingsPage() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const data = await fetchApi("/settings");
+                const data = await fetchAdminApi("/settings");
                 if (data) {
                     form.reset({
                         storeName: data.storeName || "",
@@ -68,7 +68,7 @@ export default function SettingsPage() {
     const onSubmit = async (data: SettingsFormValues) => {
         setSaving(true);
         try {
-            await fetchApi("/settings", {
+            await fetchAdminApi("/settings", {
                 method: "PATCH",
                 body: JSON.stringify(data),
             });

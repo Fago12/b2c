@@ -1,7 +1,7 @@
 "use client";
 
 import { PromoBanner } from "@/types/homepage";
-import { Button } from "@/components/ui/button";
+import { BrandButton } from "../common/BrandButton";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -27,16 +27,16 @@ export default function PromoSection({ promos }: PromoSectionProps) {
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
 
                         <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 text-white">
-                            <h3 className="text-3xl md:text-4xl font-bold mb-4">{promo.title}</h3>
+                            <h3 className="text-3xl md:text-5xl font-vogue font-black mb-4 uppercase text-white tracking-[0.2em]">{promo.title}</h3>
                             {promo.subtitle && (
                                 <p className="text-lg text-white/90 mb-6 max-w-md">{promo.subtitle}</p>
                             )}
                             <div>
-                                <Button asChild variant="secondary" size="lg" className="rounded-full">
+                                <BrandButton asChild>
                                     <Link href={promo.ctaLink}>
                                         {promo.ctaText}
                                     </Link>
-                                </Button>
+                                </BrandButton>
                             </div>
                         </div>
                     </div>

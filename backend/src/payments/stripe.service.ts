@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { OrdersService } from '../orders/orders.service';
 import { CartService } from '../cart/cart.service';
 import { MailService } from '../mail/mail.service';
+import { QueueService } from '../queues/queue.service';
 import { Request } from 'express';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class StripeService {
     private ordersService: OrdersService,
     private cartService: CartService,
     private mailService: MailService,
+    private queueService: QueueService,
   ) {
     const apiKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     if (!apiKey) {
@@ -30,17 +32,22 @@ export class StripeService {
 
   async createPaymentIntent(amount: number, currency: string = 'usd', metadata: any = {}) {
     try {
+      // Stripe expects the amount in the smallest currency unit (cents/pence/etc.)
+      // We receive 'amount' as pre-processed cents from the Strategy Layer.
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: Math.round(amount), // Stripe expects integers (cents)
-        currency,
+        amount: Math.round(amount), // Ensure it's a pure integer
+        currency: currency.toLowerCase(),
         metadata,
         automatic_payment_methods: {
           enabled: true,
         },
       });
       return paymentIntent;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error creating payment intent: ${error.message}`);
+      if (error.raw) {
+        this.logger.error(`Stripe Raw Error: ${JSON.stringify(error.raw, null, 2)}`);
+      }
       throw error;
     }
   }
@@ -124,10 +131,10 @@ export class StripeService {
             this.logger.log(`Cleared cart for session ${sessionId}`);
         }
 
-        // 3. Send Receipt Email
+        // 3. Send Receipt Email (Background Queue)
         if (order.email) {
-            this.logger.log(`Sending email to ${order.email}`);
-            await this.mailService.sendPurchaseReceipt(
+            this.logger.log(`Queueing receipt email for ${order.email}`);
+            await this.queueService.sendPurchaseReceipt(
                 order.email, 
                 order.id, 
                 order.total, 
@@ -137,7 +144,7 @@ export class StripeService {
                     price: item.price
                 }))
             );
-            this.logger.log('Email sent successfully');
+            this.logger.log('Receipt email job added to queue');
         }
     } catch(e) {
         this.logger.error(`Error processing order ${orderId}: ${e.message}`);

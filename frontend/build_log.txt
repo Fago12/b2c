@@ -1,0 +1,24 @@
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 27.1s
+  Running TypeScript ...
+Failed to compile.
+
+./src/app/auth/callback/page.tsx:9:41
+Type error: Property 'login' does not exist on type 'AuthContextType'.
+
+[0m [90m  7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAuthCallbackPage[39m() {
+ [90m  8 |[39m     [36mconst[39m router [33m=[39m useRouter()[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m     [36mconst[39m { isAuthenticated[33m,[39m isLoading[33m,[39m login } [33m=[39m useAuth()[33m;[39m
+ [90m    |[39m                                         [31m[1m^[22m[39m
+ [90m 10 |[39m
+ [90m 11 |[39m     useEffect(() [33m=>[39m {
+ [90m 12 |[39m         [90m// Trigger a re-check of auth in case cookies were just set[39m[0m
+Next.js build worker exited with code: 1 and signal: null

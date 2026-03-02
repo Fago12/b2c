@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter, useSearchParams } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { adminAuthClient } from "@/lib/admin-auth-client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,7 +19,7 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const returnTo = searchParams.get("returnTo") || "/admin";
@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
         setLoading(true);
         setError("");
 
-        await authClient.signIn.email({
+        await adminAuthClient.signIn.email({
             email: data.email,
             password: data.password,
             callbackURL: returnTo,
@@ -115,5 +115,13 @@ export default function AdminLoginPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function AdminLoginPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading Admin Login...</div>}>
+            <AdminLoginForm />
+        </Suspense>
     );
 }

@@ -20,12 +20,26 @@ let BetterAuthGuard = class BetterAuthGuard {
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
         const authHeader = request.headers['authorization'];
-        const sessionCookie = request.cookies['better-auth.session_token'];
-        const token = sessionCookie || authHeader?.split(' ')[1];
+        const adminSessionCookie = request.cookies['admin-auth.session_token'];
+        const storefrontSessionCookie = request.cookies['storefront-auth.session_token'];
+        const defaultSessionCookie = request.cookies['better-auth.session_token'];
+        const isAdminRequest = request.url.includes('/admin') || request.headers['x-admin-request'] === 'true';
+        let token;
+        if (isAdminRequest) {
+            token = adminSessionCookie;
+            if (!token && (storefrontSessionCookie || defaultSessionCookie)) {
+                console.warn(`[DEBUG AUTH] Blocking admin request attempt with storefront session: ${request.url}`);
+            }
+        }
+        else {
+            token = storefrontSessionCookie || defaultSessionCookie;
+        }
+        if (!token && authHeader) {
+            token = authHeader.split(' ')[1];
+        }
         if (!token) {
-            console.error(`[DEBUG AUTH] No token found. Cookie: ${!!sessionCookie}, Header: ${!!authHeader}`);
-            require('fs').appendFileSync('debug_auth.log', `[${new Date().toISOString()}] No token found. Cookies: ${JSON.stringify(request.cookies)}\n`);
-            throw new common_1.UnauthorizedException('No session token found');
+            console.error(`[DEBUG AUTH] No valid token found for ${isAdminRequest ? 'ADMIN' : 'STORE'} request to ${request.url}`);
+            throw new common_1.UnauthorizedException('No session token found for this area');
         }
         const tokenParts = token.split('.');
         const sessionToken = tokenParts[0];
@@ -35,12 +49,14 @@ let BetterAuthGuard = class BetterAuthGuard {
         });
         if (!session) {
             console.error(`[DEBUG AUTH] Session not found for token prefix: ${sessionToken.substring(0, 10)}...`);
-            require('fs').appendFileSync('debug_auth.log', `[${new Date().toISOString()}] Session NOT FOUND for token: ${sessionToken}\n`);
             throw new common_1.UnauthorizedException('Invalid session');
+        }
+        if (isAdminRequest && !['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
+            console.error(`[DEBUG AUTH] Non-admin user (${session.user.email}) tried to access admin endpoint`);
+            throw new common_1.UnauthorizedException('Access denied: Admin role required');
         }
         if (session.expiresAt < new Date()) {
             console.error(`[DEBUG AUTH] Session expired for user: ${session.userId}`);
-            require('fs').appendFileSync('debug_auth.log', `[${new Date().toISOString()}] Session EXPIRED for user: ${session.userId}\n`);
             throw new common_1.UnauthorizedException('Session expired');
         }
         request['user'] = session.user;

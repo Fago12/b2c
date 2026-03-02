@@ -4,48 +4,116 @@ export declare class CartController {
     private cartService;
     constructor(cartService: CartService);
     private getSessionId;
+    private getRegionCode;
     getCart(req: Request, res: Response): Promise<{
         sessionId: string;
-        subtotal: number;
         itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
         items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
         updatedAt: Date;
     }>;
     addItem(req: Request, res: Response, body: {
         productId: string;
         quantity?: number;
+        customization?: any;
+        variantId?: string;
     }): Promise<{
-        subtotal: number;
         itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
         items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
         updatedAt: Date;
     }>;
     updateItem(req: Request, res: Response, productId: string, body: {
         quantity: number;
+        variantId?: string;
     }): Promise<{
-        subtotal: number;
         itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
         items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
         updatedAt: Date;
     }>;
     removeItem(req: Request, res: Response, productId: string): Promise<{
-        subtotal: number;
         itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
         items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
         updatedAt: Date;
     }>;
     clearCart(req: Request, res: Response): Promise<{
         items: never[];
         subtotal: number;
         itemCount: number;
+        shippingCost: number;
+        total: number;
         updatedAt: Date;
     }>;
     mergeCart(req: Request, res: Response, body: {
         userSessionId: string;
     }): Promise<{
-        subtotal: number;
         itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
         items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
+        updatedAt: Date;
+    }>;
+    updateRegion(req: Request, res: Response, body: {
+        regionCode: string;
+    }): Promise<{
+        itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
+        items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
         updatedAt: Date;
     }>;
 }

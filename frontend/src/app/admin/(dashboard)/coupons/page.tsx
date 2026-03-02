@@ -3,7 +3,8 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CouponForm } from "../../_components/CouponForm";
 import { useEffect, useState, useCallback } from "react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Tag, RefreshCw, Trash2, Edit } from "lucide-react";
@@ -37,8 +38,8 @@ export default function CouponsPage() {
         setLoading(true);
         try {
             const [listData, statsData] = await Promise.all([
-                fetchApi("/coupons/admin/list"),
-                fetchApi("/coupons/admin/stats"),
+                fetchAdminApi("/coupons/admin/list"),
+                fetchAdminApi("/coupons/admin/stats"),
             ]);
             setCoupons(listData.coupons || listData);
             setStats(statsData);
@@ -56,7 +57,7 @@ export default function CouponsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this coupon?")) return;
         try {
-            await fetchApi(`/coupons/admin/${id}`, { method: "DELETE" });
+            await fetchAdminApi(`/coupons/admin/${id}`, { method: "DELETE" });
             fetchData();
         } catch (error) {
             console.error("Failed to delete coupon:", error);
@@ -164,7 +165,7 @@ export default function CouponsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-medium text-slate-700">
-                                            {coupon.discountType === "PERCENTAGE" ? `${coupon.value}%` : `₦${coupon.value.toLocaleString()}`}
+                                            {coupon.discountType === "PERCENTAGE" ? `${coupon.value}%` : formatPrice(coupon.value, 'NGN')}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${coupon.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>

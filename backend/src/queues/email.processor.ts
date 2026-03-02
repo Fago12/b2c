@@ -3,12 +3,16 @@ import { Logger, Inject } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Resend } from 'resend';
 import { ConfigService } from '@nestjs/config';
+import { render } from '@react-email/render';
+import { PurchaseReceipt } from '../mail/templates/PurchaseReceipt';
+import { MailService } from '../mail/mail.service';
+import * as React from 'react';
 
 export interface EmailJobData {
   to: string;
   subject: string;
   html: string;
-  template?: 'welcome' | 'order-confirmation' | 'password-reset' | 'verification';
+  template?: 'welcome' | 'order-confirmation' | 'password-reset' | 'verification' | 'purchase-receipt';
   data?: Record<string, any>;
 }
 
@@ -18,8 +22,12 @@ export class EmailProcessor extends WorkerHost {
   private client: Resend | null = null;
   private defaultFrom: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private mailService: MailService,
+  ) {
     super();
+    this.logger.log('EmailProcessor: Instantiated and ready');
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
     
     if (apiKey) {
@@ -39,34 +47,56 @@ export class EmailProcessor extends WorkerHost {
     const { to, subject, html, template, data } = job.data;
 
     try {
-      // Generate HTML from template if provided
-      const emailHtml = template ? this.renderTemplate(template, data || {}) : html;
-
-      if (!this.client) {
-        // Development mode - just log
-        this.logger.log(`[DEV EMAIL] To: ${to}, Subject: ${subject}`);
+      if (template === 'purchase-receipt') {
+        this.logger.log(`Using MailService for rich purchase receipt: ${to}`);
+        await this.mailService.sendPurchaseReceipt(
+          to,
+          data?.orderId || 'UNKNOWN',
+          data?.total || 0,
+          data?.items || []
+        );
         return;
       }
 
-      const result = await this.client.emails.send({
-        from: this.defaultFrom,
-        to: Array.isArray(to) ? to : [to],
-        subject,
-        html: emailHtml,
-      });
+      this.logger.log(`Starting template rendering for ${template || 'no-template'}...`);
+      // Generate HTML from template if provided
+      const emailHtml = template ? await this.renderTemplate(template, data || {}) : html;
+      this.logger.log(`Template rendering complete for ${template}`);
 
-      if (result.error) {
-        throw new Error(result.error.message);
+      if (this.client) {
+        const result = await this.client.emails.send({
+          from: this.defaultFrom,
+          to: Array.isArray(to) ? to : [to],
+          subject,
+          html: emailHtml,
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+
+        this.logger.log(`Email sent via Resend to ${to}: ${result.data?.id}`);
+      } else {
+        // Fallback to MailService (SMTP/Ethereal)
+        this.logger.log(`Applying fallback delivery (MailService) for ${to}`);
+        await this.mailService.sendGenericEmail(to, subject, emailHtml);
+        this.logger.log(`Email sent via MailService fallback to ${to}`);
       }
-
-      this.logger.log(`Email sent successfully to ${to}: ${result.data?.id}`);
     } catch (error) {
       this.logger.error(`Failed to send email to ${to}:`, error);
       throw error; // Triggers retry
     }
   }
 
-  private renderTemplate(template: string, data: Record<string, any>): string {
+  private async renderTemplate(template: string, data: Record<string, any>): Promise<string> {
+    if (template === 'purchase-receipt') {
+      return await render(React.createElement(PurchaseReceipt, {
+        orderId: data.orderId,
+        total: data.total,
+        items: data.items
+      }));
+    }
+
     const templates: Record<string, (d: Record<string, any>) => string> = {
       'welcome': (d) => `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px;">

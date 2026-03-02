@@ -13,7 +13,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Search, RefreshCw, Package, AlertTriangle, XCircle, CheckCircle } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, fetchAdminApi } from "@/lib/api";
 
 interface Product {
     id: string;
@@ -47,8 +47,8 @@ export default function InventoryPage() {
         setLoading(true);
         try {
             const [productsData, statsData] = await Promise.all([
-                fetchApi("/products/admin/list?limit=100"),
-                fetchApi("/products/admin/stats"),
+                fetchAdminApi("/products/admin/list?limit=100"),
+                fetchAdminApi("/products/admin/stats"),
             ]);
             setProducts(productsData.products);
             setStats(statsData);
@@ -73,7 +73,7 @@ export default function InventoryPage() {
         if (!selectedProduct) return;
         setSaving(true);
         try {
-            await fetchApi(`/products/admin/${selectedProduct.id}/stock`, {
+            await fetchAdminApi(`/products/admin/${selectedProduct.id}/stock`, {
                 method: "PATCH",
                 body: JSON.stringify({ stock: newStock }),
             });

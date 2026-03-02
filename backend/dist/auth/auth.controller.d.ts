@@ -31,16 +31,23 @@ export declare class AuthController {
     getProfile(req: any): Promise<{
         id: string;
         email: string;
+        emailVerified: boolean;
         createdAt: Date;
         role: string;
         isVerified: boolean;
         orders: ({
             items: {
                 id: string;
-                orderId: string;
+                weightKG: number | null;
                 productId: string;
+                variantId: string | null;
                 quantity: number;
+                customization: import("@prisma/client/runtime/library").JsonValue | null;
                 price: number;
+                exchangeRateUsed: string;
+                unitPriceUSD: number;
+                unitPriceFinal: number;
+                orderId: string;
             }[];
         } & {
             id: string;
@@ -48,9 +55,20 @@ export declare class AuthController {
             createdAt: Date;
             userId: string | null;
             total: number;
-            status: import(".prisma/client").$Enums.OrderStatus;
-            paymentId: string | null;
+            currency: string;
+            isCustomOrder: boolean;
+            customerPhone: string | null;
             shippingAddress: import("@prisma/client/runtime/library").JsonValue;
+            regionCode: string;
+            exchangeRateUsed: string;
+            chargeCurrency: string;
+            chargeTotal: number;
+            status: import(".prisma/client").$Enums.OrderStatus;
+            displayCurrency: string;
+            displayTotal: number;
+            totalUSD: number;
+            paymentId: string | null;
+            shippingCost: number;
         })[];
     } | null>;
     logout(req: any, res: any): Promise<{

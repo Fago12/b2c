@@ -4,8 +4,8 @@ export declare class AnalyticsController {
     constructor(analyticsService: AnalyticsService);
     getDashboardStats(): Promise<{
         revenue: {
-            total: number;
-            today: number;
+            total: any;
+            today: any;
             change: number;
         };
         orders: {

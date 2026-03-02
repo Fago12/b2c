@@ -4,7 +4,10 @@ import { useState, useRef, useEffect } from 'react';
 import { ChatMessage, Message } from './ChatMessage';
 import styles from './ChatWidget.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+if (!apiUrl && typeof window !== 'undefined') {
+    console.error('NEXT_PUBLIC_API_URL is not defined');
+}
 
 interface ChatConfig {
     welcomeMessage: string;
@@ -22,17 +25,24 @@ export function ChatWidget() {
 
     // Load config on mount
     useEffect(() => {
-        fetch(`${API_URL}/chat/config`)
-            .then(res => res.json())
-            .then(data => {
-                setConfig(data);
-                setMessages([{
-                    role: 'assistant',
-                    content: data.welcomeMessage,
-                    timestamp: new Date(),
-                }]);
-            })
-            .catch(console.error);
+        const fetchConfig = async () => {
+            try {
+                const response = await fetch(`${apiUrl}/chat/config`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setConfig(data);
+                    setMessages([{
+                        role: 'assistant',
+                        content: data.welcomeMessage,
+                        timestamp: new Date(),
+                    }]);
+                }
+            } catch (error) {
+                console.warn('Chat config not available, skipping initialization.');
+            }
+        };
+
+        fetchConfig();
     }, []);
 
     // Scroll to bottom when messages change
@@ -55,7 +65,7 @@ export function ChatWidget() {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${API_URL}/chat/message`, {
+            const response = await fetch(`${apiUrl}/chat/message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text }),

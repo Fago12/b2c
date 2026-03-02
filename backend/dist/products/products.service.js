@@ -12,27 +12,74 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const pricing_service_1 = require("../commerce/pricing/pricing.service");
+const region_service_1 = require("../commerce/region/region.service");
 let ProductsService = class ProductsService {
     prisma;
-    constructor(prisma) {
+    pricingService;
+    regionService;
+    constructor(prisma, pricingService, regionService) {
         this.prisma = prisma;
+        this.pricingService = pricingService;
+        this.regionService = regionService;
     }
     create(createProductDto) {
         return this.prisma.product.create({ data: createProductDto });
     }
-    findAll() {
-        return this.prisma.product.findMany({
+    async findAll(regionCode) {
+        const products = await this.prisma.product.findMany({
             include: { category: true },
+            where: { isActive: true },
         });
+        const defaultRegion = await this.regionService.getDefaultRegion();
+        const activeRegionCode = regionCode || defaultRegion?.code || 'US';
+        return Promise.all(products.map(async (p) => {
+            const regional = await this.pricingService.getProductPrice(p.id, activeRegionCode);
+            return {
+                ...p,
+                regional,
+            };
+        }));
     }
-    findOne(id) {
-        return this.prisma.product.findUnique({
+    async findOne(id, regionCode) {
+        const product = await this.prisma.product.findUnique({
             where: { id },
-            include: { category: true },
+            include: {
+                category: true,
+                _count: {
+                    select: { orderItems: true }
+                }
+            },
         });
+        if (!product)
+            throw new common_1.NotFoundException('Product not found');
+        const defaultRegion = await this.regionService.getDefaultRegion();
+        const activeRegionCode = regionCode || defaultRegion?.code || 'US';
+        const regional = await this.pricingService.getProductPrice(product.id, activeRegionCode);
+        return {
+            ...product,
+            regional,
+        };
     }
-    findBySlug(slug) {
-        return this.prisma.product.findUnique({ where: { slug } });
+    async findOneBySlug(slug, regionCode) {
+        const product = await this.prisma.product.findUnique({
+            where: { slug },
+            include: {
+                category: true,
+                _count: {
+                    select: { orderItems: true }
+                }
+            },
+        });
+        if (!product || !product.isActive)
+            throw new common_1.NotFoundException('Product not found or inactive');
+        const defaultRegion = await this.regionService.getDefaultRegion();
+        const activeRegionCode = regionCode || defaultRegion?.code || 'US';
+        const regional = await this.pricingService.getProductPrice(product.id, activeRegionCode);
+        return {
+            ...product,
+            regional,
+        };
     }
     update(id, updateProductDto) {
         return this.prisma.product.update({
@@ -60,7 +107,12 @@ let ProductsService = class ProductsService {
         const [products, total] = await Promise.all([
             this.prisma.product.findMany({
                 where,
-                include: { category: true },
+                include: {
+                    category: true,
+                    _count: {
+                        select: { orderItems: true }
+                    }
+                },
                 orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,
@@ -78,27 +130,20 @@ let ProductsService = class ProductsService {
         };
     }
     async createProduct(data) {
-        const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const { categoryId, ...productData } = data;
         return this.prisma.product.create({
             data: {
-                name: data.name,
-                description: data.description,
-                price: data.price,
-                stock: data.stock,
-                images: data.images,
-                tags: data.tags || [],
-                attributes: data.attributes || {},
-                slug: `${slug}-${Date.now()}`,
-                category: { connect: { id: data.categoryId } },
+                ...productData,
+                category: { connect: { id: categoryId } },
             },
             include: { category: true },
         });
     }
     async updateProduct(id, data) {
-        const updateData = { ...data };
-        if (data.categoryId) {
-            updateData.category = { connect: { id: data.categoryId } };
-            delete updateData.categoryId;
+        const { categoryId, ...productData } = data;
+        const updateData = { ...productData };
+        if (categoryId) {
+            updateData.category = { connect: { id: categoryId } };
         }
         return this.prisma.product.update({
             where: { id },
@@ -126,6 +171,8 @@ let ProductsService = class ProductsService {
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        pricing_service_1.CommercePricingService,
+        region_service_1.RegionService])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

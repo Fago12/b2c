@@ -4,6 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email/send-email";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins/admin";
+import fs from "fs";
+import path from "path";
+
+const LOG_FILE = path.join(process.cwd(), "auth-debug.log");
+function logToFile(msg: string) {
+    try {
+        fs.appendFileSync(LOG_FILE, `[HOOK][${new Date().toISOString()}] ${msg}\n`);
+    } catch(e) {}
+}
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -31,6 +40,10 @@ export const auth = betterAuth({
             });
         },
     },
+    session: {
+        //@ts-ignore
+        cookiePrefix: "storefront-auth",
+    },
     // ... (rest of config)
 
     emailVerification: {
@@ -54,7 +67,28 @@ export const auth = betterAuth({
         nextCookies(),
         admin(),
     ],
-    // Secret management
+    hooks: {
+        before: async (ctx) => {
+            if (ctx.request) {
+                const url = new URL(ctx.request.url);
+                if (url.pathname.endsWith("/sign-in/email")) {
+                    const body = ctx.body as any;
+                    const email = (body?.email as string) || "";
+                    const user = await prisma.user.findUnique({
+                        where: { email }
+                    });
+                    
+                    if (user && ["ADMIN", "SUPER_ADMIN"].includes((user as any).role)) {
+                        throw new Error("Administrators must use the admin panel to log in.");
+                    }
+                }
+            }
+        }
+    },
+    advanced: {
+        //@ts-ignore - Supported in 1.x
+        cookiePrefix: "storefront-auth",
+    },
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000", 
     logger: {
