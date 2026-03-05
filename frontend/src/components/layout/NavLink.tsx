@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
@@ -22,6 +22,22 @@ interface NavLinkProps {
 export function NavLink({ href, label, items, isScrolled = false }: NavLinkProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+
+    const closeTimer = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseEnter = () => {
+        if (closeTimer.current) {
+            clearTimeout(closeTimer.current);
+            closeTimer.current = null;
+        }
+        setIsOpen(true);
+    };
+
+    const handleMouseLeave = () => {
+        closeTimer.current = setTimeout(() => {
+            setIsOpen(false);
+        }, 150); // 150ms grace period
+    };
 
     const textVariants = {
         initial: { y: 0 },
@@ -81,8 +97,8 @@ export function NavLink({ href, label, items, isScrolled = false }: NavLinkProps
         return (
             <div
                 className="relative"
-                onMouseEnter={() => setIsOpen(true)}
-                onMouseLeave={() => setIsOpen(false)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
             >
                 <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
                     <DropdownMenuTrigger asChild>
@@ -95,17 +111,17 @@ export function NavLink({ href, label, items, isScrolled = false }: NavLinkProps
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="center"
-                        sideOffset={12}
-                        className="rounded-none border-none bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] min-w-[160px] p-0 overflow-hidden"
-                        onMouseEnter={() => setIsOpen(true)}
-                        onMouseLeave={() => setIsOpen(false)}
+                        sideOffset={0}
+                        className="rounded-none border-none bg-transparent shadow-none min-w-[160px] p-0 pt-[12px] overflow-visible"
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
                     >
                         <motion.div
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 5 }}
                             transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                            className="flex flex-col"
+                            className="flex flex-col bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)] border-none overflow-hidden"
                         >
                             {items.map((item, index) => (
                                 <DropdownMenuItem

@@ -16,12 +16,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const client_1 = require("@prisma/client");
+const types_1 = require("./types");
 const lock_service_1 = require("../common/services/lock.service");
 const pricing_service_1 = require("../common/pricing.service");
 const shipping_service_1 = require("../commerce/shipping/shipping.service");
 const currency_service_1 = require("../commerce/currency/currency.service");
 const region_service_1 = require("../commerce/region/region.service");
+const mail_service_1 = require("../mail/mail.service");
 const decimal_js_1 = __importDefault(require("decimal.js"));
 let OrdersService = OrdersService_1 = class OrdersService {
     prisma;
@@ -30,14 +31,16 @@ let OrdersService = OrdersService_1 = class OrdersService {
     shippingService;
     currencyService;
     regionService;
+    mailService;
     logger = new common_1.Logger(OrdersService_1.name);
-    constructor(prisma, lockService, pricingService, shippingService, currencyService, regionService) {
+    constructor(prisma, lockService, pricingService, shippingService, currencyService, regionService, mailService) {
         this.prisma = prisma;
         this.lockService = lockService;
         this.pricingService = pricingService;
         this.shippingService = shippingService;
         this.currencyService = currencyService;
         this.regionService = regionService;
+        this.mailService = mailService;
     }
     async create(data) {
         const { items, email, shippingAddress, userId, isCustomOrder, customerPhone } = data;
@@ -47,7 +50,7 @@ let OrdersService = OrdersService_1 = class OrdersService {
             return await this.lockService.withLock(lockKey, async () => {
                 const products = (await this.prisma.product.findMany({
                     where: { id: { in: productIds } },
-                    select: { id: true, name: true, stock: true, basePriceUSD: true, customizationOptions: true, hasVariants: true, variants: true },
+                    select: { id: true, name: true, stock: true, basePriceUSD_cents: true, customizationOptions: true, hasVariants: true, variants: { include: { color: true, pattern: true } } },
                 }));
                 for (const item of items) {
                     const product = products.find((p) => p.id === item.productId);
@@ -96,8 +99,8 @@ let OrdersService = OrdersService_1 = class OrdersService {
                     const product = products.find(p => p.id === item.productId);
                     if (!product)
                         continue;
-                    const unitPriceRegional_cents = await this.pricingService.calculateProductPrice(item.productId, item.customization);
-                    const unitPriceUSD_cents = product.basePriceUSD;
+                    const unitPriceRegional_cents = await this.pricingService.calculateProductPrice(item.productId, item.customization, item.variantId);
+                    const unitPriceUSD_cents = product.basePriceUSD_cents;
                     const extraUSD_cents = item.customization ? unitPriceRegional_cents - unitPriceUSD_cents : 0;
                     const itemPriceUSD_cents = unitPriceRegional_cents;
                     orderItemsData.push({
@@ -155,7 +158,7 @@ let OrdersService = OrdersService_1 = class OrdersService {
                     }
                     const order = await tx.order.create({
                         data: {
-                            status: client_1.OrderStatus.PENDING,
+                            status: types_1.OrderStatus.PENDING,
                             email,
                             shippingAddress,
                             userId: finalUserId || null,
@@ -260,27 +263,67 @@ let OrdersService = OrdersService_1 = class OrdersService {
             },
         };
     }
-    async updateStatus(id, status) {
-        return this.prisma.order.update({
+    async updateStatus(id, status, metadata) {
+        return this.updateOrderStatus(id, status, metadata);
+    }
+    async updateOrderStatus(id, newStatus, metadata) {
+        const order = await this.prisma.order.findUnique({
             where: { id },
-            data: { status },
-            include: {
-                items: { include: { product: true } },
-                user: true
-            },
+            include: { items: { include: { product: true } }, user: true },
         });
+        if (!order)
+            throw new common_1.HttpException('Order not found', common_1.HttpStatus.NOT_FOUND);
+        const updateData = { status: newStatus };
+        if (newStatus === types_1.OrderStatus.PAID) {
+            updateData.paidAt = new Date();
+        }
+        else if (newStatus === types_1.OrderStatus.SHIPPED) {
+            if (!metadata?.carrier || !metadata?.trackingNumber) {
+                throw new common_1.HttpException('Carrier and Tracking Number are required for SHIPPED status.', common_1.HttpStatus.BAD_REQUEST);
+            }
+            updateData.shippedAt = new Date();
+            updateData.carrier = metadata.carrier;
+            updateData.trackingNumber = metadata.trackingNumber;
+        }
+        else if (newStatus === types_1.OrderStatus.DELIVERED) {
+            updateData.deliveredAt = new Date();
+        }
+        const updatedOrder = await this.prisma.order.update({
+            where: { id },
+            data: updateData,
+            include: { items: { include: { product: true } }, user: true },
+        });
+        try {
+            if (newStatus === types_1.OrderStatus.PAID) {
+                await this.mailService.sendPurchaseReceipt(updatedOrder.email, updatedOrder.id, updatedOrder.displayTotal, updatedOrder.items.map(item => ({
+                    name: item.product.name,
+                    quantity: item.quantity,
+                    price: item.unitPriceFinal,
+                })));
+            }
+            else if (newStatus === types_1.OrderStatus.SHIPPED) {
+                await this.mailService.sendShippingEmail(updatedOrder);
+            }
+            else if (newStatus === types_1.OrderStatus.DELIVERED) {
+                await this.mailService.sendDeliveredEmail(updatedOrder);
+            }
+        }
+        catch (error) {
+            this.logger.error(`Failed to send email for order ${id} status ${newStatus}:`, error);
+        }
+        return updatedOrder;
     }
     async getOrderStats() {
         const [total, pending, paid, shipped, delivered, cancelled] = await Promise.all([
             this.prisma.order.count(),
-            this.prisma.order.count({ where: { status: client_1.OrderStatus.PENDING } }),
-            this.prisma.order.count({ where: { status: client_1.OrderStatus.PAID } }),
-            this.prisma.order.count({ where: { status: client_1.OrderStatus.SHIPPED } }),
-            this.prisma.order.count({ where: { status: client_1.OrderStatus.DELIVERED } }),
-            this.prisma.order.count({ where: { status: client_1.OrderStatus.CANCELLED } }),
+            this.prisma.order.count({ where: { status: types_1.OrderStatus.PENDING } }),
+            this.prisma.order.count({ where: { status: types_1.OrderStatus.PAID } }),
+            this.prisma.order.count({ where: { status: types_1.OrderStatus.SHIPPED } }),
+            this.prisma.order.count({ where: { status: types_1.OrderStatus.DELIVERED } }),
+            this.prisma.order.count({ where: { status: types_1.OrderStatus.CANCELLED } }),
         ]);
         const revenue = await this.prisma.order.aggregate({
-            where: { status: { in: [client_1.OrderStatus.PAID, client_1.OrderStatus.SHIPPED, client_1.OrderStatus.DELIVERED] } },
+            where: { status: { in: [types_1.OrderStatus.PAID, types_1.OrderStatus.SHIPPED, types_1.OrderStatus.DELIVERED] } },
             _sum: { total: true },
         });
         return {
@@ -298,6 +341,7 @@ exports.OrdersService = OrdersService = OrdersService_1 = __decorate([
         pricing_service_1.PricingService,
         shipping_service_1.ShippingService,
         currency_service_1.CurrencyService,
-        region_service_1.RegionService])
+        region_service_1.RegionService,
+        mail_service_1.MailService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

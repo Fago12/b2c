@@ -17,15 +17,26 @@ let PricingService = class PricingService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async calculateProductPrice(productId, customization) {
+    async calculateProductPrice(productId, customization, variantId) {
         const product = await this.prisma.product.findUnique({
             where: { id: productId },
-            select: { basePriceUSD: true, customizationOptions: true },
+            select: { basePriceUSD_cents: true, salePriceUSD_cents: true, customizationOptions: true },
         });
         if (!product) {
             throw new Error(`Product with ID ${productId} not found`);
         }
-        let finalPriceUSD_cents = product.basePriceUSD;
+        let finalPriceUSD_cents = product.salePriceUSD_cents ?? product.basePriceUSD_cents;
+        if (variantId) {
+            const variant = await this.prisma.variant.findUnique({ where: { id: variantId } });
+            if (variant && variant.productId === productId) {
+                if (variant.salePriceUSD_cents != null && variant.salePriceUSD_cents > 0) {
+                    finalPriceUSD_cents = variant.salePriceUSD_cents;
+                }
+                else if (variant.priceUSD_cents != null && variant.priceUSD_cents > 0) {
+                    finalPriceUSD_cents = variant.priceUSD_cents;
+                }
+            }
+        }
         if (customization && product.customizationOptions) {
             const options = product.customizationOptions;
             if (customization.embroidery?.enabled && options.allowEmbroidery) {
@@ -37,7 +48,7 @@ let PricingService = class PricingService {
     async calculateTotal(items) {
         let totalUSD_cents = 0;
         for (const item of items) {
-            const pricePerUnitUSD_cents = await this.calculateProductPrice(item.productId, item.customization);
+            const pricePerUnitUSD_cents = await this.calculateProductPrice(item.productId, item.customization, item.variantId);
             totalUSD_cents += pricePerUnitUSD_cents * item.quantity;
         }
         return totalUSD_cents;

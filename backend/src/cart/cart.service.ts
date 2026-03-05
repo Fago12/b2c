@@ -16,7 +16,8 @@ export interface CartItem {
   unitPriceUSD: number; // cents (Frozen base price at addition)
   unitSalePriceUSD?: number; // cents (Frozen sale price at addition)
   exchangeRateUsed: string;
-  unitPriceFinal: number; // cents (Regionalized)
+  unitPriceFinal: number; // cents (Regionalized, includes sale if applicable)
+  unitBasePriceFinal?: number; // cents (Regionalized, always base price before sale)
   price: number; // cents (Total for line)
   weightKG: number; // Snapshot at addition
   customization: any;
@@ -101,6 +102,7 @@ export class CartService {
   ): Promise<Cart> {
     const product = (await this.prisma.product.findUnique({
       where: { id: productId },
+      include: { variants: { include: { images: true, color: true, pattern: true } } }
     })) as any;
 
     if (!product) {
@@ -117,7 +119,7 @@ export class CartService {
     cart.regionCode = regionCode;
 
     // 1. Find Specific Variant if requested
-    let unitPriceUSD = product.basePriceUSD;
+    let unitPriceUSD = product.basePriceUSD_cents;
     let selectedOptions = null;
     let variantImage = product.images?.[0];
     let variantStock = product.stock;
@@ -130,15 +132,15 @@ export class CartService {
       if (variant) {
         // PRIORITY CHAIN (Mirroring PricingService):
         // 1. Variant Sale Price > 2. Variant Price > 3. Product Sale Price > 4. Product Base Price
-        const vBase = variant.priceUSD || product.basePriceUSD;
-        const vSale = variant.salePriceUSD || product.salePriceUSD;
+        const vBase = variant.priceUSD_cents || product.basePriceUSD_cents;
+        const vSale = variant.salePriceUSD_cents || product.salePriceUSD_cents;
         
         unitPriceUSD = vBase;
         const unitSalePriceUSD = (vSale && vSale > 0) ? vSale : undefined;
 
         selectedOptions = variant.options;
         variantStock = variant.stock;
-        if (variant.image) variantImage = variant.image;
+        if (variant.imageUrl) variantImage = variant.imageUrl;
         
         // Final price to use for subtotal calc during addition
         const effectivePrice = unitSalePriceUSD ?? unitPriceUSD;
@@ -165,14 +167,23 @@ export class CartService {
     // Wait, the logic above for unitPriceUSD in variant block was complex. 
     // Let's simplify and be explicit.
     
-    let finalBaseUSD = product.basePriceUSD;
-    let finalSaleUSD = product.salePriceUSD || undefined;
+    // 1. Identify Pricing Hierarchy (Variant overrides Product)
+    let finalBaseUSD = product.basePriceUSD_cents;
+    let finalSaleUSD = product.salePriceUSD_cents || undefined;
 
-    if (variantId && (product.variants as any[])) {
+    if (variantId && product.variants) {
       const v = (product.variants as any[]).find(v => v.id === variantId || v.sku === variantId);
       if (v) {
-        finalBaseUSD = v.priceUSD || product.basePriceUSD;
-        finalSaleUSD = v.salePriceUSD || undefined;
+        // Use variant-specific base price if it exists, otherwise use product base price
+        if (v.priceUSD_cents !== undefined && v.priceUSD_cents !== null) {
+          finalBaseUSD = v.priceUSD_cents;
+        }
+        
+        // Use variant-specific sale price if it exists. 
+        // If it's explicitly null/undefined on the variant, it inherits the product-level sale price.
+        if (v.salePriceUSD_cents !== undefined && v.salePriceUSD_cents !== null) {
+          finalSaleUSD = v.salePriceUSD_cents;
+        }
       }
     }
 
@@ -229,6 +240,7 @@ export class CartService {
     } else {
       const product = (await this.prisma.product.findUnique({
         where: { id: productId },
+        include: { variants: true }
       })) as any;
 
       if (!product) throw new Error('Product not found');
@@ -311,9 +323,16 @@ export class CartService {
 
       // 1. Get Base Pricing in regional cents (Using SNAPSHOT price)
       // PRIORITY: Sale Price Snapshot > Base Price Snapshot
-      const frozenUSD = item.unitSalePriceUSD || item.unitPriceUSD || product.basePriceUSD;
+      const unitBaseUSD = item.unitPriceUSD || product.basePriceUSD_cents;
+      const unitSaleUSD = item.unitSalePriceUSD || undefined;
+      const frozenUSD = unitSaleUSD || unitBaseUSD;
       
       const unitPriceFinalRegional = new DecimalJS(frozenUSD)
+        .mul(rateDec)
+        .toDecimalPlaces(0, DecimalJS.ROUND_HALF_UP)
+        .toNumber();
+
+      const unitBasePriceFinalRegional = new DecimalJS(unitBaseUSD)
         .mul(rateDec)
         .toDecimalPlaces(0, DecimalJS.ROUND_HALF_UP)
         .toNumber();
@@ -326,6 +345,7 @@ export class CartService {
         .toNumber();
 
       item.unitPriceFinal = unitPriceFinalRegional + extraRegional_cents;
+      item.unitBasePriceFinal = unitBasePriceFinalRegional + extraRegional_cents;
       item.price = Number(item.unitPriceFinal) * Number(item.quantity || 1);
 
       // Aggregate Display Subtotal

@@ -14,6 +14,7 @@ export interface CartItem {
     unitSalePriceUSD?: number;
     exchangeRateUsed: string;
     unitPriceFinal: number;
+    unitBasePriceFinal?: number;
     price: number;
     weightKG: number;
     customization: any;

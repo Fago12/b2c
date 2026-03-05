@@ -112,9 +112,9 @@ export declare class UsersService {
                 customization: Prisma.JsonValue | null;
                 price: number;
                 exchangeRateUsed: string;
+                orderId: string;
                 unitPriceUSD: number;
                 unitPriceFinal: number;
-                orderId: string;
             }[];
         } & {
             id: string;
@@ -131,6 +131,11 @@ export declare class UsersService {
             chargeCurrency: string;
             chargeTotal: number;
             status: import(".prisma/client").$Enums.OrderStatus;
+            carrier: string | null;
+            trackingNumber: string | null;
+            paidAt: Date | null;
+            shippedAt: Date | null;
+            deliveredAt: Date | null;
             displayCurrency: string;
             displayTotal: number;
             totalUSD: number;

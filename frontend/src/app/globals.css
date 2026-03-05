@@ -74,6 +74,11 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
   }
+
+  /* Prevent double scrollbar on Admin Dashboard */
+  body:has(.admin-dashboard) {
+    overflow: hidden !important;
+  }
 }
 @layer utilities {
   .animate-marquee {

@@ -34,17 +34,8 @@ let ProductsController = class ProductsController {
     findAll(regionCode) {
         return this.productsService.findAll(regionCode);
     }
-    findOne(id, regionCode) {
-        return this.productsService.findOne(id, regionCode);
-    }
     findOneBySlug(slug, regionCode) {
         return this.productsService.findOneBySlug(slug, regionCode);
-    }
-    update(id, updateProductDto) {
-        return this.productsService.update(id, updateProductDto);
-    }
-    remove(id) {
-        return this.productsService.remove(id);
     }
     findAllAdmin(search, categoryId, page, limit) {
         const parsedPage = parseInt(page || '1');
@@ -116,35 +107,27 @@ let ProductsController = class ProductsController {
                 combinations.add(combo);
             }
         }
-        const basePriceUSD = data.basePrice ? Math.round(Number(data.basePrice) * 100) : (data.price ? Math.round(Number(data.price) * 100) : 0);
-        const salePriceUSD = (data.salePrice && data.salePrice !== 'null') ? Math.round(Number(data.salePrice) * 100) : null;
-        if (salePriceUSD != null && salePriceUSD > basePriceUSD) {
+        const basePriceUSD_cents = data.basePrice ? Math.round(Number(data.basePrice) * 100) : (data.price ? Math.round(Number(data.price) * 100) : 0);
+        const salePriceUSD_cents = (data.salePrice && data.salePrice !== 'null') ? Math.round(Number(data.salePrice) * 100) : null;
+        if (salePriceUSD_cents != null && salePriceUSD_cents > basePriceUSD_cents) {
             throw new common_1.HttpException('Base sale price cannot be higher than base price.', common_1.HttpStatus.BAD_REQUEST);
-        }
-        if (hasVariants && normalizedVariants) {
-            for (const v of normalizedVariants) {
-                const vPrice = v.priceUSD || basePriceUSD;
-                if (v.salePriceUSD != null && v.salePriceUSD > vPrice) {
-                    throw new common_1.HttpException(`Variant ${v.sku || ''} sale price ($${v.salePriceUSD / 100}) cannot be greater than its price ($${vPrice / 100}).`, common_1.HttpStatus.BAD_REQUEST);
-                }
-            }
         }
         const productData = {
             name: data.name,
             description: data.description,
-            basePriceUSD,
-            salePriceUSD,
+            basePriceUSD_cents,
+            salePriceUSD_cents,
             stock: hasVariants ? 0 : (data.stock ? Number(data.stock) : 0),
-            images: imageUrls,
+            productImages: imageUrls.map((url, index) => ({ imageUrl: url, sortOrder: index })),
             slug: data.slug || data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
             tags: safeParse(data.tags),
             attributes: safeParse(data.attributes),
             customizationOptions,
             options: safeParse(data.options),
-            variants: normalizedVariants,
             hasVariants: hasVariants,
             isActive: data.isActive === 'false' ? false : true,
             weightKG: data.weightKG ? Number(data.weightKG) : 0,
+            variants: normalizedVariants,
         };
         return this.productsService.createProduct({
             ...productData,
@@ -171,26 +154,40 @@ let ProductsController = class ProductsController {
                 return undefined;
             }
         };
-        let finalImages = newImageUrls;
+        const resolveMarkers = (obj) => {
+            if (!obj)
+                return obj;
+            const str = JSON.stringify(obj);
+            const replaced = str.replace(/__FILE_INDEX_(\d+)__/g, (match, p1) => {
+                const index = parseInt(p1);
+                return newImageUrls[index] || match;
+            });
+            return JSON.parse(replaced);
+        };
+        let productImages = safeParse(data.productImages);
         const existingImages = safeParse(data.existingImages || data.images);
-        if (Array.isArray(existingImages)) {
-            finalImages = [...existingImages, ...newImageUrls];
+        if (!productImages && Array.isArray(existingImages)) {
+            productImages = existingImages.map((url, index) => ({
+                imageUrl: url,
+                sortOrder: index
+            }));
         }
+        productImages = resolveMarkers(productImages);
         const productData = {};
         if (data.name)
             productData.name = data.name;
         if (data.description)
             productData.description = data.description;
         if (data.basePrice || data.price) {
-            productData.basePriceUSD = Math.round(Number(data.basePrice || data.price) * 100);
+            productData.basePriceUSD_cents = Math.round(Number(data.basePrice || data.price) * 100);
         }
         if (data.salePrice !== undefined) {
-            productData.salePriceUSD = data.salePrice === 'null' ? null : Math.round(Number(data.salePrice) * 100);
+            productData.salePriceUSD_cents = data.salePrice === 'null' ? null : Math.round(Number(data.salePrice) * 100);
         }
         if (data.stock !== undefined)
             productData.stock = Number(data.stock);
-        if (finalImages.length > 0 || data.existingImages)
-            productData.images = finalImages;
+        if (productImages)
+            productData.productImages = productImages;
         if (data.tags)
             productData.tags = safeParse(data.tags);
         if (data.attributes)
@@ -214,14 +211,16 @@ let ProductsController = class ProductsController {
             productData.weightKG = Number(data.weightKG);
         if (data.variants) {
             const variants = safeParse(data.variants);
-            productData.variants = Array.isArray(variants) ? variants.map(v => ({
+            const resolvedVariants = resolveMarkers(variants);
+            productData.variants = Array.isArray(resolvedVariants) ? resolvedVariants.map(v => ({
                 ...v,
-                priceUSD: (v.priceUSD != null && v.priceUSD !== '' && v.priceUSD !== 'null')
+                priceUSD_cents: (v.priceUSD != null && v.priceUSD !== '' && v.priceUSD !== 'null')
                     ? Math.round(Number(v.priceUSD) * 100)
                     : null,
-                salePriceUSD: (v.salePriceUSD != null && v.salePriceUSD !== '' && v.salePriceUSD !== 'null')
+                salePriceUSD_cents: (v.salePriceUSD != null && v.salePriceUSD !== '' && v.salePriceUSD !== 'null')
                     ? Math.round(Number(v.salePriceUSD) * 100)
-                    : null
+                    : null,
+                stock: Number(v.stock || 0)
             })) : undefined;
         }
         const hasVariants = data.hasVariants === 'true' || data.hasVariants === true;
@@ -240,8 +239,8 @@ let ProductsController = class ProductsController {
         const existingForValidation = (await this.productsService.findOne(id));
         const finalHasVariants = productData.hasVariants !== undefined ? productData.hasVariants : existingForValidation.hasVariants;
         const finalVariants = productData.variants || existingForValidation.variants;
-        const finalBasePrice = productData.basePriceUSD || existingForValidation.basePriceUSD;
-        const finalSalePrice = productData.salePriceUSD !== undefined ? productData.salePriceUSD : existingForValidation.salePriceUSD;
+        const finalBasePrice = productData.basePriceUSD_cents || existingForValidation.basePriceUSD_cents;
+        const finalSalePrice = productData.salePriceUSD_cents !== undefined ? productData.salePriceUSD_cents : existingForValidation.salePriceUSD_cents;
         if (finalSalePrice != null && finalSalePrice > finalBasePrice) {
             throw new common_1.HttpException('Base sale price cannot be higher than base price.', common_1.HttpStatus.BAD_REQUEST);
         }
@@ -256,9 +255,14 @@ let ProductsController = class ProductsController {
                     throw new common_1.HttpException(`Duplicate variant detected with options: ${combo}`, common_1.HttpStatus.BAD_REQUEST);
                 }
                 combinations.add(combo);
-                const vPrice = v.priceUSD || finalBasePrice;
-                if (v.salePriceUSD != null && v.salePriceUSD > vPrice) {
-                    throw new common_1.HttpException(`Variant ${v.sku || ''} sale price ($${v.salePriceUSD / 100}) cannot be greater than its price ($${vPrice / 100}).`, common_1.HttpStatus.BAD_REQUEST);
+                const vPrice_cents = (v.priceUSD != null && v.priceUSD !== '' && v.priceUSD !== 'null')
+                    ? Math.round(Number(v.priceUSD) * 100)
+                    : finalBasePrice;
+                const vSalePrice_cents = (v.salePriceUSD != null && v.salePriceUSD !== '' && v.salePriceUSD !== 'null')
+                    ? Math.round(Number(v.salePriceUSD) * 100)
+                    : null;
+                if (vSalePrice_cents != null && vSalePrice_cents > vPrice_cents) {
+                    throw new common_1.HttpException(`Variant ${v.sku || ''} sale price ($${v.salePriceUSD}) cannot be greater than its price ($${vPrice_cents / 100}).`, common_1.HttpStatus.BAD_REQUEST);
                 }
             }
         }
@@ -266,15 +270,51 @@ let ProductsController = class ProductsController {
             productData.isActive = data.isActive === 'false' ? false : true;
         if (data.slug)
             productData.slug = data.slug;
-        return this.productsService.updateProduct(id, {
-            ...productData,
-            categoryId: data.categoryId
-        });
+        try {
+            return await this.productsService.updateProduct(id, {
+                ...productData,
+                categoryId: data.categoryId
+            });
+        }
+        catch (error) {
+            console.error("[CONTROLLER ERROR in updateProduct]:", error);
+            throw new common_1.HttpException(error.message || 'Error updating product', error.status || common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     updateStock(id, stock) {
         return this.productsService.updateStock(id, stock);
     }
     deleteProduct(id) {
+        return this.productsService.remove(id);
+    }
+    findAllColors() {
+        return this.productsService.findAllColors();
+    }
+    createColor(data) {
+        return this.productsService.createColor(data);
+    }
+    findAllPatterns() {
+        return this.productsService.findAllPatterns();
+    }
+    createPattern(data) {
+        return this.productsService.createPattern(data);
+    }
+    addVariant(productId, data) {
+        const normalizedData = {
+            ...data,
+            priceUSD_cents: data.price ? Math.round(Number(data.price) * 100) : undefined,
+            salePriceUSD_cents: data.salePrice ? Math.round(Number(data.salePrice) * 100) : undefined,
+            stock: Number(data.stock || 0),
+        };
+        return this.productsService.addVariant(productId, normalizedData);
+    }
+    findOne(id, regionCode) {
+        return this.productsService.findOne(id, regionCode);
+    }
+    update(id, updateProductDto) {
+        return this.productsService.update(id, updateProductDto);
+    }
+    remove(id) {
         return this.productsService.remove(id);
     }
 };
@@ -296,14 +336,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('x-region-code')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findOne", null);
-__decorate([
     (0, common_1.Get)('slug/:slug'),
     __param(0, (0, common_1.Param)('slug')),
     __param(1, (0, common_1.Headers)('x-region-code')),
@@ -311,25 +343,6 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findOneBySlug", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "remove", null);
 __decorate([
     (0, common_1.Get)('admin/list'),
     (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
@@ -392,6 +405,77 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "deleteProduct", null);
+__decorate([
+    (0, common_1.Get)('admin/colors'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "findAllColors", null);
+__decorate([
+    (0, common_1.Post)('admin/colors'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "createColor", null);
+__decorate([
+    (0, common_1.Get)('admin/patterns'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "findAllPatterns", null);
+__decorate([
+    (0, common_1.Post)('admin/patterns'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "createPattern", null);
+__decorate([
+    (0, common_1.Post)('admin/:id/variants'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "addVariant", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Headers)('x-region-code')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "remove", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [products_service_1.ProductsService,

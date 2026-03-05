@@ -9,9 +9,10 @@ import { Product } from "@/types";
 import { Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/store/cart";
 import { PriceDisplay } from "./PriceDisplay";
-import { formatPrice } from "@/lib/utils";
-import { QuickVariantSelect } from "./QuickVariantSelect";
+import { cn, formatPrice } from "@/lib/utils";
+import { QuickAddModal } from "../products/QuickAddModal";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface ProductCardProps {
     product: Product;
@@ -19,18 +20,29 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     const addItem = useCart((state) => state.addItem);
-    const [showQuickSelect, setShowQuickSelect] = useState(false);
+    const [quickSelectId, setQuickSelectId] = useState<string | null>(null);
+    const [isAddingSimple, setIsAddingSimple] = useState<string | null>(null);
 
-    const hasVariants = (product as any).hasVariants || (product.variants && product.variants.length > 0);
+    const hasVariants = product.hasVariants || (product.variants && product.variants.length > 0);
 
-    const handleAddToCart = (e: React.MouseEvent) => {
+    const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
         e.preventDefault();
-        e.stopPropagation(); // Prevent navigation if clicking button inside Link wrapper
+        e.stopPropagation();
 
         if (hasVariants) {
-            setShowQuickSelect(true);
+            setQuickSelectId(product.id);
         } else {
-            addItem(product.id, 1);
+            setIsAddingSimple(product.id);
+            try {
+                await addItem(product.id, 1);
+                toast.success("Added to bag", {
+                    description: `${product.name} added successfully`
+                });
+            } catch (err) {
+                // Error handled by store
+            } finally {
+                setIsAddingSimple(null);
+            }
         }
     };
 
@@ -49,7 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
                     {(() => {
                         const totalStock = hasVariants
-                            ? (product as any).variants?.reduce((sum: number, v: any) => sum + (v.stock || 0), 0) || 0
+                            ? product.variants?.reduce((sum: number, v: any) => sum + (v.stock || 0), 0) || 0
                             : product.stock || 0;
 
                         if (totalStock <= 0) {
@@ -59,12 +71,28 @@ export function ProductCard({ product }: ProductCardProps) {
                                 </Badge>
                             );
                         }
+
+                        // Sale Badge logic
+                        if (product.regional && product.regional.finalPrice < product.regional.basePrice) {
+                            return (
+                                <Badge className="absolute top-4 left-4 bg-[#480100] text-white rounded-none border-0 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest z-10 shadow-lg">
+                                    Sale
+                                </Badge>
+                            );
+                        } else if (product.salePriceUSD_cents && product.salePriceUSD_cents < (product.basePriceUSD_cents || 0)) {
+                            return (
+                                <Badge className="absolute top-4 left-4 bg-[#480100] text-white rounded-none border-0 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest z-10 shadow-lg">
+                                    Sale
+                                </Badge>
+                            );
+                        }
+
                         return null;
                     })()}
 
                     {/* Functional Add to Cart (+) Button */}
                     <button
-                        onClick={handleAddToCart}
+                        onClick={(e) => handleAddToCart(e, product)}
                         className="absolute bottom-4 right-4 z-30 bg-white text-black p-2 rounded-none shadow-md transition-all duration-300 transform scale-0 opacity-0 group-hover/card:scale-100 group-hover/card:opacity-100 group/plus overflow-hidden"
                         title={hasVariants ? "Select options" : "Add to cart"}
                         style={{
@@ -72,28 +100,16 @@ export function ProductCard({ product }: ProductCardProps) {
                         }}
                     >
                         {hasVariants ? (
-                            <div className="flex items-center gap-1.5 px-0.5">
-                                <Plus className="h-4 w-4 transition-transform duration-500 group-hover/plus:rotate-90" />
-                                <span className="text-[9px] font-bold uppercase tracking-tighter">View Options</span>
-                            </div>
-                        ) : (
                             <Plus className="h-5 w-5 transition-transform duration-500 group-hover/plus:rotate-90" />
+                        ) : (
+                            <Plus className={cn("h-5 w-5 transition-transform duration-500 group-hover/plus:rotate-90", isAddingSimple === product.id && "animate-pulse")} />
                         )}
                     </button>
-
-                    {/* Quick Variant Selection Overlay */}
-                    {hasVariants && (
-                        <QuickVariantSelect
-                            product={product}
-                            isVisible={showQuickSelect}
-                            onClose={() => setShowQuickSelect(false)}
-                        />
-                    )}
                 </div>
             </Link>
             <CardHeader className="p-4 pt-4 block text-center space-y-2">
                 <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em] font-sans">
-                    {typeof product.category === 'object' ? product.category.name : product.category || 'Category'}
+                    {typeof product.category === 'object' ? (product.category as any).name : product.category || 'Category'}
                 </p>
                 <Link href={`/products/${product.slug}`} className="block">
                     <div className="space-y-1">
@@ -103,25 +119,41 @@ export function ProductCard({ product }: ProductCardProps) {
                         <div className="flex items-center gap-2 justify-center">
                             {product.regional ? (
                                 <>
-                                    <span className="text-[11px] font-bold text-primary tracking-widest font-sans">
+                                    <span className="text-[11px] font-bold text-[#480100] tracking-widest font-sans">
                                         {formatPrice(product.regional.finalPrice, product.regional.currency || 'USD')}
                                     </span>
                                     {product.regional.finalPrice < product.regional.basePrice && (
-                                        <span className="text-[9px] text-muted-foreground line-through opacity-50 font-sans">
+                                        <span className="text-[9px] text-muted-foreground line-through opacity-50 font-sans italic">
                                             {formatPrice(product.regional.basePrice, product.regional.currency || 'USD')}
                                         </span>
                                     )}
                                 </>
                             ) : (
-                                <PriceDisplay
-                                    amount={product.salePriceUSD || product.basePriceUSD || 0}
-                                    className="text-[11px] font-bold text-primary tracking-widest font-sans"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <PriceDisplay
+                                        amount={product.salePriceUSD_cents || product.basePriceUSD_cents || 0}
+                                        className="text-[11px] font-bold text-[#480100] tracking-widest font-sans"
+                                    />
+                                    {product.salePriceUSD_cents && product.salePriceUSD_cents < (product.basePriceUSD_cents || 0) && (
+                                        <PriceDisplay
+                                            amount={product.basePriceUSD_cents}
+                                            className="text-[9px] text-muted-foreground line-through opacity-50 font-sans italic"
+                                        />
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>
                 </Link>
             </CardHeader>
+            {/* Premium Quick Add Modal */}
+            {product.variants && product.variants.length > 0 && (
+                <QuickAddModal
+                    product={product}
+                    open={quickSelectId === product.id}
+                    onOpenChange={(open) => !open && setQuickSelectId(null)}
+                />
+            )}
         </Card>
     );
 }

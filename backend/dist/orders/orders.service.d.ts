@@ -1,11 +1,13 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, OrderStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { OrderStatus } from './types';
 import { LockService } from '../common/services/lock.service';
 import { PricingService } from '../common/pricing.service';
 import { ShippingService } from '../commerce/shipping/shipping.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CurrencyService } from '../commerce/currency/currency.service';
 import { RegionService } from '../commerce/region/region.service';
+import { MailService } from '../mail/mail.service';
 export declare class OrdersService {
     private prisma;
     private lockService;
@@ -13,8 +15,9 @@ export declare class OrdersService {
     private shippingService;
     private currencyService;
     private regionService;
+    private mailService;
     private readonly logger;
-    constructor(prisma: PrismaService, lockService: LockService, pricingService: PricingService, shippingService: ShippingService, currencyService: CurrencyService, regionService: RegionService);
+    constructor(prisma: PrismaService, lockService: LockService, pricingService: PricingService, shippingService: ShippingService, currencyService: CurrencyService, regionService: RegionService, mailService: MailService);
     create(data: CreateOrderDto): Promise<{
         items: {
             id: string;
@@ -25,9 +28,9 @@ export declare class OrdersService {
             customization: Prisma.JsonValue | null;
             price: number;
             exchangeRateUsed: string;
+            orderId: string;
             unitPriceUSD: number;
             unitPriceFinal: number;
-            orderId: string;
         }[];
     } & {
         id: string;
@@ -44,6 +47,11 @@ export declare class OrdersService {
         chargeCurrency: string;
         chargeTotal: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        carrier: string | null;
+        trackingNumber: string | null;
+        paidAt: Date | null;
+        shippedAt: Date | null;
+        deliveredAt: Date | null;
         displayCurrency: string;
         displayTotal: number;
         totalUSD: number;
@@ -82,9 +90,9 @@ export declare class OrdersService {
             customization: Prisma.JsonValue | null;
             price: number;
             exchangeRateUsed: string;
+            orderId: string;
             unitPriceUSD: number;
             unitPriceFinal: number;
-            orderId: string;
         }[];
     } & {
         id: string;
@@ -101,6 +109,11 @@ export declare class OrdersService {
         chargeCurrency: string;
         chargeTotal: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        carrier: string | null;
+        trackingNumber: string | null;
+        paidAt: Date | null;
+        shippedAt: Date | null;
+        deliveredAt: Date | null;
         displayCurrency: string;
         displayTotal: number;
         totalUSD: number;
@@ -138,8 +151,8 @@ export declare class OrdersService {
                 tags: string[];
                 slug: string;
                 description: string;
-                basePriceUSD: number;
-                salePriceUSD: number | null;
+                basePriceUSD_cents: number;
+                salePriceUSD_cents: number | null;
                 stock: number;
                 isActive: boolean;
                 images: string[];
@@ -148,7 +161,7 @@ export declare class OrdersService {
                 hasVariants: boolean;
                 weightKG: number;
                 options: Prisma.JsonValue | null;
-                variants: Prisma.JsonValue | null;
+                legacyVariants: Prisma.JsonValue | null;
                 customizationOptions: Prisma.JsonValue | null;
             };
         } & {
@@ -160,9 +173,9 @@ export declare class OrdersService {
             customization: Prisma.JsonValue | null;
             price: number;
             exchangeRateUsed: string;
+            orderId: string;
             unitPriceUSD: number;
             unitPriceFinal: number;
-            orderId: string;
         })[];
     } & {
         id: string;
@@ -179,6 +192,11 @@ export declare class OrdersService {
         chargeCurrency: string;
         chargeTotal: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        carrier: string | null;
+        trackingNumber: string | null;
+        paidAt: Date | null;
+        shippedAt: Date | null;
+        deliveredAt: Date | null;
         displayCurrency: string;
         displayTotal: number;
         totalUSD: number;
@@ -195,8 +213,8 @@ export declare class OrdersService {
                 tags: string[];
                 slug: string;
                 description: string;
-                basePriceUSD: number;
-                salePriceUSD: number | null;
+                basePriceUSD_cents: number;
+                salePriceUSD_cents: number | null;
                 stock: number;
                 isActive: boolean;
                 images: string[];
@@ -205,7 +223,7 @@ export declare class OrdersService {
                 hasVariants: boolean;
                 weightKG: number;
                 options: Prisma.JsonValue | null;
-                variants: Prisma.JsonValue | null;
+                legacyVariants: Prisma.JsonValue | null;
                 customizationOptions: Prisma.JsonValue | null;
             };
         } & {
@@ -217,9 +235,9 @@ export declare class OrdersService {
             customization: Prisma.JsonValue | null;
             price: number;
             exchangeRateUsed: string;
+            orderId: string;
             unitPriceUSD: number;
             unitPriceFinal: number;
-            orderId: string;
         })[];
     } & {
         id: string;
@@ -236,6 +254,11 @@ export declare class OrdersService {
         chargeCurrency: string;
         chargeTotal: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        carrier: string | null;
+        trackingNumber: string | null;
+        paidAt: Date | null;
+        shippedAt: Date | null;
+        deliveredAt: Date | null;
         displayCurrency: string;
         displayTotal: number;
         totalUSD: number;
@@ -279,8 +302,8 @@ export declare class OrdersService {
                     tags: string[];
                     slug: string;
                     description: string;
-                    basePriceUSD: number;
-                    salePriceUSD: number | null;
+                    basePriceUSD_cents: number;
+                    salePriceUSD_cents: number | null;
                     stock: number;
                     isActive: boolean;
                     images: string[];
@@ -289,7 +312,7 @@ export declare class OrdersService {
                     hasVariants: boolean;
                     weightKG: number;
                     options: Prisma.JsonValue | null;
-                    variants: Prisma.JsonValue | null;
+                    legacyVariants: Prisma.JsonValue | null;
                     customizationOptions: Prisma.JsonValue | null;
                 };
             } & {
@@ -301,9 +324,9 @@ export declare class OrdersService {
                 customization: Prisma.JsonValue | null;
                 price: number;
                 exchangeRateUsed: string;
+                orderId: string;
                 unitPriceUSD: number;
                 unitPriceFinal: number;
-                orderId: string;
             })[];
         } & {
             id: string;
@@ -320,6 +343,11 @@ export declare class OrdersService {
             chargeCurrency: string;
             chargeTotal: number;
             status: import(".prisma/client").$Enums.OrderStatus;
+            carrier: string | null;
+            trackingNumber: string | null;
+            paidAt: Date | null;
+            shippedAt: Date | null;
+            deliveredAt: Date | null;
             displayCurrency: string;
             displayTotal: number;
             totalUSD: number;
@@ -333,7 +361,10 @@ export declare class OrdersService {
             pages: number;
         };
     }>;
-    updateStatus(id: string, status: OrderStatus): Promise<{
+    updateStatus(id: string, status: OrderStatus, metadata?: {
+        carrier?: string;
+        trackingNumber?: string;
+    }): Promise<{
         user: {
             name: string | null;
             id: string;
@@ -364,8 +395,8 @@ export declare class OrdersService {
                 tags: string[];
                 slug: string;
                 description: string;
-                basePriceUSD: number;
-                salePriceUSD: number | null;
+                basePriceUSD_cents: number;
+                salePriceUSD_cents: number | null;
                 stock: number;
                 isActive: boolean;
                 images: string[];
@@ -374,7 +405,7 @@ export declare class OrdersService {
                 hasVariants: boolean;
                 weightKG: number;
                 options: Prisma.JsonValue | null;
-                variants: Prisma.JsonValue | null;
+                legacyVariants: Prisma.JsonValue | null;
                 customizationOptions: Prisma.JsonValue | null;
             };
         } & {
@@ -386,9 +417,9 @@ export declare class OrdersService {
             customization: Prisma.JsonValue | null;
             price: number;
             exchangeRateUsed: string;
+            orderId: string;
             unitPriceUSD: number;
             unitPriceFinal: number;
-            orderId: string;
         })[];
     } & {
         id: string;
@@ -405,6 +436,97 @@ export declare class OrdersService {
         chargeCurrency: string;
         chargeTotal: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        carrier: string | null;
+        trackingNumber: string | null;
+        paidAt: Date | null;
+        shippedAt: Date | null;
+        deliveredAt: Date | null;
+        displayCurrency: string;
+        displayTotal: number;
+        totalUSD: number;
+        paymentId: string | null;
+        shippingCost: number;
+    }>;
+    updateOrderStatus(id: string, newStatus: OrderStatus, metadata?: {
+        carrier?: string;
+        trackingNumber?: string;
+    }): Promise<{
+        user: {
+            name: string | null;
+            id: string;
+            email: string;
+            emailVerified: boolean;
+            image: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            role: string;
+            banned: boolean;
+            banReason: string | null;
+            banExpires: Date | null;
+            favoriteNumber: number | null;
+            password: string | null;
+            isVerified: boolean;
+            hashedRefreshToken: string | null;
+            verificationToken: string | null;
+            resetToken: string | null;
+            resetTokenExpires: Date | null;
+            avatar: string | null;
+            legacyRole: import(".prisma/client").$Enums.Role;
+        } | null;
+        items: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                tags: string[];
+                slug: string;
+                description: string;
+                basePriceUSD_cents: number;
+                salePriceUSD_cents: number | null;
+                stock: number;
+                isActive: boolean;
+                images: string[];
+                categoryId: string;
+                attributes: Prisma.JsonValue | null;
+                hasVariants: boolean;
+                weightKG: number;
+                options: Prisma.JsonValue | null;
+                legacyVariants: Prisma.JsonValue | null;
+                customizationOptions: Prisma.JsonValue | null;
+            };
+        } & {
+            id: string;
+            weightKG: number | null;
+            productId: string;
+            variantId: string | null;
+            quantity: number;
+            customization: Prisma.JsonValue | null;
+            price: number;
+            exchangeRateUsed: string;
+            orderId: string;
+            unitPriceUSD: number;
+            unitPriceFinal: number;
+        })[];
+    } & {
+        id: string;
+        email: string;
+        createdAt: Date;
+        userId: string | null;
+        total: number;
+        currency: string;
+        isCustomOrder: boolean;
+        customerPhone: string | null;
+        shippingAddress: Prisma.JsonValue;
+        regionCode: string;
+        exchangeRateUsed: string;
+        chargeCurrency: string;
+        chargeTotal: number;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        carrier: string | null;
+        trackingNumber: string | null;
+        paidAt: Date | null;
+        shippedAt: Date | null;
+        deliveredAt: Date | null;
         displayCurrency: string;
         displayTotal: number;
         totalUSD: number;

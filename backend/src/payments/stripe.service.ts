@@ -2,6 +2,7 @@ import { Injectable, Logger, RawBodyRequest } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { OrdersService } from '../orders/orders.service';
+import { OrderStatus } from '../orders/types';
 import { CartService } from '../cart/cart.service';
 import { MailService } from '../mail/mail.service';
 import { QueueService } from '../queues/queue.service';
@@ -121,7 +122,7 @@ export class StripeService {
     
     try {
         // 1. Update Order Status
-        const order = await this.ordersService.updateStatus(orderId, 'PAID');
+        const order = await this.ordersService.updateStatus(orderId, OrderStatus.PAID);
         this.logger.log(`Order updated to PAID: ${order.id}`);
 
         // 2. Clear Cart

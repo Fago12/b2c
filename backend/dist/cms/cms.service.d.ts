@@ -10,6 +10,7 @@ export declare class CmsService {
         isActive: boolean;
         title: string;
         content: string;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
     }[]>;
     findBySlug(slug: string): Promise<{
         id: string;
@@ -19,11 +20,13 @@ export declare class CmsService {
         isActive: boolean;
         title: string;
         content: string;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     create(data: {
         slug: string;
         title: string;
         content: string;
+        metadata?: any;
         isActive?: boolean;
     }): Promise<{
         id: string;
@@ -33,6 +36,7 @@ export declare class CmsService {
         isActive: boolean;
         title: string;
         content: string;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     update(id: string, data: any): Promise<{
         id: string;
@@ -42,6 +46,7 @@ export declare class CmsService {
         isActive: boolean;
         title: string;
         content: string;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -51,5 +56,6 @@ export declare class CmsService {
         isActive: boolean;
         title: string;
         content: string;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
 }

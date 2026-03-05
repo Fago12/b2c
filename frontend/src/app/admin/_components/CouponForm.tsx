@@ -23,7 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { fetchApi } from "@/lib/api";
+import { fetchAdminApi } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 // ... imports
@@ -76,12 +76,12 @@ export function CouponForm({ initialData, onSuccess }: CouponFormProps) {
             };
 
             if (initialData?.id) {
-                await fetchApi(`/coupons/admin/${initialData.id}`, {
+                await fetchAdminApi(`/coupons/admin/${initialData.id}`, {
                     method: "PATCH",
                     body: JSON.stringify(payload),
                 });
             } else {
-                await fetchApi("/coupons/admin/create", {
+                await fetchAdminApi("/coupons/admin/create", {
                     method: "POST",
                     body: JSON.stringify(payload),
                 });

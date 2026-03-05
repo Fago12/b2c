@@ -133,8 +133,8 @@ export class ChatService {
       where: {
         AND: [
           // Price filters
-          ...(maxPrice ? [{ basePriceUSD: { lte: maxPrice } }] : []),
-          ...(minPrice ? [{ basePriceUSD: { gte: minPrice } }] : []),
+          ...(maxPrice ? [{ basePriceUSD_cents: { lte: maxPrice } }] : []),
+          ...(minPrice ? [{ basePriceUSD_cents: { gte: minPrice } }] : []),
           // Keyword search
           ...(keywords.length > 0 ? [
             {
@@ -156,7 +156,7 @@ export class ChatService {
       id: p.id,
       name: p.name,
       description: p.description,
-      basePrice: p.basePriceUSD,
+      basePrice: p.basePriceUSD_cents,
       images: p.images,
       category: (p as any).category?.name || 'Uncategorized',
     }));

@@ -82,7 +82,7 @@ export default function ShopPage() {
 
                 // Set dynamic price range based on actual product data in the current currency
                 const prices = productsData.map((p: Product) =>
-                    (p.regional?.finalPrice || p.salePriceUSD || p.basePriceUSD || 0) / 100
+                    (p.regional?.finalPrice || p.salePriceUSD_cents || p.basePriceUSD_cents || 0) / 100
                 );
                 const max = Math.ceil(Math.max(...prices, 1000));
                 setMaxPrice(max);
@@ -134,19 +134,19 @@ export default function ShopPage() {
         const matchesCategory = selectedCategory === "ALL" || pCatSlug === selectedCategory;
 
         // Filtering should happen in the active regional currency
-        const regionalPrice = (product.regional?.finalPrice || product.salePriceUSD || product.basePriceUSD || 0) / 100;
+        const regionalPrice = (product.regional?.finalPrice || product.salePriceUSD_cents || product.basePriceUSD_cents || 0) / 100;
         const matchesPrice = regionalPrice >= priceRange[0] && regionalPrice <= priceRange[1];
 
         return matchesSearch && matchesCategory && matchesPrice;
     }).sort((a, b) => {
         if (sortBy === "PRICE_ASC") {
-            const priceA = a.regional?.finalPrice || a.salePriceUSD || a.basePriceUSD || 0;
-            const priceB = b.regional?.finalPrice || b.salePriceUSD || b.basePriceUSD || 0;
+            const priceA = a.regional?.finalPrice || a.salePriceUSD_cents || a.basePriceUSD_cents || 0;
+            const priceB = b.regional?.finalPrice || b.salePriceUSD_cents || b.basePriceUSD_cents || 0;
             return priceA - priceB;
         }
         if (sortBy === "PRICE_DESC") {
-            const priceA = a.regional?.finalPrice || a.salePriceUSD || a.basePriceUSD || 0;
-            const priceB = b.regional?.finalPrice || b.salePriceUSD || b.basePriceUSD || 0;
+            const priceA = a.regional?.finalPrice || a.salePriceUSD_cents || a.basePriceUSD_cents || 0;
+            const priceB = b.regional?.finalPrice || b.salePriceUSD_cents || b.basePriceUSD_cents || 0;
             return priceB - priceA;
         }
         return 0; // Default (Newest - assuming array is sorted by date from backend)

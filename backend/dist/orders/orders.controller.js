@@ -18,7 +18,7 @@ const orders_service_1 = require("./orders.service");
 const better_auth_guard_1 = require("../auth/better-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
-const client_1 = require("@prisma/client");
+const types_1 = require("./types");
 const idempotent_decorator_1 = require("../common/decorators/idempotent.decorator");
 const idempotency_interceptor_1 = require("../common/interceptors/idempotency.interceptor");
 const create_order_dto_1 = require("./dto/create-order.dto");
@@ -58,8 +58,8 @@ let OrdersController = class OrdersController {
     getStats() {
         return this.ordersService.getOrderStats();
     }
-    updateStatus(id, status) {
-        return this.ordersService.updateStatus(id, status);
+    updateStatus(id, status, carrier, trackingNumber) {
+        return this.ordersService.updateStatus(id, status, { carrier, trackingNumber });
     }
 };
 exports.OrdersController = OrdersController;
@@ -123,8 +123,10 @@ __decorate([
     (0, roles_decorator_1.Roles)('ADMIN', 'SUPER_ADMIN'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('status')),
+    __param(2, (0, common_1.Body)('carrier')),
+    __param(3, (0, common_1.Body)('trackingNumber')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateStatus", null);
 exports.OrdersController = OrdersController = __decorate([

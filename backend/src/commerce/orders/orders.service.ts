@@ -84,14 +84,14 @@ export class CommerceOrdersService {
       orderItemsData.push({
         productId: item.productId,
         quantity: item.quantity,
-        unitPriceUSD: product.basePriceUSD,
+        unitPriceUSD: product.basePriceUSD_cents,
         exchangeRateUsed: frozenRate,
         unitPriceFinal: unitPriceFinal_cents,
         price: lineTotalRegional_cents,
         customization: item.customization || {},
       });
 
-      subtotalUSD_cents += (product.basePriceUSD + extraUSD_cents) * item.quantity;
+      subtotalUSD_cents += (product.basePriceUSD_cents + extraUSD_cents) * item.quantity;
     }
 
     // 3. USD Canonical Base (Total cents)

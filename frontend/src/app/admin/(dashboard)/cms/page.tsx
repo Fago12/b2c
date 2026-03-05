@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { fetchApi } from "@/lib/api";
+import { fetchAdminApi } from "@/lib/api";
+import { CMSImageUpload } from "@/app/admin/_components/CMSImageUpload";
 import {
     Dialog,
     DialogContent,
@@ -28,7 +29,7 @@ export default function CmsPagesPage() {
     const loadPages = async () => {
         setLoading(true);
         try {
-            const data = await fetchApi("/cms");
+            const data = await fetchAdminApi("/cms");
             setPages(data);
         } catch (error) {
             toast.error("Failed to load CMS pages");
@@ -51,14 +52,14 @@ export default function CmsPagesPage() {
         try {
             if (editingPage.id) {
                 // Update
-                await fetchApi(`/cms/${editingPage.id}`, {
+                await fetchAdminApi(`/cms/${editingPage.id}`, {
                     method: 'PATCH',
                     body: JSON.stringify(editingPage)
                 });
                 toast.success(`Page "${editingPage.title}" updated successfully`);
             } else {
                 // Create
-                await fetchApi("/cms", {
+                await fetchAdminApi("/cms", {
                     method: 'POST',
                     body: JSON.stringify(editingPage)
                 });
@@ -77,7 +78,7 @@ export default function CmsPagesPage() {
         if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
 
         try {
-            await fetchApi(`/cms/${id}`, { method: 'DELETE' });
+            await fetchAdminApi(`/cms/${id}`, { method: 'DELETE' });
             toast.success(`Page "${title}" deleted`);
             loadPages();
         } catch (error: any) {
@@ -203,16 +204,217 @@ export default function CmsPagesPage() {
                                 />
                                 <label htmlFor="isActive" className="text-xs font-bold uppercase tracking-tight cursor-pointer">Published / Active</label>
                             </div>
-                            <div className="space-y-2 flex-1">
-                                <label className="text-xs font-bold uppercase tracking-tight">Main Content (HTML/Markdown support)</label>
-                                <div className="text-[10px] text-muted-foreground mb-1 italic">Note: Use HTML tags for formatting (e.g., &lt;h2&gt;, &lt;p&gt;)</div>
-                                <Textarea
-                                    className="min-h-[400px] font-mono text-xs leading-relaxed"
-                                    value={editingPage.content}
-                                    onChange={e => setEditingPage({ ...editingPage, content: e.target.value })}
-                                    disabled={saving}
-                                />
-                            </div>
+                            {editingPage.slug !== 'our-craft' && (
+                                <div className="space-y-2 flex-1">
+                                    <label className="text-xs font-bold uppercase tracking-tight">Main Content (HTML/Markdown support)</label>
+                                    <div className="text-[10px] text-muted-foreground mb-1 italic">Note: Use HTML tags for formatting (e.g., &lt;h2&gt;, &lt;p&gt;)</div>
+                                    <Textarea
+                                        className="min-h-[200px] font-mono text-xs leading-relaxed"
+                                        value={editingPage.content}
+                                        onChange={e => setEditingPage({ ...editingPage, content: e.target.value })}
+                                        disabled={saving}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Specialized Metadata for Our Story */}
+                            {editingPage.slug === 'our-story' ? (
+                                <div className="space-y-4 pt-4 border-t">
+                                    <h4 className="text-sm font-bold uppercase tracking-widest text-[#480100]">Our Story Specialized Sections</h4>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <CMSImageUpload
+                                            label="Hero Image"
+                                            value={editingPage.metadata?.heroImage || ""}
+                                            onChange={url => setEditingPage({
+                                                ...editingPage,
+                                                metadata: { ...editingPage.metadata, heroImage: url }
+                                            })}
+                                        />
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase tracking-tight">Designers Section Title</label>
+                                            <Input
+                                                value={editingPage.metadata?.designersTitle || "Designers"}
+                                                onChange={e => setEditingPage({
+                                                    ...editingPage,
+                                                    metadata: { ...editingPage.metadata, designersTitle: e.target.value }
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-tight">Designers Description</label>
+                                        <Textarea
+                                            value={editingPage.metadata?.designersDescription || ""}
+                                            onChange={e => setEditingPage({
+                                                ...editingPage,
+                                                metadata: { ...editingPage.metadata, designersDescription: e.target.value }
+                                            })}
+                                            rows={3}
+                                            placeholder="At Woven Kulture, our designers..."
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-tight">Designers Quote</label>
+                                        <Textarea
+                                            value={editingPage.metadata?.designersQuote || ""}
+                                            onChange={e => setEditingPage({
+                                                ...editingPage,
+                                                metadata: { ...editingPage.metadata, designersQuote: e.target.value }
+                                            })}
+                                            rows={2}
+                                            placeholder="With a shared passion for..."
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <CMSImageUpload
+                                            label="Designer Image 1"
+                                            value={editingPage.metadata?.designerImage1 || ""}
+                                            onChange={url => setEditingPage({
+                                                ...editingPage,
+                                                metadata: { ...editingPage.metadata, designerImage1: url }
+                                            })}
+                                        />
+                                        <CMSImageUpload
+                                            label="Designer Image 2"
+                                            value={editingPage.metadata?.designerImage2 || ""}
+                                            onChange={url => setEditingPage({
+                                                ...editingPage,
+                                                metadata: { ...editingPage.metadata, designerImage2: url }
+                                            })}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase tracking-tight">Final Quote</label>
+                                            <Input
+                                                value={editingPage.metadata?.finalQuote || "Preserving the past, weaving the future."}
+                                                onChange={e => setEditingPage({
+                                                    ...editingPage,
+                                                    metadata: { ...editingPage.metadata, finalQuote: e.target.value }
+                                                })}
+                                            />
+                                        </div>
+                                        <CMSImageUpload
+                                            label="Final Section Image"
+                                            value={editingPage.metadata?.finalImage || ""}
+                                            onChange={url => setEditingPage({
+                                                ...editingPage,
+                                                metadata: { ...editingPage.metadata, finalImage: url }
+                                            })}
+                                        />
+                                    </div>
+                                </div>
+                            ) : editingPage.slug === 'our-craft' ? (
+                                <div className="space-y-6 pt-4 border-t">
+                                    <h4 className="text-sm font-bold uppercase tracking-widest text-[#480100]">Our Craft Specialized Sections</h4>
+
+                                    {/* Section 1: Handcrafted */}
+                                    <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
+                                        <h5 className="text-xs font-bold uppercase tracking-tight text-slate-500">Section 1: Handcrafted Design</h5>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold uppercase tracking-tight">Title</label>
+                                                <Input
+                                                    value={editingPage.metadata?.section1Title || "Handcrafted Design"}
+                                                    onChange={e => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section1Title: e.target.value } })}
+                                                />
+                                            </div>
+                                            <CMSImageUpload
+                                                label="Section 1 Image"
+                                                value={editingPage.metadata?.section1Image || ""}
+                                                onChange={url => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section1Image: url } })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase tracking-tight">Description</label>
+                                            <Textarea
+                                                value={editingPage.metadata?.section1Desc || ""}
+                                                onChange={e => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section1Desc: e.target.value } })}
+                                                rows={4}
+                                                placeholder="At Woven Kulture, each piece is a testament..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Section 2: Curated */}
+                                    <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
+                                        <h5 className="text-xs font-bold uppercase tracking-tight text-slate-500">Section 2: Curated Selection</h5>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold uppercase tracking-tight">Title</label>
+                                                <Input
+                                                    value={editingPage.metadata?.section2Title || "Curated Selection"}
+                                                    onChange={e => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section2Title: e.target.value } })}
+                                                />
+                                            </div>
+                                            <CMSImageUpload
+                                                label="Section 2 Image"
+                                                value={editingPage.metadata?.section2Image || ""}
+                                                onChange={url => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section2Image: url } })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase tracking-tight">Description</label>
+                                            <Textarea
+                                                value={editingPage.metadata?.section2Desc || ""}
+                                                onChange={e => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section2Desc: e.target.value } })}
+                                                rows={4}
+                                                placeholder="Our commitment to curated design means..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Section 3: Craftsmanship */}
+                                    <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
+                                        <h5 className="text-xs font-bold uppercase tracking-tight text-slate-500">Section 3: Exquisite Craftsmanship</h5>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold uppercase tracking-tight">Title</label>
+                                                <Input
+                                                    value={editingPage.metadata?.section3Title || "Exquisite Craftsmanship"}
+                                                    onChange={e => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section3Title: e.target.value } })}
+                                                />
+                                            </div>
+                                            <CMSImageUpload
+                                                label="Section 3 Image"
+                                                value={editingPage.metadata?.section3Image || ""}
+                                                onChange={url => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section3Image: url } })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase tracking-tight">Description</label>
+                                            <Textarea
+                                                value={editingPage.metadata?.section3Desc || ""}
+                                                onChange={e => setEditingPage({ ...editingPage, metadata: { ...editingPage.metadata, section3Desc: e.target.value } })}
+                                                rows={4}
+                                                placeholder="Our artisans bring years of expertise..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-2 pt-4 border-t">
+                                    <label className="text-xs font-bold uppercase tracking-tight">Metadata (JSON)</label>
+                                    <Textarea
+                                        className="font-mono text-[10px]"
+                                        value={editingPage.metadata ? JSON.stringify(editingPage.metadata, null, 2) : ""}
+                                        onChange={e => {
+                                            try {
+                                                const parsed = e.target.value ? JSON.parse(e.target.value) : null;
+                                                setEditingPage({ ...editingPage, metadata: parsed });
+                                            } catch (err) {
+                                                // Allow typing invalid JSON
+                                            }
+                                        }}
+                                        placeholder="{}"
+                                    />
+                                </div>
+                            )}
                         </div>
                         <DialogFooter className="pt-4 border-t">
                             <Button variant="ghost" onClick={() => setEditingPage(null)} disabled={saving}>Cancel</Button>

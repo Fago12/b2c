@@ -3,8 +3,10 @@ import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, CloudinaryModule],
   providers: [MediaService],
   controllers: [MediaController],
   exports: [MediaService],

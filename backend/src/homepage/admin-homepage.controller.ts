@@ -291,5 +291,33 @@ export class AdminHomepageController {
   async deletePromo(@Param('id') id: string) {
     return this.prisma.promoBanner.delete({ where: { id } });
   }
+
+  // --- Flash Sale ---
+  @Get('flash-sale')
+  async getFlashSales() {
+    return this.prisma.flashSale.findMany({ orderBy: { updatedAt: 'desc' } });
+  }
+
+  @Post('flash-sale')
+  async createFlashSale(@Body() data: any) {
+    return this.prisma.flashSale.create({
+      data: {
+        ...data,
+        endsAt: new Date(data.endsAt)
+      }
+    });
+  }
+
+  @Patch('flash-sale/:id')
+  async updateFlashSale(@Param('id') id: string, @Body() data: any) {
+    const updateData = { ...data };
+    if (data.endsAt) updateData.endsAt = new Date(data.endsAt);
+    return this.prisma.flashSale.update({ where: { id }, data: updateData });
+  }
+
+  @Delete('flash-sale/:id')
+  async deleteFlashSale(@Param('id') id: string) {
+    return this.prisma.flashSale.delete({ where: { id } });
+  }
 }
 

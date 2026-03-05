@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AdminHeader } from "../_components/AdminHeader";
 import { AdminSidebar } from "../_components/AdminSidebar";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,17 @@ export default function AdminDashboardLayout({
 }>) {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    useEffect(() => {
+        // Prevent body from scrolling while in administrative dashboard
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = 'unset';
+            document.documentElement.style.overflow = 'unset';
+        };
+    }, []);
+
     return (
         <div className="flex h-screen w-full overflow-hidden bg-muted/40 font-sans admin-dashboard">
             <AdminSidebar isCollapsed={isCollapsed} />
@@ -22,7 +33,7 @@ export default function AdminDashboardLayout({
                     isCollapsed={isCollapsed}
                     onToggle={() => setIsCollapsed(!isCollapsed)}
                 />
-                <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-background/50 font-sans">
+                <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-background/50 font-sans custom-scrollbar">
                     <div className="mx-auto max-w-[1600px]">
                         {children}
                     </div>

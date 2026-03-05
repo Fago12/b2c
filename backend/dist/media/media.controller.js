@@ -16,10 +16,14 @@ exports.MediaController = void 0;
 const common_1 = require("@nestjs/common");
 const media_service_1 = require("./media.service");
 const better_auth_guard_1 = require("../auth/better-auth.guard");
+const platform_express_1 = require("@nestjs/platform-express");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 let MediaController = class MediaController {
     mediaService;
-    constructor(mediaService) {
+    cloudinary;
+    constructor(mediaService, cloudinary) {
         this.mediaService = mediaService;
+        this.cloudinary = cloudinary;
     }
     async getUploadUrl(body) {
         const result = await this.mediaService.getSignedUploadUrl(body.metadata);
@@ -39,6 +43,13 @@ let MediaController = class MediaController {
     }
     async listImages(page, perPage) {
         return this.mediaService.listImages(parseInt(page || '1'), parseInt(perPage || '20'));
+    }
+    async upload(file) {
+        const result = await this.cloudinary.uploadImage(file);
+        return {
+            url: result.secure_url,
+            id: result.public_id,
+        };
     }
     mockUpload(body) {
         const mockId = `mock-${Date.now()}`;
@@ -84,6 +95,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MediaController.prototype, "listImages", null);
 __decorate([
+    (0, common_1.Post)('upload'),
+    (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MediaController.prototype, "upload", null);
+__decorate([
     (0, common_1.Post)('mock-upload'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -92,6 +112,7 @@ __decorate([
 ], MediaController.prototype, "mockUpload", null);
 exports.MediaController = MediaController = __decorate([
     (0, common_1.Controller)('media'),
-    __metadata("design:paramtypes", [media_service_1.MediaService])
+    __metadata("design:paramtypes", [media_service_1.MediaService,
+        cloudinary_service_1.CloudinaryService])
 ], MediaController);
 //# sourceMappingURL=media.controller.js.map

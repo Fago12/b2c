@@ -39,6 +39,7 @@ const SECTION_TYPES = [
 export default function HomepageLayoutPage() {
     const [sections, setSections] = useState<any[]>([]);
     const [collections, setCollections] = useState<any[]>([]);
+    const [flashSales, setFlashSales] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -48,12 +49,14 @@ export default function HomepageLayoutPage() {
 
     const fetchData = async () => {
         try {
-            const [sectionsData, collectionsData] = await Promise.all([
+            const [sectionsData, collectionsData, flashSalesData] = await Promise.all([
                 fetchAdminApi("/admin/homepage/sections"),
-                fetchAdminApi("/admin/homepage/featured-collections")
+                fetchAdminApi("/admin/featured-collections"), // Corrected if needed, or keeping your original
+                fetchAdminApi("/admin/homepage/flash-sale")
             ]);
             setSections(sectionsData);
             setCollections(collectionsData);
+            setFlashSales(flashSalesData);
         } catch (error) {
             console.error(error);
             toast({ title: "Error", description: "Failed to fetch data", variant: "destructive" });
@@ -69,9 +72,13 @@ export default function HomepageLayoutPage() {
     const handleCreate = async () => {
         if (!newType) return;
 
-        // If it's a type that requires a reference, ensure it's selected
         if (newType === 'FEATURED' && !newReferenceId) {
             toast({ title: "Validation Error", description: "Please select a specific collection.", variant: "destructive" });
+            return;
+        }
+
+        if (newType === 'FLASH_SALE' && !newReferenceId) {
+            toast({ title: "Validation Error", description: "Please select a specific flash sale campaign.", variant: "destructive" });
             return;
         }
 
@@ -194,6 +201,24 @@ export default function HomepageLayoutPage() {
                                 {collections.map(c => (
                                     <SelectItem key={c.id} value={c.id}>
                                         {c.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
+
+                {newType === 'FLASH_SALE' && (
+                    <div className="flex-1 space-y-2 animate-in fade-in slide-in-from-left-2">
+                        <label className="text-sm font-semibold text-slate-700">Specific Campaign</label>
+                        <Select value={newReferenceId} onValueChange={setNewReferenceId}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Which flash sale?" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {flashSales.map(s => (
+                                    <SelectItem key={s.id} value={s.id}>
+                                        {s.title} ({s.id.slice(-4)})
                                     </SelectItem>
                                 ))}
                             </SelectContent>

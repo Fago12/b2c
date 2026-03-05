@@ -18,6 +18,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const stripe_1 = __importDefault(require("stripe"));
 const orders_service_1 = require("../orders/orders.service");
+const types_1 = require("../orders/types");
 const cart_service_1 = require("../cart/cart.service");
 const mail_service_1 = require("../mail/mail.service");
 const queue_service_1 = require("../queues/queue.service");
@@ -125,7 +126,7 @@ let StripeService = StripeService_1 = class StripeService {
         }
         this.logger.log(`Processing Order: ${orderId}`);
         try {
-            const order = await this.ordersService.updateStatus(orderId, 'PAID');
+            const order = await this.ordersService.updateStatus(orderId, types_1.OrderStatus.PAID);
             this.logger.log(`Order updated to PAID: ${order.id}`);
             const sessionId = metadata?.sessionId;
             if (sessionId) {

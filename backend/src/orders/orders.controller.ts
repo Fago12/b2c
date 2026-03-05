@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { BetterAuthGuard } from '../auth/better-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus } from './types';
 import { Idempotent } from '../common/decorators/idempotent.decorator';
 import { IdempotencyInterceptor } from '../common/interceptors/idempotency.interceptor';
 
@@ -80,8 +80,10 @@ export class OrdersController {
   updateStatus(
     @Param('id') id: string,
     @Body('status') status: OrderStatus,
+    @Body('carrier') carrier?: string,
+    @Body('trackingNumber') trackingNumber?: string,
   ) {
-    return this.ordersService.updateStatus(id, status);
+    return this.ordersService.updateStatus(id, status, { carrier, trackingNumber });
   }
 }
 

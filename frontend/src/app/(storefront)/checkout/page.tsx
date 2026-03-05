@@ -61,7 +61,8 @@ export default function CheckoutPage() {
 
     // Form State
     const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [address, setAddress] = useState({
         line1: "",
         city: "",
@@ -80,9 +81,10 @@ export default function CheckoutPage() {
         const cachedData = localStorage.getItem('checkout_form');
         if (cachedData) {
             try {
-                const { email, phone, address } = JSON.parse(cachedData);
+                const { email, firstName, lastName, address } = JSON.parse(cachedData);
                 if (email) setEmail(email);
-                if (phone) setPhone(phone);
+                if (firstName) setFirstName(firstName);
+                if (lastName) setLastName(lastName);
                 if (address) setAddress(address);
             } catch (e) {
                 console.error("Failed to load cached checkout data", e);
@@ -95,11 +97,12 @@ export default function CheckoutPage() {
         if (mounted) {
             localStorage.setItem('checkout_form', JSON.stringify({
                 email,
-                phone,
+                firstName,
+                lastName,
                 address
             }));
         }
-    }, [email, phone, address, mounted]);
+    }, [email, firstName, lastName, address, mounted]);
 
     useEffect(() => {
         if (address.country) {
@@ -182,22 +185,16 @@ export default function CheckoutPage() {
 
 
     const handleCreateOrder = async (): Promise<string | null> => {
-        if (!email || !address.line1 || !address.city || !address.country) {
-            toast.error("Incomplete Details", { description: "Please provide your email and full shipping address." });
+        if (!email || !firstName || !lastName || !address.line1 || !address.city || !address.country) {
+            toast.error("Incomplete Details", { description: "Please provide your contact info and full shipping address." });
             return null;
         }
 
-        // Check if any item has customization - if so, phone is mandatory
         const isCustomOrder = items.some(item =>
             item.customization?.embroidery ||
             item.customization?.customColor ||
             item.customization?.note
         );
-
-        if (isCustomOrder && !phone) {
-            toast.error("Phone Number Required", { description: "Bespoke orders require a contact number for verification." });
-            return null;
-        }
 
         try {
             const orderData = {
@@ -214,7 +211,9 @@ export default function CheckoutPage() {
                 chargeTotal: chargeTotal,
                 chargeCurrency: chargeCurrency,
                 email,
-                customerPhone: phone,
+                customerName: `${firstName} ${lastName}`,
+                firstName,
+                lastName,
                 shippingAddress: address,
                 shippingCost,
                 isCustomOrder,
@@ -257,21 +256,31 @@ export default function CheckoutPage() {
                                     <Label className="text-[10px] uppercase font-bold tracking-widest">Email Address</Label>
                                     <Input
                                         type="email"
-                                        className="h-12 rounded-none focus:border-[#480100]"
+                                        className="h-12 rounded-none focus:border-[#480100] bg-slate-50 border-slate-100"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
-                                        placeholder="Enter email for order confirmation"
+                                        placeholder="your@email.com"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] uppercase font-bold tracking-widest">Phone Number (Required for Bespoke Items)</Label>
-                                    <Input
-                                        type="tel"
-                                        className="h-12 rounded-none focus:border-[#480100]"
-                                        value={phone}
-                                        onChange={e => setPhone(e.target.value)}
-                                        placeholder="+1 234 567 890"
-                                    />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">First Name</Label>
+                                        <Input
+                                            className="h-12 rounded-none focus:border-[#480100]"
+                                            value={firstName}
+                                            onChange={e => setFirstName(e.target.value)}
+                                            placeholder="John"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] uppercase font-bold tracking-widest">Last Name</Label>
+                                        <Input
+                                            className="h-12 rounded-none focus:border-[#480100]"
+                                            value={lastName}
+                                            onChange={e => setLastName(e.target.value)}
+                                            placeholder="Doe"
+                                        />
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

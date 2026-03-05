@@ -34,7 +34,10 @@ let CommercePricingService = CommercePricingService_1 = class CommercePricingSer
             if (!region)
                 throw new Error(`Fallback region US not found in database`);
         }
-        const product = await this.prisma.product.findUnique({ where: { id: productId } });
+        const product = await this.prisma.product.findUnique({
+            where: { id: productId },
+            include: { variants: true }
+        });
         if (!product)
             throw new Error(`Product ${productId} not found`);
         const frozenRate = await this.currencyService.getRate(region.currency);
@@ -48,7 +51,7 @@ let CommercePricingService = CommercePricingService_1 = class CommercePricingSer
             },
         });
         if (override) {
-            const convertedBase = new decimal_js_1.default(product.basePriceUSD)
+            const convertedBase = new decimal_js_1.default(product.basePriceUSD_cents)
                 .mul(rateDec)
                 .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
                 .toNumber();
@@ -61,20 +64,19 @@ let CommercePricingService = CommercePricingService_1 = class CommercePricingSer
                 isOverride: true,
             };
         }
-        let finalUSD = product.salePriceUSD ?? product.basePriceUSD;
-        if (variantId && product.variants) {
-            const variants = product.variants;
-            const variant = variants.find(v => v.id === variantId || v.sku === variantId);
-            if (variant) {
-                if (variant.salePriceUSD != null && variant.salePriceUSD > 0) {
-                    finalUSD = variant.salePriceUSD;
+        let finalUSD = product.salePriceUSD_cents ?? product.basePriceUSD_cents;
+        if (variantId) {
+            const variant = await this.prisma.variant.findUnique({ where: { id: variantId } });
+            if (variant && variant.productId === productId) {
+                if (variant.salePriceUSD_cents != null && variant.salePriceUSD_cents > 0) {
+                    finalUSD = variant.salePriceUSD_cents;
                 }
-                else if (variant.priceUSD != null && variant.priceUSD > 0) {
-                    finalUSD = variant.priceUSD;
+                else if (variant.priceUSD_cents != null && variant.priceUSD_cents > 0) {
+                    finalUSD = variant.priceUSD_cents;
                 }
             }
         }
-        const conversionBase = new decimal_js_1.default(product.basePriceUSD)
+        const conversionBase = new decimal_js_1.default(product.basePriceUSD_cents)
             .mul(rateDec)
             .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
             .toNumber();

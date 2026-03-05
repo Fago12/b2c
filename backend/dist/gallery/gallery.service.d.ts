@@ -8,8 +8,8 @@ export declare class GalleryService {
         createdAt: Date;
         type: import(".prisma/client").$Enums.GalleryItemType;
         isActive: boolean;
-        displayOrder: number;
         url: string;
+        displayOrder: number;
         tag: string | null;
     }[]>;
     create(data: {
@@ -22,8 +22,8 @@ export declare class GalleryService {
         createdAt: Date;
         type: import(".prisma/client").$Enums.GalleryItemType;
         isActive: boolean;
-        displayOrder: number;
         url: string;
+        displayOrder: number;
         tag: string | null;
     }>;
     update(id: string, data: any): Promise<{
@@ -31,8 +31,8 @@ export declare class GalleryService {
         createdAt: Date;
         type: import(".prisma/client").$Enums.GalleryItemType;
         isActive: boolean;
-        displayOrder: number;
         url: string;
+        displayOrder: number;
         tag: string | null;
     }>;
     remove(id: string): Promise<{
@@ -40,8 +40,8 @@ export declare class GalleryService {
         createdAt: Date;
         type: import(".prisma/client").$Enums.GalleryItemType;
         isActive: boolean;
-        displayOrder: number;
         url: string;
+        displayOrder: number;
         tag: string | null;
     }>;
 }

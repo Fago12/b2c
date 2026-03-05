@@ -9,9 +9,9 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
         isActive: boolean;
+        imageUrl: string | null;
         isComingSoon: boolean;
         displayOrder: number;
-        imageUrl: string | null;
     }>;
     findAll(isActive?: boolean): Prisma.PrismaPromise<{
         name: string;
@@ -19,9 +19,9 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
         isActive: boolean;
+        imageUrl: string | null;
         isComingSoon: boolean;
         displayOrder: number;
-        imageUrl: string | null;
     }[]>;
     findOne(id: string): Prisma.Prisma__CategoryClient<{
         name: string;
@@ -29,9 +29,9 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
         isActive: boolean;
+        imageUrl: string | null;
         isComingSoon: boolean;
         displayOrder: number;
-        imageUrl: string | null;
     } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
     update(id: string, updateCategoryDto: Prisma.CategoryUpdateInput): Promise<{
         name: string;
@@ -39,9 +39,9 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
         isActive: boolean;
+        imageUrl: string | null;
         isComingSoon: boolean;
         displayOrder: number;
-        imageUrl: string | null;
     }>;
     remove(id: string): Prisma.Prisma__CategoryClient<{
         name: string;
@@ -49,8 +49,8 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
         isActive: boolean;
+        imageUrl: string | null;
         isComingSoon: boolean;
         displayOrder: number;
-        imageUrl: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
 }

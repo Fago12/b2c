@@ -1,12 +1,14 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, OrderStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { OrderStatus } from './types';
 import { LockService } from '../common/services/lock.service';
 import { PricingService } from '../common/pricing.service';
 import { ShippingService } from '../commerce/shipping/shipping.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CurrencyService } from '../commerce/currency/currency.service';
 import { RegionService } from '../commerce/region/region.service';
+import { MailService } from '../mail/mail.service';
 import DecimalJS from 'decimal.js';
 
 @Injectable()
@@ -20,6 +22,7 @@ export class OrdersService {
     private shippingService: ShippingService,
     private currencyService: CurrencyService,
     private regionService: RegionService,
+    private mailService: MailService,
   ) {}
 
   async create(data: CreateOrderDto) {
@@ -36,7 +39,7 @@ export class OrdersService {
           // 1. Verify availability and get base prices
           const products = (await this.prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true, name: true, stock: true, basePriceUSD: true, customizationOptions: true, hasVariants: true, variants: true } as any,
+            select: { id: true, name: true, stock: true, basePriceUSD_cents: true, customizationOptions: true, hasVariants: true, variants: { include: { color: true, pattern: true } } } as any,
           })) as any[];
 
           for (const item of items) {
@@ -102,11 +105,11 @@ export class OrdersService {
             if (!product) continue;
             
             // Base price in regional cents via PricingService
-            const unitPriceRegional_cents = await this.pricingService.calculateProductPrice(item.productId, item.customization);
+            const unitPriceRegional_cents = await this.pricingService.calculateProductPrice(item.productId, item.customization, item.variantId);
             
             // Track USD canonical for charge fallback
-            const unitPriceUSD_cents = product.basePriceUSD;
-            const extraUSD_cents = item.customization ? unitPriceRegional_cents - unitPriceUSD_cents : 0; // Simple logic assuming regional pricing isn't used here yet (matching CartService)
+            const unitPriceUSD_cents = product.basePriceUSD_cents;
+            const extraUSD_cents = item.customization ? unitPriceRegional_cents - unitPriceUSD_cents : 0;
             
             // Wait, PricingService calculateProductPrice returns USD cents currently
             // Let's rely on that for now as the canonical USD source
@@ -315,15 +318,70 @@ export class OrdersService {
     };
   }
 
-  async updateStatus(id: string, status: OrderStatus) {
-    return this.prisma.order.update({
+  async updateStatus(id: string, status: OrderStatus, metadata?: { carrier?: string; trackingNumber?: string }) {
+    return this.updateOrderStatus(id, status, metadata);
+  }
+
+  /**
+   * Centralized Order Status Update Logic
+   * Handles timestamps, email triggers, and validation.
+   */
+  async updateOrderStatus(id: string, newStatus: OrderStatus, metadata?: { carrier?: string; trackingNumber?: string }) {
+    const order = await this.prisma.order.findUnique({
       where: { id },
-      data: { status },
-      include: { 
-        items: { include: { product: true } }, 
-        user: true 
-      },
+      include: { items: { include: { product: true } }, user: true },
     });
+
+    if (!order) throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
+
+    const updateData: any = { status: newStatus };
+
+    // 1. Set Timestamps and Metadata
+    if (newStatus === OrderStatus.PAID) {
+      updateData.paidAt = new Date();
+    } else if (newStatus === OrderStatus.SHIPPED) {
+      if (!metadata?.carrier || !metadata?.trackingNumber) {
+        throw new HttpException('Carrier and Tracking Number are required for SHIPPED status.', HttpStatus.BAD_REQUEST);
+      }
+      updateData.shippedAt = new Date();
+      updateData.carrier = metadata.carrier;
+      updateData.trackingNumber = metadata.trackingNumber;
+    } else if (newStatus === OrderStatus.DELIVERED) {
+      updateData.deliveredAt = new Date();
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { id },
+      data: updateData,
+      include: { items: { include: { product: true } }, user: true },
+    });
+
+    // 2. Trigger Emails
+    try {
+      if (newStatus === OrderStatus.PAID) {
+        await this.mailService.sendPurchaseReceipt(
+          updatedOrder.email,
+          updatedOrder.id,
+          updatedOrder.displayTotal,
+          updatedOrder.items.map(item => ({
+            name: (item.product as any).name,
+            quantity: item.quantity,
+            price: item.unitPriceFinal,
+          }))
+        );
+      } else if (newStatus === OrderStatus.SHIPPED) {
+        // We'll implement sendShippingEmail in MailService next
+        await (this.mailService as any).sendShippingEmail(updatedOrder);
+      } else if (newStatus === OrderStatus.DELIVERED) {
+        // We'll implement sendDeliveredEmail in MailService next
+        await (this.mailService as any).sendDeliveredEmail(updatedOrder);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to send email for order ${id} status ${newStatus}:`, error);
+      // Don't fail the transaction if email fails, but log it
+    }
+
+    return updatedOrder;
   }
 
   async getOrderStats() {

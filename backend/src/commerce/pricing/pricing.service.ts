@@ -36,7 +36,10 @@ export class CommercePricingService {
       if (!region) throw new Error(`Fallback region US not found in database`);
     }
 
-    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    const product = await this.prisma.product.findUnique({ 
+      where: { id: productId },
+      include: { variants: true }
+    });
     if (!product) throw new Error(`Product ${productId} not found`);
 
     const frozenRate = await this.currencyService.getRate(region.currency);
@@ -54,7 +57,7 @@ export class CommercePricingService {
 
     if (override) {
       // Manual overrides are already in regional cents
-      const convertedBase = new Decimal(product.basePriceUSD)
+      const convertedBase = new Decimal(product.basePriceUSD_cents)
         .mul(rateDec)
         .toDecimalPlaces(0, Decimal.ROUND_HALF_UP)
         .toNumber();
@@ -76,26 +79,25 @@ export class CommercePricingService {
     // 3. Product Sale Price (if any)
     // 4. Product Base Price (required)
     
-    let finalUSD = product.salePriceUSD ?? product.basePriceUSD;
+    let finalUSD = product.salePriceUSD_cents ?? product.basePriceUSD_cents;
     
-    if (variantId && (product as any).variants) {
-      const variants = (product as any).variants as any[];
-      const variant = variants.find(v => v.id === variantId || v.sku === variantId);
-      if (variant) {
+    if (variantId) {
+      const variant = await this.prisma.variant.findUnique({ where: { id: variantId } });
+      if (variant && variant.productId === productId) {
         // Use variant's specific sale price if it exists
-        if (variant.salePriceUSD != null && variant.salePriceUSD > 0) {
-            finalUSD = variant.salePriceUSD;
+        if (variant.salePriceUSD_cents != null && variant.salePriceUSD_cents > 0) {
+            finalUSD = variant.salePriceUSD_cents;
         } 
         // Else use variant's base price if it exists
-        else if (variant.priceUSD != null && variant.priceUSD > 0) {
-            finalUSD = variant.priceUSD;
+        else if (variant.priceUSD_cents != null && variant.priceUSD_cents > 0) {
+            finalUSD = variant.priceUSD_cents;
         }
-        // Else it automatically stays as product.salePriceUSD ?? product.basePriceUSD (Inheritance)
+        // Else it automatically stays as product.salePriceUSD_cents ?? product.basePriceUSD_cents (Inheritance)
       }
     }
 
     // 3. Automatic conversion for the selected price
-    const conversionBase = new Decimal(product.basePriceUSD)
+    const conversionBase = new Decimal(product.basePriceUSD_cents)
       .mul(rateDec)
       .toDecimalPlaces(0, Decimal.ROUND_HALF_UP)
       .toNumber();

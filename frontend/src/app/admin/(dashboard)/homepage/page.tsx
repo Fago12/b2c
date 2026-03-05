@@ -52,7 +52,7 @@ const sections = [
         title: "Flash Sales",
         description: "Set up countdown timers and sale sections.",
         icon: Flame,
-        href: "/admin/homepage/layout", // These are layout-level configurations
+        href: "/admin/homepage/flash-sale",
         color: "text-red-500"
     }
 ];

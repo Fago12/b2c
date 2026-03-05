@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const media_service_1 = require("./media.service");
 const media_controller_1 = require("./media.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
+const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 let MediaModule = class MediaModule {
 };
 exports.MediaModule = MediaModule;
 exports.MediaModule = MediaModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, cloudinary_module_1.CloudinaryModule],
         providers: [media_service_1.MediaService],
         controllers: [media_controller_1.MediaController],
         exports: [media_service_1.MediaService],

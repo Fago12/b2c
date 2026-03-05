@@ -247,6 +247,26 @@ let AdminHomepageController = class AdminHomepageController {
     async deletePromo(id) {
         return this.prisma.promoBanner.delete({ where: { id } });
     }
+    async getFlashSales() {
+        return this.prisma.flashSale.findMany({ orderBy: { updatedAt: 'desc' } });
+    }
+    async createFlashSale(data) {
+        return this.prisma.flashSale.create({
+            data: {
+                ...data,
+                endsAt: new Date(data.endsAt)
+            }
+        });
+    }
+    async updateFlashSale(id, data) {
+        const updateData = { ...data };
+        if (data.endsAt)
+            updateData.endsAt = new Date(data.endsAt);
+        return this.prisma.flashSale.update({ where: { id }, data: updateData });
+    }
+    async deleteFlashSale(id) {
+        return this.prisma.flashSale.delete({ where: { id } });
+    }
 };
 exports.AdminHomepageController = AdminHomepageController;
 __decorate([
@@ -425,6 +445,34 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminHomepageController.prototype, "deletePromo", null);
+__decorate([
+    (0, common_1.Get)('flash-sale'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminHomepageController.prototype, "getFlashSales", null);
+__decorate([
+    (0, common_1.Post)('flash-sale'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminHomepageController.prototype, "createFlashSale", null);
+__decorate([
+    (0, common_1.Patch)('flash-sale/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], AdminHomepageController.prototype, "updateFlashSale", null);
+__decorate([
+    (0, common_1.Delete)('flash-sale/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminHomepageController.prototype, "deleteFlashSale", null);
 exports.AdminHomepageController = AdminHomepageController = __decorate([
     (0, common_1.Controller)('admin/homepage'),
     (0, common_1.UseGuards)(better_auth_guard_1.BetterAuthGuard, roles_guard_1.RolesGuard),

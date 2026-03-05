@@ -23,6 +23,7 @@ import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight, RefreshCw, Packa
 import { fetchApi, fetchAdminApi } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { ProductForm, ProductFormValues } from "../../_components/ProductForm";
+import { toast } from "sonner";
 
 // Fallback if toast not available or use console
 const safeToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -31,11 +32,15 @@ const safeToast = (message: string, type: 'success' | 'error' = 'success') => {
 };
 
 interface Product {
+    [key: string]: any;
     id: string;
     name: string;
     description: string;
-    basePriceUSD: number;
-    salePriceUSD?: number;
+    basePriceUSD_cents: number;
+    salePriceUSD_cents?: number;
+    // Map these for ProductForm compatibility
+    basePrice: number;
+    salePrice?: number;
     stock: number;
     images: string[];
     categoryId: string;
@@ -73,6 +78,7 @@ export default function ProductsPage() {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+    const [saving, setSaving] = useState(false);
 
     const fetchProducts = useCallback(async () => {
         setLoading(true);
@@ -82,7 +88,12 @@ export default function ProductsPage() {
             if (categoryFilter && categoryFilter !== "all") params.append("category", categoryFilter);
 
             const data = await fetchAdminApi(`/products/admin/list?${params}`);
-            setProducts(data.products);
+            const mappedProducts = (data.products || []).map((p: any) => ({
+                ...p,
+                basePrice: p.basePriceUSD_cents ? p.basePriceUSD_cents / 100 : 0,
+                salePrice: p.salePriceUSD_cents ? p.salePriceUSD_cents / 100 : undefined
+            }));
+            setProducts(mappedProducts);
             setPagination(data.pagination);
         } catch (error) {
             console.error("Failed to fetch products:", error);
@@ -120,28 +131,107 @@ export default function ProductsPage() {
     };
 
     const handleSave = async (data: any) => {
+        setSaving(true);
+        console.log("Saving product data:", data);
         try {
             const formData = new FormData();
             formData.append("name", data.name);
             formData.append("description", data.description);
-            formData.append("basePrice", String(data.basePrice || data.price));
-            formData.append("stock", String(data.stock));
+            formData.append("basePrice", String(data.basePrice || 0));
+            formData.append("stock", String(data.stock || 0));
             formData.append("categoryId", data.categoryId);
+            formData.append("slug", data.slug || "");
+            formData.append("weightKG", String(data.weightKG || 0));
 
-            if (data.customizationOptions) {
-                formData.append("customizationOptions", JSON.stringify(data.customizationOptions));
-            }
-            if (data.tags) {
-                formData.append("tags", JSON.stringify(data.tags));
-            }
-            if (data.attributes) {
-                formData.append("attributes", JSON.stringify(data.attributes));
-            }
-            if (data.options) {
-                formData.append("options", JSON.stringify(data.options));
-            }
+            if (data.tags) formData.append("tags", JSON.stringify(data.tags));
+            if (data.attributes) formData.append("attributes", JSON.stringify(data.attributes));
+            if (data.customizationOptions) formData.append("customizationOptions", JSON.stringify(data.customizationOptions));
+
+            // Structured Product Images logic
+            const productImages: any[] = [];
+            const filesToUpload: File[] = [];
+
+            // Map to track file indices
+            const fileMap = new Map<File, number>();
+
+            data.images?.forEach((img: any, index: number) => {
+                if (typeof img === "string") {
+                    productImages.push({ imageUrl: img, sortOrder: index });
+                } else if (img instanceof File) {
+                    fileMap.set(img, filesToUpload.length);
+                    filesToUpload.push(img);
+                    formData.append("images", img);
+                    productImages.push({ imageUrl: `__FILE_INDEX_${fileMap.get(img)}__`, sortOrder: index });
+                }
+            });
+
+            formData.append("productImages", JSON.stringify(productImages));
+
+            // Map Variants
             if (data.variants) {
-                formData.append("variants", JSON.stringify(data.variants));
+                const mappedVariants = data.variants.map((v: any) => {
+                    const variantImages: { imageUrl: string; sortOrder: number }[] = [...(v.variantImages || [])];
+                    let imageUrl = v.imageUrl; // Initialize imageUrl for potential use later
+
+                    if (v.variantFiles && v.variantFiles.length > 0) {
+                        v.variantFiles.forEach((file: File) => {
+                            if (!fileMap.has(file)) {
+                                fileMap.set(file, filesToUpload.length);
+                                filesToUpload.push(file);
+                                formData.append("images", file);
+                            }
+                            variantImages.push({
+                                imageUrl: `__FILE_INDEX_${fileMap.get(file)}__`,
+                                sortOrder: variantImages.length
+                            });
+                        });
+                    }
+
+                    // Fallback to base product image if no variant-specific images are set
+                    if (variantImages.length === 0) {
+                        if (v.imageIndex !== undefined && data.images[v.imageIndex]) {
+                            const img = data.images[v.imageIndex];
+                            let fallbackUrl = "";
+                            if (typeof img === 'string') {
+                                fallbackUrl = img;
+                            } else if (img instanceof File) {
+                                if (!fileMap.has(img)) {
+                                    fileMap.set(img, filesToUpload.length);
+                                    filesToUpload.push(img);
+                                    formData.append("images", img);
+                                }
+                                fallbackUrl = `__FILE_INDEX_${fileMap.get(img)}__`;
+                            }
+                            if (fallbackUrl) {
+                                variantImages.push({ imageUrl: fallbackUrl, sortOrder: 0 });
+                                imageUrl = fallbackUrl;
+                            }
+                        }
+                    } else {
+                        imageUrl = variantImages[0].imageUrl;
+                    }
+
+                    let pattern = v.pattern;
+                    const possibleFile = pattern?.patternFile || pattern?.previewImageUrl;
+
+                    if (pattern && possibleFile instanceof File) {
+                        const file = possibleFile;
+                        if (!fileMap.has(file)) {
+                            fileMap.set(file, filesToUpload.length);
+                            filesToUpload.push(file);
+                            formData.append("images", file);
+                        }
+                        pattern = {
+                            ...pattern,
+                            previewImageUrl: `__FILE_INDEX_${fileMap.get(file)}__`
+                        };
+                        delete (pattern as any).patternFile;
+                    }
+
+                    const { imageIndex, variantFile, variantFiles, variantImages: _vi, ...rest } = v;
+                    return { ...rest, imageUrl, pattern, images: variantImages };
+                });
+                formData.append("variants", JSON.stringify(mappedVariants));
             }
 
             if (data.salePrice) {
@@ -150,38 +240,26 @@ export default function ProductsPage() {
                 formData.append("salePrice", "null");
             }
 
-            // Separate existing URLs from new File objects
-            const existingImages: string[] = [];
-            data.images?.forEach((img: any) => {
-                if (typeof img === "string") {
-                    existingImages.push(img);
-                } else if (img instanceof File) {
-                    formData.append("images", img);
-                }
-            });
-
-            if (existingImages.length > 0) {
-                formData.append("existingImages", JSON.stringify(existingImages));
-            }
-
             if (editingProduct) {
                 await fetchAdminApi(`/products/admin/${editingProduct.id}`, {
                     method: "PATCH",
                     body: formData,
                 });
-                safeToast("Product updated successfully");
+                toast.success("Product updated successfully");
             } else {
                 await fetchAdminApi("/products/admin/create", {
                     method: "POST",
                     body: formData,
                 });
-                safeToast("Product created successfully");
+                toast.success("Product created successfully");
             }
             setDialogOpen(false);
             fetchProducts();
         } catch (error) {
             console.error("Failed to save product:", error);
-            safeToast("Failed to save product", "error");
+            toast.error("Failed to save product");
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -310,7 +388,7 @@ export default function ProductsPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-sm">{product.category?.name || "—"}</td>
-                                                <td className="px-4 py-3 text-sm font-bold">{formatPrice(product.basePriceUSD || 0)}</td>
+                                                <td className="px-4 py-3 text-sm font-bold">{formatPrice(product.basePriceUSD_cents || 0)}</td>
                                                 <td className="px-4 py-3 text-sm">
                                                     {hasVariants ? (
                                                         <div className="flex flex-col">
@@ -384,7 +462,7 @@ export default function ProductsPage() {
 
             {/* Create/Edit Dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="max-w-lg">
+                <DialogContent className="max-w-6xl">
                     <DialogHeader>
                         <DialogTitle>{editingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
                         <DialogDescription>
@@ -397,6 +475,7 @@ export default function ProductsPage() {
                         onSubmit={handleSave}
                         defaultValues={editingProduct || undefined}
                         submitLabel={editingProduct ? "Update Product" : "Create Product"}
+                        loading={saving}
                     />
                 </DialogContent>
             </Dialog>

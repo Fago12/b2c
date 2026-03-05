@@ -28,7 +28,17 @@ let ProductsService = class ProductsService {
     }
     async findAll(regionCode) {
         const products = await this.prisma.product.findMany({
-            include: { category: true },
+            include: {
+                category: true,
+                productImages: { orderBy: { sortOrder: 'asc' } },
+                variants: {
+                    include: {
+                        color: true,
+                        pattern: true,
+                        images: { orderBy: { sortOrder: 'asc' } }
+                    }
+                }
+            },
             where: { isActive: true },
         });
         const defaultRegion = await this.regionService.getDefaultRegion();
@@ -46,6 +56,14 @@ let ProductsService = class ProductsService {
             where: { id },
             include: {
                 category: true,
+                productImages: { orderBy: { sortOrder: 'asc' } },
+                variants: {
+                    include: {
+                        color: true,
+                        pattern: true,
+                        images: { orderBy: { sortOrder: 'asc' } },
+                    },
+                },
                 _count: {
                     select: { orderItems: true }
                 }
@@ -66,6 +84,14 @@ let ProductsService = class ProductsService {
             where: { slug },
             include: {
                 category: true,
+                productImages: { orderBy: { sortOrder: 'asc' } },
+                variants: {
+                    include: {
+                        color: true,
+                        pattern: true,
+                        images: { orderBy: { sortOrder: 'asc' } },
+                    },
+                },
                 _count: {
                     select: { orderItems: true }
                 }
@@ -109,6 +135,14 @@ let ProductsService = class ProductsService {
                 where,
                 include: {
                     category: true,
+                    productImages: true,
+                    variants: {
+                        include: {
+                            color: true,
+                            pattern: true,
+                            images: { orderBy: { sortOrder: 'asc' } }
+                        }
+                    },
                     _count: {
                         select: { orderItems: true }
                     }
@@ -130,26 +164,135 @@ let ProductsService = class ProductsService {
         };
     }
     async createProduct(data) {
-        const { categoryId, ...productData } = data;
+        const { categoryId, productImages, variants, ...productData } = data;
         return this.prisma.product.create({
             data: {
                 ...productData,
                 category: { connect: { id: categoryId } },
+                productImages: productImages ? {
+                    createMany: { data: productImages }
+                } : undefined,
+                variants: variants && variants.length > 0 ? {
+                    create: await (async () => {
+                        const colorMap = new Map();
+                        const patternMap = new Map();
+                        for (const v of variants) {
+                            if (v.color && !colorMap.has(v.color.name)) {
+                                const c = await this.prisma.color.upsert({
+                                    where: { name: v.color.name },
+                                    update: v.color.hexCode && v.color.hexCode !== '#000000' ? { hexCode: v.color.hexCode } : {},
+                                    create: { name: v.color.name, hexCode: v.color.hexCode || '#000000' }
+                                });
+                                colorMap.set(v.color.name, c.id);
+                            }
+                            if (v.pattern && !patternMap.has(v.pattern.name)) {
+                                const p = await this.prisma.pattern.upsert({
+                                    where: { name: v.pattern.name },
+                                    update: v.pattern.previewImageUrl ? { previewImageUrl: v.pattern.previewImageUrl } : {},
+                                    create: { name: v.pattern.name, previewImageUrl: v.pattern.previewImageUrl || '' }
+                                });
+                                patternMap.set(v.pattern.name, p.id);
+                            }
+                        }
+                        return variants.map(v => {
+                            const { images, color, pattern, colorId, patternId } = v;
+                            const resolvedColorId = color ? colorMap.get(color.name) : colorId;
+                            const resolvedPatternId = pattern ? patternMap.get(pattern.name) : patternId;
+                            return {
+                                sku: v.sku,
+                                stock: v.stock,
+                                size: v.size,
+                                imageUrl: v.imageUrl,
+                                priceUSD_cents: v.priceUSD_cents,
+                                salePriceUSD_cents: v.salePriceUSD_cents,
+                                colorId: resolvedColorId,
+                                patternId: resolvedPatternId,
+                                options: v.options,
+                                images: images ? {
+                                    createMany: { data: images }
+                                } : undefined,
+                            };
+                        });
+                    })()
+                } : undefined,
             },
-            include: { category: true },
+            include: { category: true, productImages: true, variants: true },
         });
     }
     async updateProduct(id, data) {
-        const { categoryId, ...productData } = data;
-        const updateData = { ...productData };
-        if (categoryId) {
-            updateData.category = { connect: { id: categoryId } };
+        const { categoryId, productImages, variants, ...productDataWithoutRelations } = data;
+        const updateData = { ...productDataWithoutRelations };
+        try {
+            const colorMap = new Map();
+            const patternMap = new Map();
+            if (variants) {
+                for (const v of variants) {
+                    if (v.color && !colorMap.has(v.color.name)) {
+                        const c = await this.prisma.color.upsert({
+                            where: { name: v.color.name },
+                            update: v.color.hexCode && v.color.hexCode !== '#000000' ? { hexCode: v.color.hexCode } : {},
+                            create: { name: v.color.name, hexCode: v.color.hexCode || '#000000' }
+                        });
+                        colorMap.set(v.color.name, c.id);
+                    }
+                    if (v.pattern && !patternMap.has(v.pattern.name)) {
+                        const p = await this.prisma.pattern.upsert({
+                            where: { name: v.pattern.name },
+                            update: { previewImageUrl: v.pattern.previewImageUrl || '' },
+                            create: { name: v.pattern.name, previewImageUrl: v.pattern.previewImageUrl || '' }
+                        });
+                        patternMap.set(v.pattern.name, p.id);
+                    }
+                }
+            }
+            return await this.prisma.$transaction(async (tx) => {
+                if (categoryId) {
+                    updateData.category = { connect: { id: categoryId } };
+                }
+                if (productImages) {
+                    await tx.productImage.deleteMany({ where: { productId: id } });
+                    updateData.productImages = {
+                        createMany: { data: productImages }
+                    };
+                }
+                if (variants) {
+                    await tx.variant.deleteMany({ where: { productId: id } });
+                    updateData.variants = {
+                        create: variants.map(v => {
+                            const { images, colorId, patternId, color, pattern } = v;
+                            const resolvedColorId = color ? colorMap.get(color.name) : colorId;
+                            const resolvedPatternId = pattern ? patternMap.get(pattern.name) : patternId;
+                            const vData = {
+                                sku: v.sku,
+                                stock: Number(v.stock || 0),
+                                size: v.size,
+                                imageUrl: v.imageUrl,
+                                priceUSD_cents: v.priceUSD_cents,
+                                salePriceUSD_cents: v.salePriceUSD_cents,
+                                colorId: (resolvedColorId && resolvedColorId.length === 24) ? resolvedColorId : undefined,
+                                patternId: (resolvedPatternId && resolvedPatternId.length === 24) ? resolvedPatternId : undefined,
+                                options: v.options,
+                            };
+                            return {
+                                ...vData,
+                                images: images ? {
+                                    createMany: { data: images }
+                                } : undefined,
+                            };
+                        })
+                    };
+                }
+                return tx.product.update({
+                    where: { id },
+                    data: updateData,
+                    include: { category: true, productImages: true, variants: { include: { images: true } } },
+                });
+            }, { timeout: 30000 });
         }
-        return this.prisma.product.update({
-            where: { id },
-            data: updateData,
-            include: { category: true },
-        });
+        catch (error) {
+            console.error("[PRISMA ERROR in updateProduct]:", error);
+            throw error;
+        }
     }
     async getProductStats() {
         const [total, inStock, lowStock, outOfStock] = await Promise.all([
@@ -165,6 +308,56 @@ let ProductsService = class ProductsService {
             where: { id },
             data: { stock },
             include: { category: true },
+        });
+    }
+    async findAllColors() {
+        return this.prisma.color.findMany({ orderBy: { name: 'asc' } });
+    }
+    async createColor(data) {
+        return this.prisma.color.create({ data });
+    }
+    async findAllPatterns() {
+        return this.prisma.pattern.findMany({ orderBy: { name: 'asc' } });
+    }
+    async createPattern(data) {
+        return this.prisma.pattern.create({ data });
+    }
+    async addVariant(productId, data) {
+        const { images, colorId, patternId, color, pattern, size, sku, stock, imageUrl, priceUSD_cents, salePriceUSD_cents } = data;
+        let resolvedColorId = colorId;
+        if (color && color.name) {
+            const c = await this.prisma.color.upsert({
+                where: { name: color.name },
+                update: color.hexCode && color.hexCode !== '#000000' ? { hexCode: color.hexCode } : {},
+                create: { name: color.name, hexCode: color.hexCode || '#000000' }
+            });
+            resolvedColorId = c.id;
+        }
+        let resolvedPatternId = patternId;
+        if (pattern && pattern.name) {
+            const p = await this.prisma.pattern.upsert({
+                where: { name: pattern.name },
+                update: pattern.previewImageUrl ? { previewImageUrl: pattern.previewImageUrl } : {},
+                create: { name: pattern.name, previewImageUrl: pattern.previewImageUrl || '' }
+            });
+            resolvedPatternId = p.id;
+        }
+        return this.prisma.variant.create({
+            data: {
+                sku,
+                size,
+                stock: Number(stock || 0),
+                imageUrl,
+                priceUSD_cents,
+                salePriceUSD_cents,
+                colorId: resolvedColorId,
+                patternId: resolvedPatternId,
+                product: { connect: { id: productId } },
+                images: images ? {
+                    createMany: { data: images }
+                } : undefined,
+            },
+            include: { color: true, pattern: true, images: true }
         });
     }
 };

@@ -49,6 +49,8 @@ const render_1 = require("@react-email/render");
 const WelcomeEmail_1 = require("./templates/WelcomeEmail");
 const PurchaseReceipt_1 = require("./templates/PurchaseReceipt");
 const AdminInviteEmail_1 = require("./templates/AdminInviteEmail");
+const ShippingNotification_1 = require("./templates/ShippingNotification");
+const DeliveryConfirmation_1 = require("./templates/DeliveryConfirmation");
 let MailService = class MailService {
     transporter;
     constructor() {
@@ -143,6 +145,60 @@ let MailService = class MailService {
         if (!process.env.SMTP_HOST)
             console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
         return info;
+    }
+    async sendShippingEmail(order) {
+        if (!this.transporter)
+            await this.createTransporter();
+        const trackingUrl = this.getTrackingUrl(order.carrier, order.trackingNumber);
+        const emailHtml = await (0, render_1.render)((0, ShippingNotification_1.ShippingNotification)({
+            orderId: order.id,
+            carrier: order.carrier,
+            trackingNumber: order.trackingNumber,
+            trackingUrl,
+            items: order.items.map(item => ({
+                name: item.product.name,
+                quantity: item.quantity,
+            })),
+        }));
+        const info = await this.transporter.sendMail({
+            from: '"Woven Kulture" <noreply@wovenkulture.com>',
+            to: order.email,
+            subject: `Order Shipped: ${order.id}`,
+            html: emailHtml,
+        });
+        console.log('Shipping notification sent: %s', info.messageId);
+        return info;
+    }
+    async sendDeliveredEmail(order) {
+        if (!this.transporter)
+            await this.createTransporter();
+        const emailHtml = await (0, render_1.render)((0, DeliveryConfirmation_1.DeliveryConfirmation)({
+            orderId: order.id,
+            items: order.items.map(item => ({
+                name: item.product.name,
+                quantity: item.quantity,
+            })),
+        }));
+        const info = await this.transporter.sendMail({
+            from: '"Woven Kulture" <noreply@wovenkulture.com>',
+            to: order.email,
+            subject: `Order Delivered: ${order.id}`,
+            html: emailHtml,
+        });
+        console.log('Delivery confirmation sent: %s', info.messageId);
+        return info;
+    }
+    getTrackingUrl(carrier, trackingNumber) {
+        if (!carrier || !trackingNumber)
+            return '#';
+        const c = carrier.toUpperCase();
+        if (c === "UPS")
+            return `https://www.ups.com/track?tracknum=${trackingNumber}`;
+        if (c === "FEDEX")
+            return `https://www.fedex.com/fedextrack/?tracknumbers=${trackingNumber}`;
+        if (c === "DHL")
+            return `https://www.dhl.com/en/express/tracking.html?AWB=${trackingNumber}&brand=DHL`;
+        return `https://www.google.com/search?q=${carrier}+tracking+${trackingNumber}`;
     }
     async sendAdminInvite(email, inviteUrl, inviterName) {
         if (!this.transporter)

@@ -34,6 +34,10 @@ interface Order {
     isCustomOrder?: boolean;
     customerPhone?: string;
     currency?: string;
+    carrier?: string | null;
+    trackingNumber?: string | null;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
     items: Array<{
         id: string;
         quantity: number;
@@ -106,16 +110,23 @@ export default function OrdersPage() {
         fetchOrders();
     }, [fetchOrders]);
 
-    const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    const handleStatusUpdate = async (orderId: string, newStatus: string, metadata?: any) => {
         setUpdating(true);
         try {
             await fetchAdminApi(`/orders/admin/${orderId}/status`, {
                 method: "PATCH",
-                body: JSON.stringify({ status: newStatus }),
+                body: JSON.stringify({
+                    status: newStatus,
+                    ...metadata
+                }),
             });
             fetchOrders();
             if (selectedOrder?.id === orderId) {
-                setSelectedOrder({ ...selectedOrder, status: newStatus });
+                setSelectedOrder({
+                    ...selectedOrder,
+                    status: newStatus,
+                    ...metadata
+                });
             }
         } catch (error) {
             console.error("Failed to update status:", error);
@@ -300,6 +311,23 @@ export default function OrdersPage() {
                                     </Select>
                                 </div>
 
+                                {/* Shipping Info Display */}
+                                {(selectedOrder.carrier || selectedOrder.trackingNumber) && (
+                                    <div className="bg-[#480100]/5 p-4 border border-[#480100]/10 rounded-lg">
+                                        <h3 className="text-[10px] font-bold uppercase text-[#480100] mb-2">Shipping Details</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-[10px] text-muted-foreground uppercase">Carrier</p>
+                                                <p className="text-sm font-bold">{selectedOrder.carrier}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-muted-foreground uppercase">Tracking #</p>
+                                                <p className="text-sm font-mono font-bold">{selectedOrder.trackingNumber}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Customer Info */}
                                 <div className="grid grid-cols-2 gap-4 border-b pb-4">
                                     <div>
@@ -376,25 +404,51 @@ export default function OrdersPage() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex gap-2 pt-4">
-                                    {selectedOrder.status === "PAID" && (
-                                        <Button
-                                            onClick={() => handleStatusUpdate(selectedOrder.id, "SHIPPED")}
-                                            disabled={updating}
-                                            className="flex-1"
-                                        >
-                                            Mark as Shipped
-                                        </Button>
-                                    )}
-                                    {selectedOrder.status === "SHIPPED" && (
+                                <div className="space-y-4 pt-4 border-t">
+                                    {selectedOrder.status === "PAID" || selectedOrder.status === "PROCESSING" ? (
+                                        <div className="space-y-4 bg-slate-50 p-4 border rounded-lg">
+                                            <h4 className="text-xs font-bold uppercase tracking-widest text-[#480100]">Mark as Shipped</h4>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-bold uppercase text-muted-foreground">Carrier</label>
+                                                    <Input
+                                                        placeholder="e.g. DHL, FedEx"
+                                                        className="h-8 text-xs"
+                                                        id="ship-carrier"
+                                                        defaultValue={selectedOrder.carrier || ''}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-bold uppercase text-muted-foreground">Tracking Number</label>
+                                                    <Input
+                                                        placeholder="e.g. 12345678"
+                                                        className="h-8 text-xs font-mono"
+                                                        id="ship-tracking"
+                                                        defaultValue={selectedOrder.trackingNumber || ''}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <Button
+                                                onClick={() => {
+                                                    const carrier = (document.getElementById('ship-carrier') as HTMLInputElement).value;
+                                                    const tracking = (document.getElementById('ship-tracking') as HTMLInputElement).value;
+                                                    handleStatusUpdate(selectedOrder.id, "SHIPPED", { carrier, trackingNumber: tracking });
+                                                }}
+                                                disabled={updating}
+                                                className="w-full bg-[#480100] hover:bg-[#300100] text-white h-10 text-xs"
+                                            >
+                                                Dispatch Order & Notify Customer
+                                            </Button>
+                                        </div>
+                                    ) : selectedOrder.status === "SHIPPED" ? (
                                         <Button
                                             onClick={() => handleStatusUpdate(selectedOrder.id, "DELIVERED")}
                                             disabled={updating}
-                                            className="flex-1"
+                                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-10 text-xs"
                                         >
-                                            Mark as Delivered
+                                            Confirm Delivery & Notify Customer
                                         </Button>
-                                    )}
+                                    ) : null}
                                 </div>
                             </div>
                         </>

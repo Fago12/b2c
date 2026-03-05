@@ -10,11 +10,12 @@ interface CustomizationChoices {
 export declare class PricingService {
     private prisma;
     constructor(prisma: PrismaService);
-    calculateProductPrice(productId: string, customization?: CustomizationChoices): Promise<number>;
+    calculateProductPrice(productId: string, customization?: CustomizationChoices, variantId?: string): Promise<number>;
     calculateTotal(items: {
         productId: string;
         quantity: number;
         customization?: CustomizationChoices;
+        variantId?: string;
     }[]): Promise<number>;
 }
 export {};

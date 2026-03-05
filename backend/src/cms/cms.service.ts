@@ -17,16 +17,18 @@ export class CmsService {
     return page;
   }
 
-  async create(data: { slug: string; title: string; content: string; isActive?: boolean }) {
+  async create(data: { slug: string; title: string; content: string; metadata?: any; isActive?: boolean }) {
+    const { id: _, createdAt, updatedAt, ...createData } = data as any;
     return this.prisma.cmsPage.create({
-      data,
+      data: createData,
     });
   }
 
   async update(id: string, data: any) {
+    const { id: _, createdAt, updatedAt, ...updateData } = data;
     return this.prisma.cmsPage.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 

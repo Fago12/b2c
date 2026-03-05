@@ -7,12 +7,14 @@ export interface CartItem {
   id: string; // Composite ID: productId-variantId
   productId: string;
   variantId?: string;
-  cartItemId: string;
+  cartItemId: string; // This is the unique identifier for the line item
   quantity: number;
   price: number;
   unitPriceUSD: number;
   unitPriceFinal: number;
+  unitBasePriceFinal?: number;
   customization: any;
+  selectedOptions?: Record<string, string>;
   name: string;
   images: string[];
 }
@@ -33,6 +35,7 @@ interface CartState {
   regionCode: string;
   shippingCost: number;
   isLoading: boolean;
+  isOpen: boolean;
   
   fetchCart: () => Promise<void>;
   addItem: (productId: string, quantity?: number, customization?: any, variantId?: string) => Promise<void>;
@@ -40,6 +43,7 @@ interface CartState {
   updateQuantity: (productId: string, quantity: number, variantId?: string) => Promise<void>;
   clearCart: () => Promise<void>;
   getTotalItems: () => number;
+  setOpen: (open: boolean) => void;
 }
 
 const mapServerCartToState = (cart: any) => ({
@@ -52,7 +56,9 @@ const mapServerCartToState = (cart: any) => ({
     price: Number(item.price || 0),
     unitPriceUSD: Number(item.unitPriceUSD || 0),
     unitPriceFinal: Number(item.unitPriceFinal || 0),
+    unitBasePriceFinal: Number(item.unitBasePriceFinal || 0),
     customization: item.customization,
+    selectedOptions: item.selectedOptions,
     name: item.name || 'Product',
     images: item.image ? [item.image] : [],
   })),
@@ -86,7 +92,10 @@ export const useCart = create<CartState>()(
       shippingCost: 0,
       regionCode: 'US',
       isLoading: false,
+      isOpen: false,
 
+      setOpen: (open: boolean) => set({ isOpen: open }),
+      
       fetchCart: async () => {
         set({ isLoading: true });
         try {
@@ -103,7 +112,7 @@ export const useCart = create<CartState>()(
         set({ isLoading: true });
         try {
           const cart = await cartApi.addItem(productId, quantity, customization, variantId);
-          set(mapServerCartToState(cart));
+          set({ ...mapServerCartToState(cart), isOpen: true }); // Auto-open cart on success
         } catch (error: any) {
           // If the backend threw an error (e.g. out of stock), show it
           toast.error(error.message || "Failed to add to bag");

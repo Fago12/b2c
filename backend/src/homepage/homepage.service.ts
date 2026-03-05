@@ -9,6 +9,17 @@ export class HomepageService {
     private pricingService: CommercePricingService,
   ) {}
 
+  private readonly productInclude = {
+    category: true,
+    variants: {
+      include: { 
+        color: true, 
+        pattern: true,
+        images: { orderBy: { sortOrder: 'asc' } }
+      }
+    }
+  } as const;
+
   async getHomepageContent(regionCode: string = 'US') {
     try {
       // 1. Fetch active sections in order
@@ -91,21 +102,13 @@ export class HomepageService {
           // Hydrate products
           const productsRaw = await this.prisma.product.findMany({
             where: { id: { in: collection.productIds } },
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              basePriceUSD: true,
-              salePriceUSD: true,
-              images: true,
-              variants: true,
-              options: true,
-              category: { select: { name: true } }
-            }
+            include: this.productInclude,
           });
 
-          const products = await Promise.all(productsRaw.map(async (p) => ({
+          const products = await Promise.all(productsRaw.map(async (p: any) => ({
             ...p,
+            basePriceUSD: p.basePriceUSD_cents,
+            salePriceUSD: p.salePriceUSD_cents,
             regional: await this.pricingService.getProductPrice(p.id, regionCode)
           })));
 
@@ -126,20 +129,11 @@ export class HomepageService {
               where: { isActive: true },
               orderBy: { createdAt: 'desc' },
               take: 8,
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                basePriceUSD: true,
-                salePriceUSD: true,
-                images: true,
-                variants: true,
-                options: true,
-                hasVariants: true,
-                category: { select: { name: true } }
-              }
-            })).map(async (p) => ({
+              include: this.productInclude,
+            })).map(async (p: any) => ({
                ...p,
+               basePriceUSD: p.basePriceUSD_cents,
+               salePriceUSD: p.salePriceUSD_cents,
                regional: await this.pricingService.getProductPrice(p.id, regionCode)
             })))
           };
@@ -154,56 +148,74 @@ export class HomepageService {
               { createdAt: 'desc' }
             ],
             take: 8,
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              basePriceUSD: true,
-              salePriceUSD: true,
-              images: true,
-              variants: true,
-              options: true,
-              category: { select: { name: true } }
-            }
+            include: this.productInclude,
           });
 
           return {
             title: "Most Popular",
             description: "Top picks based on community favorites and sales.",
-            products: await Promise.all(popularProducts.map(async (p) => ({
+            products: await Promise.all(popularProducts.map(async (p: any) => ({
               ...p,
+              basePriceUSD: p.basePriceUSD_cents,
+              salePriceUSD: p.salePriceUSD_cents,
               regional: await this.pricingService.getProductPrice(p.id, regionCode)
             })))
           };
 
         case 'FLASH_SALE':
-          // Fetch products with salePrice, focusing on those most recently updated
-          const saleProducts = await this.prisma.product.findMany({
+          let flashSaleConfig = null;
+          if (referenceId) {
+            flashSaleConfig = await (this.prisma as any).flashSale.findUnique({ where: { id: referenceId } });
+          } else {
+            // Fallback: get the latest active flash sale config
+            flashSaleConfig = await (this.prisma as any).flashSale.findFirst({
+              where: { isActive: true },
+              orderBy: { updatedAt: 'desc' }
+            });
+          }
+
+          if (!flashSaleConfig) {
+            // Fallback to old logic if no config exists yet: latest 4 products on sale
+            const saleProducts = await this.prisma.product.findMany({
+              where: { 
+                isActive: true,
+                salePriceUSD_cents: { not: null }
+              },
+              orderBy: { createdAt: 'desc' },
+              take: 4,
+              include: this.productInclude,
+            });
+
+            return {
+              title: "Flash Sale",
+              description: "Limited time offers on our best sellers!",
+              endsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+              products: await Promise.all(saleProducts.map(async (p: any) => ({
+                ...p,
+                basePriceUSD: p.basePriceUSD_cents,
+                salePriceUSD: p.salePriceUSD_cents,
+                regional: await this.pricingService.getProductPrice(p.id, regionCode)
+              })))
+            };
+          }
+
+          // Use the specific config
+          const saleProductsList = await this.prisma.product.findMany({
             where: { 
-              isActive: true,
-              salePriceUSD: { not: null }
+              id: { in: (flashSaleConfig as any).productIds },
+              isActive: true
             },
-            orderBy: { createdAt: 'desc' },
-            take: 4,
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              basePriceUSD: true,
-              salePriceUSD: true,
-              images: true,
-              variants: true,
-              options: true,
-              category: { select: { name: true } }
-            }
+            include: this.productInclude,
           });
 
           return {
-            title: "Flash Sale",
-            description: "Limited time offers on our best sellers!",
-            endsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Placeholder: ends in 24h
-            products: await Promise.all(saleProducts.map(async (p) => ({
+            title: (flashSaleConfig as any).title,
+            description: (flashSaleConfig as any).description,
+            endsAt: (flashSaleConfig as any).endsAt,
+            products: await Promise.all(saleProductsList.map(async (p: any) => ({
               ...p,
+              basePriceUSD: p.basePriceUSD_cents,
+              salePriceUSD: p.salePriceUSD_cents,
               regional: await this.pricingService.getProductPrice(p.id, regionCode)
             })))
           };

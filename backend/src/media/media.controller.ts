@@ -1,10 +1,15 @@
-import { Controller, Post, Delete, Get, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body, Query, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { BetterAuthGuard } from '../auth/better-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Controller('media')
 export class MediaController {
-  constructor(private mediaService: MediaService) {}
+  constructor(
+    private mediaService: MediaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   /**
    * Get a signed upload URL for direct browser upload
@@ -56,6 +61,21 @@ export class MediaController {
       parseInt(page || '1'),
       parseInt(perPage || '20')
     );
+  }
+  
+  /**
+   * Upload an image directly to Cloudinary
+   * Returns the secure_url and public_id
+   */
+  @Post('upload')
+  @UseGuards(BetterAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async upload(@UploadedFile() file: Express.Multer.File) {
+    const result = await this.cloudinary.uploadImage(file);
+    return {
+      url: result.secure_url,
+      id: result.public_id,
+    };
   }
 
   /**

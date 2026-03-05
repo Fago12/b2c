@@ -69,6 +69,7 @@ let CartService = CartService_1 = class CartService {
     async addItem(sessionId, productId, quantity, customization, regionCode = 'US', variantId) {
         const product = (await this.prisma.product.findUnique({
             where: { id: productId },
+            include: { variants: { include: { images: true, color: true, pattern: true } } }
         }));
         if (!product) {
             throw new Error('Product not found');
@@ -79,7 +80,7 @@ let CartService = CartService_1 = class CartService {
         }
         const cart = await this.getCart(sessionId);
         cart.regionCode = regionCode;
-        let unitPriceUSD = product.basePriceUSD;
+        let unitPriceUSD = product.basePriceUSD_cents;
         let selectedOptions = null;
         let variantImage = product.images?.[0];
         let variantStock = product.stock;
@@ -88,14 +89,14 @@ let CartService = CartService_1 = class CartService {
         if (variantId && variants.length > 0) {
             const variant = variants.find(v => v.id === variantId || v.sku === variantId);
             if (variant) {
-                const vBase = variant.priceUSD || product.basePriceUSD;
-                const vSale = variant.salePriceUSD || product.salePriceUSD;
+                const vBase = variant.priceUSD_cents || product.basePriceUSD_cents;
+                const vSale = variant.salePriceUSD_cents || product.salePriceUSD_cents;
                 unitPriceUSD = vBase;
                 const unitSalePriceUSD = (vSale && vSale > 0) ? vSale : undefined;
                 selectedOptions = variant.options;
                 variantStock = variant.stock;
-                if (variant.image)
-                    variantImage = variant.image;
+                if (variant.imageUrl)
+                    variantImage = variant.imageUrl;
                 const effectivePrice = unitSalePriceUSD ?? unitPriceUSD;
                 const weightKG = product.weightKG || 0;
                 const optionsStr = Object.entries(variant.options || {})
@@ -114,13 +115,17 @@ let CartService = CartService_1 = class CartService {
         }
         const basePriceSnapshot = variantId ? (unitPriceUSD) : product.basePriceUSD;
         const salePriceSnapshot = variantId ? (unitPriceUSD === product.basePriceUSD ? product.salePriceUSD : undefined) : product.salePriceUSD;
-        let finalBaseUSD = product.basePriceUSD;
-        let finalSaleUSD = product.salePriceUSD || undefined;
+        let finalBaseUSD = product.basePriceUSD_cents;
+        let finalSaleUSD = product.salePriceUSD_cents || undefined;
         if (variantId && product.variants) {
             const v = product.variants.find(v => v.id === variantId || v.sku === variantId);
             if (v) {
-                finalBaseUSD = v.priceUSD || product.basePriceUSD;
-                finalSaleUSD = v.salePriceUSD || undefined;
+                if (v.priceUSD_cents !== undefined && v.priceUSD_cents !== null) {
+                    finalBaseUSD = v.priceUSD_cents;
+                }
+                if (v.salePriceUSD_cents !== undefined && v.salePriceUSD_cents !== null) {
+                    finalSaleUSD = v.salePriceUSD_cents;
+                }
             }
         }
         const existingItemIndex = cart.items.findIndex((item) => item.productId === productId && item.variantId === variantId);
@@ -164,6 +169,7 @@ let CartService = CartService_1 = class CartService {
         else {
             const product = (await this.prisma.product.findUnique({
                 where: { id: productId },
+                include: { variants: true }
             }));
             if (!product)
                 throw new Error('Product not found');
@@ -220,8 +226,14 @@ let CartService = CartService_1 = class CartService {
             }
             const weightKG = item.weightKG ?? product.weightKG ?? 0;
             totalWeightKg += (weightKG * item.quantity);
-            const frozenUSD = item.unitSalePriceUSD || item.unitPriceUSD || product.basePriceUSD;
+            const unitBaseUSD = item.unitPriceUSD || product.basePriceUSD_cents;
+            const unitSaleUSD = item.unitSalePriceUSD || undefined;
+            const frozenUSD = unitSaleUSD || unitBaseUSD;
             const unitPriceFinalRegional = new decimal_js_1.default(frozenUSD)
+                .mul(rateDec)
+                .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
+                .toNumber();
+            const unitBasePriceFinalRegional = new decimal_js_1.default(unitBaseUSD)
                 .mul(rateDec)
                 .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
                 .toNumber();
@@ -231,6 +243,7 @@ let CartService = CartService_1 = class CartService {
                 .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
                 .toNumber();
             item.unitPriceFinal = unitPriceFinalRegional + extraRegional_cents;
+            item.unitBasePriceFinal = unitBasePriceFinalRegional + extraRegional_cents;
             item.price = Number(item.unitPriceFinal) * Number(item.quantity || 1);
             displaySubtotal_cents += item.price;
             const lineSubtotalUSD = (frozenUSD + extraUSD_cents) * item.quantity;

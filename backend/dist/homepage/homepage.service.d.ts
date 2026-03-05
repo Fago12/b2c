@@ -4,6 +4,7 @@ export declare class HomepageService {
     private prisma;
     private pricingService;
     constructor(prisma: PrismaService, pricingService: CommercePricingService);
+    private readonly productInclude;
     getHomepageContent(regionCode?: string): Promise<{
         id: string;
         type: import(".prisma/client").$Enums.SectionType;

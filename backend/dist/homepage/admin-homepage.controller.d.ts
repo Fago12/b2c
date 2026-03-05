@@ -253,4 +253,44 @@ export declare class AdminHomepageController {
         subtitle: string | null;
         targetAudience: string;
     }>;
+    getFlashSales(): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        isActive: boolean;
+        title: string;
+        productIds: string[];
+        endsAt: Date;
+    }[]>;
+    createFlashSale(data: any): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        isActive: boolean;
+        title: string;
+        productIds: string[];
+        endsAt: Date;
+    }>;
+    updateFlashSale(id: string, data: any): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        isActive: boolean;
+        title: string;
+        productIds: string[];
+        endsAt: Date;
+    }>;
+    deleteFlashSale(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        isActive: boolean;
+        title: string;
+        productIds: string[];
+        endsAt: Date;
+    }>;
 }

@@ -4,12 +4,9 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn, formatPrice } from "@/lib/utils";
-import { useCart } from "@/lib/store/cart";
-import { QuickVariantSelect } from "../common/QuickVariantSelect";
+import { cn } from "@/lib/utils";
+import { ProductCard } from "@/components/common/ProductCard";
 
 interface ProductSwiperProps {
     title: string;
@@ -22,8 +19,6 @@ export default function ProductSwiper({ title, description, products, autoPlay =
     const scrollRef = useRef<HTMLDivElement>(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(true);
-    const [quickSelectId, setQuickSelectId] = useState<string | null>(null);
-    const addItem = useCart((state) => state.addItem);
 
     const checkScroll = () => {
         if (!scrollRef.current) return;
@@ -70,18 +65,6 @@ export default function ProductSwiper({ title, description, products, autoPlay =
             left: direction === 'left' ? -scrollAmount : scrollAmount,
             behavior: "smooth"
         });
-    };
-
-    const handleAddToCart = (e: React.MouseEvent, product: any) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const hasVariants = product.hasVariants || (product.variants && product.variants.length > 0);
-        if (hasVariants) {
-            setQuickSelectId(product.id);
-        } else {
-            addItem(product.id, 1);
-        }
     };
 
     if (!products || products.length === 0) return null;
@@ -134,75 +117,7 @@ export default function ProductSwiper({ title, description, products, autoPlay =
                 >
                     {products.map((product) => (
                         <div key={product.id} className="min-w-[260px] md:min-w-[340px] snap-start">
-                            <Card className="group/card overflow-hidden border-0 shadow-none bg-transparent rounded-none">
-                                <CardContent className="p-0 relative aspect-[4/5] bg-slate-50 rounded-none overflow-hidden mb-4">
-                                    <Link href={`/products/${product.slug}`}>
-                                        <Image
-                                            src={product.images[0] || '/placeholder.png'}
-                                            alt={product.name}
-                                            fill
-                                            className="object-cover transition-transform duration-700 group-hover/card:scale-110"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        />
-                                        <div className="absolute inset-0 bg-black/0 group-hover/card:bg-black/5 transition-colors duration-500" />
-
-                                        {product.regional && product.regional.finalPrice < product.regional.basePrice && (
-                                            <Badge className="absolute top-4 left-4 bg-black text-white rounded-none border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
-                                                Sale
-                                            </Badge>
-                                        )}
-
-                                        {/* Add to Cart (+) Button */}
-                                        <button
-                                            onClick={(e) => handleAddToCart(e, product)}
-                                            className="absolute bottom-4 right-4 z-30 bg-white text-black p-2 rounded-none shadow-md transition-all duration-300 transform scale-0 opacity-0 group-hover/card:scale-100 group-hover/card:opacity-100 group/plus overflow-hidden"
-                                            title="Add to cart"
-                                            style={{
-                                                transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)"
-                                            }}
-                                        >
-                                            <Plus className="h-5 w-5 transition-transform duration-500 group-hover/plus:rotate-90" />
-                                        </button>
-
-                                        {/* Quick Variant Selection Overlay */}
-                                        {product.variants && product.variants.length > 0 && (
-                                            <QuickVariantSelect
-                                                product={product}
-                                                isVisible={quickSelectId === product.id}
-                                                onClose={() => setQuickSelectId(null)}
-                                            />
-                                        )}
-                                    </Link>
-                                </CardContent>
-                                <CardFooter className="p-0 block text-center">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">{product.category?.name}</p>
-                                        <h3 className="text-sm font-medium text-primary uppercase tracking-widest truncate group-hover/card:text-primary/60 transition-colors">
-                                            <Link href={`/products/${product.slug}`}>
-                                                {product.name}
-                                            </Link>
-                                        </h3>
-                                        <div className="flex items-center justify-center gap-2">
-                                            {product.regional ? (
-                                                <>
-                                                    <span className="text-sm font-bold text-primary">
-                                                        {formatPrice(product.regional.finalPrice, product.regional.currency || 'USD')}
-                                                    </span>
-                                                    {product.regional.finalPrice < product.regional.basePrice && (
-                                                        <span className="text-xs text-muted-foreground line-through opacity-50">
-                                                            {formatPrice(product.regional.basePrice, product.regional.currency || 'USD')}
-                                                        </span>
-                                                    )}
-                                                </>
-                                            ) : (
-                                                <span className="text-sm font-bold text-primary tracking-tighter">
-                                                    {formatPrice(product.basePriceUSD || 0)}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </CardFooter>
-                            </Card>
+                            <ProductCard product={product} />
                         </div>
                     ))}
                 </div>

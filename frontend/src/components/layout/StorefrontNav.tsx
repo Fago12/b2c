@@ -23,6 +23,9 @@ export function StorefrontNav({ categories, announcement }: StorefrontNavProps) 
             setScrolled(window.scrollY > 50);
         };
 
+        // Check initial scroll position on mount
+        handleScroll();
+
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);

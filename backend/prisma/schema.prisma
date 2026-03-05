@@ -229,11 +229,12 @@ model Product {
   id                   String      @id @default(auto()) @map("_id") @db.ObjectId
   name                 String
   description          String
-  basePriceUSD         Int         // Base price in USD (cents)
-  salePriceUSD         Int?        // (cents)
+  basePriceUSD_cents   Int         @map("basePriceUSD") // Mapping to existing field but using new naming convention
+  salePriceUSD_cents   Int?        @map("salePriceUSD") // Mapping to existing field
   stock                Int
   isActive             Boolean     @default(true)
-  images               String[]
+  images               String[]    // Keeping as fallback array
+  productImages        ProductImage[]
   categoryId           String      @db.ObjectId
   slug                 String      @unique
   tags                 String[]
@@ -241,10 +242,13 @@ model Product {
   hasVariants          Boolean     @default(false)
   weightKG             Float       @default(0)
   
-  // Overhaul Fields
-  options              Json?       // Key-based options: {"Color": ["Red", "Blue"], "Size": ["S", "M"]}
-  variants             Json?       // Embedded variants: [{"sku": "..", "priceUSD": 5000, "options": {"Color": "Red"}}]
-  customizationOptions Json? // { allowEmbroidery: boolean, embroideryPriceUSD: number, allowCustomColor: boolean, allowInstructions: boolean }
+  // New Variant System
+  variants             Variant[]
+  
+  // Legacy / Hybrid Fields (to be deprecated)
+  options              Json?       
+  legacyVariants       Json?       @map("variants")
+  customizationOptions Json? 
   
   regionalPrices       ProductRegionalPrice[]
   
@@ -255,6 +259,74 @@ model Product {
   cartItems            CartItem[]
 
   @@map("product")
+}
+
+model Color {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String    @unique
+  hexCode   String
+  variants  Variant[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("color")
+}
+
+model Pattern {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String    @unique
+  previewImageUrl String
+  variants        Variant[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("pattern")
+}
+
+model ProductImage {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String   @db.ObjectId
+  imageUrl   String
+  sortOrder  Int      @default(0)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@map("product_image")
+}
+
+model Variant {
+  id                 String         @id @default(auto()) @map("_id") @db.ObjectId
+  productId          String         @db.ObjectId
+  colorId            String?        @db.ObjectId
+  patternId          String?        @db.ObjectId
+  size               String?
+  priceUSD_cents     Int?           // Overrides base price
+  salePriceUSD_cents Int?           // Overrides base sale price
+  sku                String?        // Unique SKU for the variant
+  stock              Int            @default(0)
+  imageUrl           String?        // PRIMARY DISPLAY IMAGE
+  options            Json?          // Stores combinations like {"Color": "Red", "Size": "XL"}
+  
+  product            Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  color              Color?         @relation(fields: [colorId], references: [id])
+  pattern            Pattern?       @relation(fields: [patternId], references: [id])
+  images             VariantImage[]
+  
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@map("variant")
+}
+
+model VariantImage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  variantId String   @db.ObjectId
+  imageUrl  String
+  sortOrder Int      @default(0)
+  variant   Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("variant_image")
 }
 
 model ProductRegionalPrice {
@@ -307,6 +379,13 @@ model Order {
   userId           String?
   status           OrderStatus
   
+  // Shipping & Tracking
+  carrier          String?
+  trackingNumber   String?
+  paidAt           DateTime?
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+
   // Architectural Dual-Currency Fields (Unambiguous)
   displayCurrency  String      @default("USD")
   displayTotal     Int         @default(0) // (cents)
@@ -418,6 +497,7 @@ model CmsPage {
   slug      String   @unique
   title     String
   content   String
+  metadata  Json?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -533,6 +613,19 @@ model PromoBanner {
   updatedAt      DateTime @updatedAt
 
   @@map("promo_banner")
+}
+
+model FlashSale {
+  id          String   @id @default(cuid()) @map("_id")
+  title       String
+  description String?
+  endsAt      DateTime
+  isActive    Boolean  @default(true)
+  productIds  String[] @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("flash_sale")
 }
 
 enum DiscountType {

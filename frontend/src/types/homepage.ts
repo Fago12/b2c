@@ -1,3 +1,5 @@
+import { Product as MainProduct } from './index';
+
 export interface Announcement {
     id: string;
     message: string;
@@ -25,28 +27,12 @@ export interface MarqueeItem {
     isActive: boolean;
 }
 
-export interface Product { // Simplified product for cards
-    id: string;
-    name: string;
-    slug: string;
-    basePriceUSD: number;
-    salePriceUSD?: number;
-    images: string[];
-    category: { name: string };
-    regional?: {
-        basePrice: number;
-        finalPrice: number;
-        currency: string;
-        symbol: string;
-    };
-}
-
 export interface FeaturedCollection {
     id: string;
     title: string;
     description?: string;
     isActive: boolean;
-    products: Product[];
+    products: MainProduct[];
 }
 
 export interface PromoBanner {

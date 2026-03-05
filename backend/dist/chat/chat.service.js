@@ -92,8 +92,8 @@ let ChatService = ChatService_1 = class ChatService {
         const products = await this.prisma.product.findMany({
             where: {
                 AND: [
-                    ...(maxPrice ? [{ basePriceUSD: { lte: maxPrice } }] : []),
-                    ...(minPrice ? [{ basePriceUSD: { gte: minPrice } }] : []),
+                    ...(maxPrice ? [{ basePriceUSD_cents: { lte: maxPrice } }] : []),
+                    ...(minPrice ? [{ basePriceUSD_cents: { gte: minPrice } }] : []),
                     ...(keywords.length > 0 ? [
                         {
                             OR: keywords.flatMap(keyword => [
@@ -113,7 +113,7 @@ let ChatService = ChatService_1 = class ChatService {
             id: p.id,
             name: p.name,
             description: p.description,
-            basePrice: p.basePriceUSD,
+            basePrice: p.basePriceUSD_cents,
             images: p.images,
             category: p.category?.name || 'Uncategorized',
         }));

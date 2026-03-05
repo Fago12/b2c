@@ -20,6 +20,16 @@ let HomepageService = class HomepageService {
         this.prisma = prisma;
         this.pricingService = pricingService;
     }
+    productInclude = {
+        category: true,
+        variants: {
+            include: {
+                color: true,
+                pattern: true,
+                images: { orderBy: { sortOrder: 'asc' } }
+            }
+        }
+    };
     async getHomepageContent(regionCode = 'US') {
         try {
             const sections = await this.prisma.homepageSection.findMany({
@@ -84,20 +94,12 @@ let HomepageService = class HomepageService {
                         return null;
                     const productsRaw = await this.prisma.product.findMany({
                         where: { id: { in: collection.productIds } },
-                        select: {
-                            id: true,
-                            name: true,
-                            slug: true,
-                            basePriceUSD: true,
-                            salePriceUSD: true,
-                            images: true,
-                            variants: true,
-                            options: true,
-                            category: { select: { name: true } }
-                        }
+                        include: this.productInclude,
                     });
                     const products = await Promise.all(productsRaw.map(async (p) => ({
                         ...p,
+                        basePriceUSD: p.basePriceUSD_cents,
+                        salePriceUSD: p.salePriceUSD_cents,
                         regional: await this.pricingService.getProductPrice(p.id, regionCode)
                     })));
                     return { ...collection, products };
@@ -113,20 +115,11 @@ let HomepageService = class HomepageService {
                             where: { isActive: true },
                             orderBy: { createdAt: 'desc' },
                             take: 8,
-                            select: {
-                                id: true,
-                                name: true,
-                                slug: true,
-                                basePriceUSD: true,
-                                salePriceUSD: true,
-                                images: true,
-                                variants: true,
-                                options: true,
-                                hasVariants: true,
-                                category: { select: { name: true } }
-                            }
+                            include: this.productInclude,
                         })).map(async (p) => ({
                             ...p,
+                            basePriceUSD: p.basePriceUSD_cents,
+                            salePriceUSD: p.salePriceUSD_cents,
                             regional: await this.pricingService.getProductPrice(p.id, regionCode)
                         })))
                     };
@@ -139,52 +132,66 @@ let HomepageService = class HomepageService {
                             { createdAt: 'desc' }
                         ],
                         take: 8,
-                        select: {
-                            id: true,
-                            name: true,
-                            slug: true,
-                            basePriceUSD: true,
-                            salePriceUSD: true,
-                            images: true,
-                            variants: true,
-                            options: true,
-                            category: { select: { name: true } }
-                        }
+                        include: this.productInclude,
                     });
                     return {
                         title: "Most Popular",
                         description: "Top picks based on community favorites and sales.",
                         products: await Promise.all(popularProducts.map(async (p) => ({
                             ...p,
+                            basePriceUSD: p.basePriceUSD_cents,
+                            salePriceUSD: p.salePriceUSD_cents,
                             regional: await this.pricingService.getProductPrice(p.id, regionCode)
                         })))
                     };
                 case 'FLASH_SALE':
-                    const saleProducts = await this.prisma.product.findMany({
+                    let flashSaleConfig = null;
+                    if (referenceId) {
+                        flashSaleConfig = await this.prisma.flashSale.findUnique({ where: { id: referenceId } });
+                    }
+                    else {
+                        flashSaleConfig = await this.prisma.flashSale.findFirst({
+                            where: { isActive: true },
+                            orderBy: { updatedAt: 'desc' }
+                        });
+                    }
+                    if (!flashSaleConfig) {
+                        const saleProducts = await this.prisma.product.findMany({
+                            where: {
+                                isActive: true,
+                                salePriceUSD_cents: { not: null }
+                            },
+                            orderBy: { createdAt: 'desc' },
+                            take: 4,
+                            include: this.productInclude,
+                        });
+                        return {
+                            title: "Flash Sale",
+                            description: "Limited time offers on our best sellers!",
+                            endsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                            products: await Promise.all(saleProducts.map(async (p) => ({
+                                ...p,
+                                basePriceUSD: p.basePriceUSD_cents,
+                                salePriceUSD: p.salePriceUSD_cents,
+                                regional: await this.pricingService.getProductPrice(p.id, regionCode)
+                            })))
+                        };
+                    }
+                    const saleProductsList = await this.prisma.product.findMany({
                         where: {
-                            isActive: true,
-                            salePriceUSD: { not: null }
+                            id: { in: flashSaleConfig.productIds },
+                            isActive: true
                         },
-                        orderBy: { createdAt: 'desc' },
-                        take: 4,
-                        select: {
-                            id: true,
-                            name: true,
-                            slug: true,
-                            basePriceUSD: true,
-                            salePriceUSD: true,
-                            images: true,
-                            variants: true,
-                            options: true,
-                            category: { select: { name: true } }
-                        }
+                        include: this.productInclude,
                     });
                     return {
-                        title: "Flash Sale",
-                        description: "Limited time offers on our best sellers!",
-                        endsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                        products: await Promise.all(saleProducts.map(async (p) => ({
+                        title: flashSaleConfig.title,
+                        description: flashSaleConfig.description,
+                        endsAt: flashSaleConfig.endsAt,
+                        products: await Promise.all(saleProductsList.map(async (p) => ({
                             ...p,
+                            basePriceUSD: p.basePriceUSD_cents,
+                            salePriceUSD: p.salePriceUSD_cents,
                             regional: await this.pricingService.getProductPrice(p.id, regionCode)
                         })))
                     };
