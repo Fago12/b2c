@@ -94,15 +94,45 @@ export class MailService {
     return info;
   }
 
-  async sendPurchaseReceipt(email: string, orderId: string, total: number, items: any[]) {
+  async sendPurchaseReceipt(
+    email: string, 
+    orderId: string, 
+    total: number, 
+    items: any[],
+    subtotal: number,
+    shippingCost: number,
+    discountAmount: number = 0,
+    currency: string = 'NGN',
+    customerInfo: {
+      firstName: string;
+      lastName: string;
+      phone: string;
+      date: string;
+      shippingAddress: any;
+    }
+  ) {
     if (!this.transporter) await this.createTransporter();
 
-    const emailHtml = await render(PurchaseReceipt({ orderId, total, items }));
+    const emailHtml = await render(PurchaseReceipt({ 
+      orderId, 
+      date: customerInfo.date,
+      total, 
+      items,
+      subtotal,
+      shippingCost,
+      discountAmount,
+      currency,
+      firstName: customerInfo.firstName,
+      lastName: customerInfo.lastName,
+      phone: customerInfo.phone,
+      email,
+      shippingAddress: customerInfo.shippingAddress
+    }));
 
     const info = await this.transporter.sendMail({
       from: '"Woven Kulture" <noreply@wovenkulture.com>',
       to: email,
-      subject: `Order Receipt: ${orderId}`,
+      subject: `Congratulations, your order has been confirmed - #${orderId}`,
       html: emailHtml,
     });
 

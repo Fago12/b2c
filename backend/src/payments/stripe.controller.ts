@@ -2,7 +2,7 @@ import { Controller, Post, Headers, Req, BadRequestException } from '@nestjs/com
 import { StripeService } from './stripe.service';
 import type { Request } from 'express';
 
-@Controller('webhook')
+@Controller('webhooks')
 export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 

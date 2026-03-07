@@ -50,8 +50,12 @@ export default function CheckoutPage() {
         subtotal,
         shippingCost,
         currency,
+        couponCode,
+        discountAmount,
         fetchCart,
-        clearCart
+        clearCart,
+        applyCoupon,
+        removeCoupon
     } = useCart();
     const router = useRouter();
     const [clientSecret, setClientSecret] = useState("");
@@ -63,6 +67,7 @@ export default function CheckoutPage() {
     const [email, setEmail] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const [phone, setPhone] = useState("");
     const [address, setAddress] = useState({
         line1: "",
         city: "",
@@ -70,6 +75,7 @@ export default function CheckoutPage() {
         zip: "",
         country: ""
     });
+    const [couponInput, setCouponInput] = useState("");
 
     const [availableStates, setAvailableStates] = useState<any[]>([]);
 
@@ -81,10 +87,11 @@ export default function CheckoutPage() {
         const cachedData = localStorage.getItem('checkout_form');
         if (cachedData) {
             try {
-                const { email, firstName, lastName, address } = JSON.parse(cachedData);
+                const { email, firstName, lastName, phone, address } = JSON.parse(cachedData);
                 if (email) setEmail(email);
                 if (firstName) setFirstName(firstName);
                 if (lastName) setLastName(lastName);
+                if (phone) setPhone(phone);
                 if (address) setAddress(address);
             } catch (e) {
                 console.error("Failed to load cached checkout data", e);
@@ -102,7 +109,7 @@ export default function CheckoutPage() {
                 address
             }));
         }
-    }, [email, firstName, lastName, address, mounted]);
+    }, [email, firstName, lastName, phone, address, mounted]);
 
     useEffect(() => {
         if (address.country) {
@@ -212,12 +219,15 @@ export default function CheckoutPage() {
                 chargeCurrency: chargeCurrency,
                 email,
                 customerName: `${firstName} ${lastName}`,
+                customerPhone: phone,
                 firstName,
                 lastName,
                 shippingAddress: address,
                 shippingCost,
                 isCustomOrder,
                 userId: session?.user?.id,
+                couponCode: couponCode || null,
+                regionCode: address.country // FIX: Ensure regional pricing is applied
             };
 
             const response = await fetchApi('/orders', {
@@ -281,6 +291,15 @@ export default function CheckoutPage() {
                                             placeholder="Doe"
                                         />
                                     </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] uppercase font-bold tracking-widest text-[#480100]">Phone Number</Label>
+                                    <Input
+                                        className="h-12 rounded-none focus:border-[#480100]"
+                                        value={phone}
+                                        onChange={e => setPhone(e.target.value)}
+                                        placeholder="e.g. +1 555 000 0000"
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
@@ -398,11 +417,49 @@ export default function CheckoutPage() {
 
                                 <Separator className="bg-slate-100" />
 
+                                <div className="space-y-4">
+                                    <div className="flex gap-2">
+                                        <Input
+                                            placeholder="DISCOUNT CODE"
+                                            className="h-10 rounded-none text-[10px] font-bold tracking-widest uppercase"
+                                            value={couponInput}
+                                            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                        />
+                                        <Button
+                                            variant="outline"
+                                            className="rounded-none h-10 border-primary text-[10px] font-bold tracking-widest uppercase px-6"
+                                            onClick={() => applyCoupon(couponInput)}
+                                        >
+                                            Apply
+                                        </Button>
+                                    </div>
+                                    {couponCode && (
+                                        <div className="flex justify-between items-center bg-slate-50 p-2 border border-dashed border-slate-200">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#480100]">Coupon Applied</span>
+                                                <span className="text-[9px] text-muted-foreground uppercase">{couponCode}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => removeCoupon()}
+                                                className="text-[10px] uppercase font-bold text-muted-foreground hover:text-red-500 transition-colors"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div className="space-y-3 text-sm font-sans">
                                     <div className="flex justify-between text-muted-foreground uppercase text-[10px] font-bold tracking-widest">
                                         <span>Subtotal</span>
                                         <span>{formatPrice(subtotal)}</span>
                                     </div>
+                                    {discountAmount ? (
+                                        <div className="flex justify-between text-[#480100] uppercase text-[10px] font-bold tracking-widest">
+                                            <span>Discount</span>
+                                            <span>-{formatPrice(discountAmount)}</span>
+                                        </div>
+                                    ) : null}
                                     <div className="flex justify-between text-muted-foreground uppercase text-[10px] font-bold tracking-widest">
                                         <span>Estimated Shipping</span>
                                         <span>{shippingCost === 0 ? "Free" : formatPrice(shippingCost)}</span>

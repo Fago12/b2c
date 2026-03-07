@@ -133,15 +133,6 @@ let StripeService = StripeService_1 = class StripeService {
                 await this.cartService.clearCart(sessionId);
                 this.logger.log(`Cleared cart for session ${sessionId}`);
             }
-            if (order.email) {
-                this.logger.log(`Queueing receipt email for ${order.email}`);
-                await this.queueService.sendPurchaseReceipt(order.email, order.id, order.total, order.items.map((item) => ({
-                    name: item.product?.name || 'Product',
-                    quantity: item.quantity,
-                    price: item.price
-                })));
-                this.logger.log('Receipt email job added to queue');
-            }
         }
         catch (e) {
             this.logger.error(`Error processing order ${orderId}: ${e.message}`);

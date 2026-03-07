@@ -137,48 +137,78 @@ export class ResendService {
   ): string {
     const itemsHtml = items.map(item => `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.name}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₦${item.price.toLocaleString()}</td>
+        <td style="border: 1px solid black; padding: 12px;">
+          <div style="font-weight: bold;">${item.name}</div>
+        </td>
+        <td style="border: 1px solid black; padding: 12px; text-align: center;">${item.quantity}</td>
+        <td style="border: 1px solid black; padding: 12px; text-align: right; font-weight: bold;">₦${item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
       </tr>
     `).join('');
 
     return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>
-            body { font-family: 'Arial', sans-serif; background: #f5f5f5; padding: 40px; }
-            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; }
-            h1 { color: #1a1a1a; margin-bottom: 8px; }
-            .order-id { color: #666; margin-bottom: 24px; }
-            table { width: 100%; border-collapse: collapse; margin: 24px 0; }
-            th { background: #f9f9f9; padding: 12px; text-align: left; }
-            .total { font-size: 24px; font-weight: bold; color: #1a1a1a; margin-top: 24px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>Order Confirmed ✓</h1>
-            <p class="order-id">Order #${orderId}</p>
-            <p>Hi ${name || 'there'},</p>
-            <p>Thank you for your order! Here's a summary:</p>
-            <table>
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th style="text-align: center;">Qty</th>
-                  <th style="text-align: right;">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsHtml}
-              </tbody>
-            </table>
-            <p class="total">Total: ₦${total.toLocaleString()}</p>
-            <p>We'll notify you when your order ships.</p>
+      <html lang="en">
+      <head>
+        <style>
+          body { font-family: Verdana, sans-serif; margin: 0; padding: 0; color: #1a1a1a; }
+          .header { background: black; color: white; padding: 40px 20px; text-align: center; }
+          .header h1 { font-size: 24px; margin: 0; font-weight: normal; text-transform: uppercase; letter-spacing: 2px; }
+          .content { padding: 40px 20px; max-width: 600px; margin: auto; }
+          .greeting { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+          .sub-greeting { font-size: 14px; margin-bottom: 30px; }
+          .order-ref { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 5px; display: inline-block; }
+          
+          table { border: 1px solid black; border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+          th { border: 1px solid black; padding: 12px; font-size: 14px; font-weight: bold; text-align: left; background: #f2f2f2; }
+          td { border: 1px solid black; padding: 12px; font-size: 14px; }
+          
+          .totals-row { font-weight: 600; }
+          .final-total { font-weight: bold; font-size: 16px; background: #f2f2f2; }
+          
+          .footer { margin-top: 50px; text-align: center; font-size: 14px; }
+          .world-takeover { font-size: 18px; font-weight: bold; color: #480100; margin-top: 20px; }
+          .track-btn { background: black; color: white; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-top: 30px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Congratulations, your order has been confirmed</h1>
+        </div>
+        
+        <div class="content">
+          <div class="greeting">Hi ${name || 'Valued Customer'}</div>
+          <div class="sub-greeting">We have received your order and are preparing it for shipment.</div>
+          
+          <div class="order-ref">Order ${orderId.toUpperCase()}</div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+              <tr class="final-total">
+                <td colspan="2">TOTAL</td>
+                <td style="text-align: right;">₦${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="footer">
+            <div>Delivery is expected to take 3-7 business days.</div>
+            <div class="world-takeover">Good luck on taking over the world</div>
+            
+            <a href="https://wovenkulture.com/orders/${orderId}" class="track-btn">Track Your Shipment</a>
+            
+            <div style="margin-top: 40px; font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 2px;">
+              Woven Kulture Artisanal Luxury
+            </div>
           </div>
-        </body>
+        </div>
+      </body>
       </html>
     `;
   }

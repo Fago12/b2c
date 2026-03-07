@@ -21,7 +21,13 @@ export default async function Home() {
     const cookieStore = await cookies();
     const regionCode = cookieStore.get(REGION_COOKIE_NAME)?.value || 'US';
 
-    const res = await fetch(`${apiUrl}/homepage`, {
+    let finalUrl = `${apiUrl}/homepage`;
+    // Server-side fetch optimization: Node.js sometimes fails to resolve 'localhost'
+    if (typeof window === 'undefined') {
+      finalUrl = finalUrl.replace('localhost', '127.0.0.1');
+    }
+
+    const res = await fetch(finalUrl, {
       headers: {
         'x-region-code': regionCode
       },

@@ -13,7 +13,8 @@ let CustomizationService = class CustomizationService {
         let extra = 0;
         if (!customization || !options)
             return 0;
-        if (customization.embroidery && options.embroidery?.enabled) {
+        const embroideryValue = customization.embroideryName || customization.embroidery;
+        if (embroideryValue && options.embroidery?.enabled) {
             extra += options.embroidery?.price || 0;
         }
         return extra;

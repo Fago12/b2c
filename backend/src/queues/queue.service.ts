@@ -62,6 +62,17 @@ export class QueueService {
     orderId: string,
     total: number,
     items: any[],
+    subtotal: number,
+    shippingCost: number,
+    discountAmount: number = 0,
+    currency: string = 'NGN',
+    customerInfo: {
+      firstName: string;
+      lastName: string;
+      phone: string;
+      date: string;
+      shippingAddress: any;
+    }
   ): Promise<void> {
     await this.sendEmail(
       {
@@ -69,9 +80,17 @@ export class QueueService {
         subject: `Order Receipt: ${orderId}`,
         html: '',
         template: 'purchase-receipt',
-        data: { orderId, total, items },
+        data: { 
+          orderId, 
+          total, 
+          items,
+          subtotal,
+          shippingCost,
+          discountAmount,
+          currency,
+          customerInfo
+        },
       },
-      1,
     );
   }
 
@@ -88,6 +107,38 @@ export class QueueService {
         data: { resetUrl },
       },
       2, // High priority for password resets
+    );
+  }
+
+  /**
+   * Send shipping notification
+   */
+  async sendShippingNotification(order: any): Promise<void> {
+    await this.sendEmail(
+      {
+        to: order.email,
+        subject: `Your order has shipped! - #${order.id}`,
+        html: '',
+        template: 'shipping-notification',
+        data: { order },
+      },
+      1,
+    );
+  }
+
+  /**
+   * Send delivery confirmation
+   */
+  async sendDeliveryConfirmation(order: any): Promise<void> {
+    await this.sendEmail(
+      {
+        to: order.email,
+        subject: `Your order has been delivered! - #${order.id}`,
+        html: '',
+        template: 'delivery-confirmation',
+        data: { order },
+      },
+      1,
     );
   }
 

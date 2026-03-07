@@ -45,6 +45,7 @@ export declare class CommerceOrdersService {
         customerPhone: string | null;
         shippingAddress: import("@prisma/client/runtime/library").JsonValue;
         regionCode: string;
+        couponCode: string | null;
         exchangeRateUsed: string;
         chargeCurrency: string;
         chargeTotal: number;
@@ -59,5 +60,6 @@ export declare class CommerceOrdersService {
         totalUSD: number;
         paymentId: string | null;
         shippingCost: number;
+        discountAmount: number | null;
     }>;
 }

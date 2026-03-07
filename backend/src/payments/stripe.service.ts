@@ -132,21 +132,8 @@ export class StripeService {
             this.logger.log(`Cleared cart for session ${sessionId}`);
         }
 
-        // 3. Send Receipt Email (Background Queue)
-        if (order.email) {
-            this.logger.log(`Queueing receipt email for ${order.email}`);
-            await this.queueService.sendPurchaseReceipt(
-                order.email, 
-                order.id, 
-                order.total, 
-                order.items.map((item: any) => ({
-                    name: item.product?.name || 'Product',
-                    quantity: item.quantity,
-                    price: item.price
-                }))
-            );
-            this.logger.log('Receipt email job added to queue');
-        }
+        // 3. Status update handles email (via OrdersService)
+        // We no longer call queueService directly here to avoid double/broken emails
     } catch(e) {
         this.logger.error(`Error processing order ${orderId}: ${e.message}`);
     }

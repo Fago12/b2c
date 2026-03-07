@@ -61,6 +61,11 @@ const sidebarItems = [
                 href: "/admin/reviews",
                 icon: MessageSquare,
             },
+            {
+                title: "Newsletter",
+                href: "/admin/newsletter",
+                icon: Users,
+            },
         ],
     },
     {

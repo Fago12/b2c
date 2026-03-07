@@ -17,6 +17,7 @@ import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { CommonModule } from './common/common.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 import { CartModule } from './cart/cart.module';
 import { QueueModule } from './queues/queue.module';
 import { MediaModule } from './media/media.module';
@@ -98,6 +99,7 @@ import { CommerceShippingModule } from './commerce/shipping/shipping.module';
     ReviewsModule,
     MailModule,
     CartModule,
+    NewsletterModule,
     MediaModule,
     ChatModule,
     PaymentsModule,

@@ -9979,3 +9979,932 @@
 [2026-03-05T22:55:07.785Z] GET http://localhost:3000/api/auth/get-session
 [2026-03-05T22:55:08.337Z] GET http://localhost:3000/api/auth/get-session
 [2026-03-05T22:55:09.519Z] Route file loaded
+[2026-03-05T23:15:39.230Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:15:40.748Z] Route file loaded
+[2026-03-05T23:15:52.308Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:15:53.958Z] Route file loaded
+[2026-03-05T23:15:54.480Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:15:56.172Z] Route file loaded
+[2026-03-05T23:18:29.574Z] Route file loaded
+[2026-03-05T23:18:29.596Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:18:31.145Z] Route file loaded
+[2026-03-05T23:21:15.513Z] Route file loaded
+[2026-03-05T23:21:15.541Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:21:17.056Z] Route file loaded
+[2026-03-05T23:21:44.762Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:21:46.256Z] Route file loaded
+[2026-03-05T23:24:02.314Z] Route file loaded
+[2026-03-05T23:24:03.950Z] Route file loaded
+[2026-03-05T23:24:03.981Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:24:05.915Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:24:06.785Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:24:07.291Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:24:07.593Z] Route file loaded
+[2026-03-05T23:25:51.209Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:25:51.693Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:25:52.202Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:25:52.778Z] Route file loaded
+[2026-03-05T23:26:20.961Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:26:22.407Z] Route file loaded
+[2026-03-05T23:26:25.175Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:26:26.912Z] Route file loaded
+[2026-03-05T23:28:56.022Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:28:56.548Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:28:56.668Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:28:59.003Z] Route file loaded
+[2026-03-05T23:30:15.898Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:30:17.994Z] Route file loaded
+[2026-03-05T23:30:34.799Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:30:35.290Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:30:35.744Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:30:36.174Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:30:36.804Z] Route file loaded
+[2026-03-05T23:32:57.694Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:32:59.337Z] Route file loaded
+[2026-03-05T23:33:26.926Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:33:28.608Z] Route file loaded
+[2026-03-05T23:34:04.583Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:34:06.246Z] Route file loaded
+[2026-03-05T23:34:07.674Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:34:09.522Z] Route file loaded
+[2026-03-05T23:36:53.131Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:36:54.665Z] Route file loaded
+[2026-03-05T23:47:40.482Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:47:42.418Z] Route file loaded
+[2026-03-05T23:47:55.751Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:47:57.509Z] Route file loaded
+[2026-03-05T23:47:58.988Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-05T23:48:00.891Z] Route file loaded
+[2026-03-06T00:05:47.912Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:05:49.467Z] Route file loaded
+[2026-03-06T00:06:20.252Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:06:21.443Z] Route file loaded
+[2026-03-06T00:06:23.068Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:06:24.478Z] Route file loaded
+[2026-03-06T00:09:07.836Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:09:09.066Z] Route file loaded
+[2026-03-06T00:09:21.321Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:09:22.682Z] Route file loaded
+[2026-03-06T00:10:05.026Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:10:06.391Z] Route file loaded
+[2026-03-06T00:13:08.522Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:13:10.085Z] Route file loaded
+[2026-03-06T00:13:58.689Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:13:59.877Z] Route file loaded
+[2026-03-06T00:15:29.788Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:15:31.075Z] Route file loaded
+[2026-03-06T00:16:08.801Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:16:10.416Z] Route file loaded
+[2026-03-06T00:16:23.046Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:16:24.453Z] Route file loaded
+[2026-03-06T00:16:26.340Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:16:28.034Z] Route file loaded
+[2026-03-06T00:33:27.869Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:33:29.308Z] Route file loaded
+[2026-03-06T00:38:33.730Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:38:34.973Z] Route file loaded
+[2026-03-06T00:40:57.463Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:40:59.445Z] Route file loaded
+[2026-03-06T00:41:08.425Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:09.791Z] Route file loaded
+[2026-03-06T00:41:24.756Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:25.227Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:25.744Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:26.172Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:26.225Z] Route file loaded
+[2026-03-06T00:41:26.803Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:27.249Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:41:28.089Z] Route file loaded
+[2026-03-06T00:46:29.888Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:46:31.101Z] Route file loaded
+[2026-03-06T00:46:53.288Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:46:55.847Z] Route file loaded
+[2026-03-06T00:46:59.391Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:47:01.101Z] Route file loaded
+[2026-03-06T00:47:04.391Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:47:07.722Z] Route file loaded
+[2026-03-06T00:47:34.226Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:47:35.858Z] Route file loaded
+[2026-03-06T00:48:09.781Z] Route file loaded
+[2026-03-06T00:48:11.311Z] Route file loaded
+[2026-03-06T00:48:11.352Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:13.308Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:13.750Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:13.785Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:14.221Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:14.666Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:15.112Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:15.326Z] Route file loaded
+[2026-03-06T00:48:16.026Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:17.422Z] Route file loaded
+[2026-03-06T00:48:30.260Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:31.258Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:31.354Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:32.816Z] Route file loaded
+[2026-03-06T00:48:46.243Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:46.322Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:46.357Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:46.423Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:46.503Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:46.587Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:47.072Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:48:49.735Z] Route file loaded
+[2026-03-06T00:49:08.804Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:09.476Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:09.558Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:11.521Z] Route file loaded
+[2026-03-06T00:49:26.298Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:27.053Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:27.104Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:27.234Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:27.319Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:27.379Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:28.848Z] Route file loaded
+[2026-03-06T00:49:50.159Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:50.225Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:49:52.917Z] Route file loaded
+[2026-03-06T00:50:35.518Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:50:38.763Z] Route file loaded
+[2026-03-06T00:51:03.974Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:05.782Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:08.051Z] Route file loaded
+[2026-03-06T00:51:23.382Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:23.469Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:23.568Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:24.506Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:29.251Z] Route file loaded
+[2026-03-06T00:51:38.844Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:42.263Z] Route file loaded
+[2026-03-06T00:51:54.721Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:55.691Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:55.837Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:55.926Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:51:59.252Z] Route file loaded
+[2026-03-06T00:52:36.037Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:52:40.328Z] Route file loaded
+[2026-03-06T00:52:52.309Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:52:56.605Z] Route file loaded
+[2026-03-06T00:52:57.696Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:52:57.770Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:52:57.865Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:52:58.746Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:53:02.760Z] Route file loaded
+[2026-03-06T00:54:13.240Z] Route file loaded
+[2026-03-06T00:54:13.289Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:13.851Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:14.285Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:15.836Z] Route file loaded
+[2026-03-06T00:54:22.978Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:25.966Z] Route file loaded
+[2026-03-06T00:54:32.407Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:35.715Z] Route file loaded
+[2026-03-06T00:54:51.371Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:52.994Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:53.035Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:54:53.749Z] Route file loaded
+[2026-03-06T00:55:05.990Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:06.059Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:06.121Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:06.170Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:06.241Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:06.305Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:09.091Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:10.608Z] Route file loaded
+[2026-03-06T00:55:26.001Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:30.560Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:30.861Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:55:34.729Z] Route file loaded
+[2026-03-06T00:56:14.655Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:56:20.588Z] Route file loaded
+[2026-03-06T00:56:48.536Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:56:50.810Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:56:53.587Z] Route file loaded
+[2026-03-06T00:57:13.948Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:57:14.066Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:57:14.203Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:57:19.701Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:57:20.706Z] Route file loaded
+[2026-03-06T00:58:56.750Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T00:58:58.307Z] Route file loaded
+[2026-03-06T01:01:20.975Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:01:21.610Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:01:21.654Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:01:22.436Z] Route file loaded
+[2026-03-06T01:02:13.642Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:02:13.683Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:02:15.282Z] Route file loaded
+[2026-03-06T01:02:51.397Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:02:52.488Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:02:52.535Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:02:54.002Z] Route file loaded
+[2026-03-06T01:02:57.595Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:03:03.640Z] Route file loaded
+[2026-03-06T01:03:31.894Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:03:34.567Z] Route file loaded
+[2026-03-06T01:03:36.471Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:03:38.160Z] Route file loaded
+[2026-03-06T01:03:54.467Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:03:57.282Z] Route file loaded
+[2026-03-06T01:04:00.193Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:04:03.317Z] Route file loaded
+[2026-03-06T01:04:14.976Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:04:15.031Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:04:17.001Z] Route file loaded
+[2026-03-06T01:04:45.204Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:04:47.264Z] Route file loaded
+[2026-03-06T01:10:43.378Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:10:44.804Z] Route file loaded
+[2026-03-06T01:13:23.374Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:24.903Z] Route file loaded
+[2026-03-06T01:13:35.108Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:36.775Z] Route file loaded
+[2026-03-06T01:13:44.096Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:44.536Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:44.961Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:45.395Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:45.556Z] Route file loaded
+[2026-03-06T01:13:46.013Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:46.666Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:13:47.229Z] Route file loaded
+[2026-03-06T01:15:25.138Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:15:26.231Z] Route file loaded
+[2026-03-06T01:15:43.305Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:15:44.564Z] Route file loaded
+[2026-03-06T01:15:48.312Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:15:49.479Z] Route file loaded
+[2026-03-06T01:16:21.248Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:16:22.314Z] Route file loaded
+[2026-03-06T01:17:43.435Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T01:17:44.506Z] Route file loaded
+[2026-03-06T13:07:30.548Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:07:32.689Z] Route file loaded
+[2026-03-06T13:12:57.252Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:12:59.293Z] Route file loaded
+[2026-03-06T13:19:13.764Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:15.833Z] Route file loaded
+[2026-03-06T13:19:21.184Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:21.781Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:22.236Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:22.458Z] Route file loaded
+[2026-03-06T13:19:22.684Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:23.393Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:24.434Z] Route file loaded
+[2026-03-06T13:19:27.152Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:28.642Z] Route file loaded
+[2026-03-06T13:19:50.271Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:19:51.833Z] Route file loaded
+[2026-03-06T13:20:29.840Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:20:31.268Z] Route file loaded
+[2026-03-06T13:20:50.036Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:20:51.498Z] Route file loaded
+[2026-03-06T13:22:03.027Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:22:04.976Z] Route file loaded
+[2026-03-06T13:24:46.306Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:24:48.014Z] Route file loaded
+[2026-03-06T13:24:59.385Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:25:00.837Z] Route file loaded
+[2026-03-06T13:25:45.023Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:25:46.556Z] Route file loaded
+[2026-03-06T13:26:53.827Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:26:55.189Z] Route file loaded
+[2026-03-06T13:27:53.150Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:27:55.033Z] Route file loaded
+[2026-03-06T13:27:56.033Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:27:57.402Z] Route file loaded
+[2026-03-06T13:28:39.725Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:28:40.947Z] Route file loaded
+[2026-03-06T13:29:48.194Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:29:49.632Z] Route file loaded
+[2026-03-06T13:29:54.149Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:29:55.610Z] Route file loaded
+[2026-03-06T13:32:08.625Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:09.336Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:09.466Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:10.777Z] Route file loaded
+[2026-03-06T13:32:34.963Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:35.024Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:35.058Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:36.232Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:32:37.611Z] Route file loaded
+[2026-03-06T13:35:38.379Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:35:40.910Z] Route file loaded
+[2026-03-06T13:35:49.432Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:35:52.146Z] Route file loaded
+[2026-03-06T13:37:02.592Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:37:04.693Z] Route file loaded
+[2026-03-06T13:37:10.308Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:37:13.206Z] Route file loaded
+[2026-03-06T13:37:40.042Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:37:42.350Z] Route file loaded
+[2026-03-06T13:37:47.271Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:37:49.490Z] Route file loaded
+[2026-03-06T13:43:07.003Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:43:08.752Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:43:08.799Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:43:08.856Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:43:08.951Z] Route file loaded
+[2026-03-06T13:43:08.954Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:43:09.030Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:45:33.944Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:45:35.507Z] Route file loaded
+[2026-03-06T13:45:47.805Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:45:49.184Z] Route file loaded
+[2026-03-06T13:46:03.268Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:04.158Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:04.700Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:04.781Z] Route file loaded
+[2026-03-06T13:46:05.178Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:05.628Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:06.096Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:06.695Z] Route file loaded
+[2026-03-06T13:46:06.711Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:07.673Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:09.173Z] Route file loaded
+[2026-03-06T13:46:39.238Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:46:40.654Z] Route file loaded
+[2026-03-06T13:48:16.289Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:48:17.905Z] Route file loaded
+[2026-03-06T13:51:21.555Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:51:23.421Z] Route file loaded
+[2026-03-06T13:52:16.271Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:52:18.118Z] Route file loaded
+[2026-03-06T13:53:41.118Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:53:42.594Z] Route file loaded
+[2026-03-06T13:53:54.227Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:53:54.708Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:53:55.213Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:53:55.881Z] Route file loaded
+[2026-03-06T13:54:00.465Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:00.910Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:01.350Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:01.778Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:02.049Z] Route file loaded
+[2026-03-06T13:54:02.520Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:03.430Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:04.003Z] Route file loaded
+[2026-03-06T13:54:23.568Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:24.902Z] Route file loaded
+[2026-03-06T13:54:30.884Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:32.598Z] Route file loaded
+[2026-03-06T13:54:41.189Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:41.660Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:42.331Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:42.950Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:54:43.110Z] Route file loaded
+[2026-03-06T13:56:43.819Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:56:45.443Z] Route file loaded
+[2026-03-06T13:56:48.684Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T13:56:50.413Z] Route file loaded
+[2026-03-06T14:06:05.757Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:07.320Z] Route file loaded
+[2026-03-06T14:06:34.809Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:36.133Z] Route file loaded
+[2026-03-06T14:06:39.302Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:39.746Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:40.206Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:40.640Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:40.690Z] Route file loaded
+[2026-03-06T14:06:41.111Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:41.563Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:42.508Z] Route file loaded
+[2026-03-06T14:06:47.462Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:47.935Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:48.391Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:48.847Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:49.282Z] Route file loaded
+[2026-03-06T14:06:49.571Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:50.868Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:06:51.095Z] Route file loaded
+[2026-03-06T14:07:23.912Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:07:25.562Z] Route file loaded
+[2026-03-06T14:07:31.617Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:07:32.959Z] Route file loaded
+[2026-03-06T14:07:35.180Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:07:35.638Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:07:36.146Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:07:36.832Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:07:36.835Z] Route file loaded
+[2026-03-06T14:09:12.003Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:09:13.619Z] Route file loaded
+[2026-03-06T14:09:22.286Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T14:09:23.989Z] Route file loaded
+[2026-03-06T15:33:23.107Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:33:24.293Z] Route file loaded
+[2026-03-06T15:33:53.663Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:33:54.746Z] Route file loaded
+[2026-03-06T15:34:04.449Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:04.463Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:05.479Z] Route file loaded
+[2026-03-06T15:34:21.629Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:22.788Z] Route file loaded
+[2026-03-06T15:34:25.770Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:26.252Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:26.788Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:27.186Z] Route file loaded
+[2026-03-06T15:34:27.235Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:34:28.396Z] Route file loaded
+[2026-03-06T15:44:49.329Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:44:50.349Z] Route file loaded
+[2026-03-06T15:44:58.302Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:44:58.754Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:44:59.493Z] Route file loaded
+[2026-03-06T15:45:15.785Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:45:16.199Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:45:17.010Z] Route file loaded
+[2026-03-06T15:46:54.441Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T15:46:55.545Z] Route file loaded
+[2026-03-06T16:05:29.850Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:05:31.856Z] Route file loaded
+[2026-03-06T16:44:01.434Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:44:02.995Z] Route file loaded
+[2026-03-06T16:44:10.912Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:44:12.882Z] Route file loaded
+[2026-03-06T16:44:55.521Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:44:56.952Z] Route file loaded
+[2026-03-06T16:45:57.611Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:45:58.041Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:45:58.569Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:45:59.014Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:45:59.079Z] Route file loaded
+[2026-03-06T16:45:59.683Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:00.660Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:01.150Z] Route file loaded
+[2026-03-06T16:46:48.237Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:49.827Z] Route file loaded
+[2026-03-06T16:46:53.620Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:54.868Z] Route file loaded
+[2026-03-06T16:46:57.122Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:57.547Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:57.996Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:58.451Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:46:58.729Z] Route file loaded
+[2026-03-06T16:47:38.651Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:47:40.048Z] Route file loaded
+[2026-03-06T16:47:43.788Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:47:45.479Z] Route file loaded
+[2026-03-06T16:49:02.395Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:49:04.077Z] Route file loaded
+[2026-03-06T16:49:04.501Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:49:04.956Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:49:05.886Z] Route file loaded
+[2026-03-06T16:49:30.949Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T16:49:32.273Z] Route file loaded
+[2026-03-06T17:05:46.144Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:05:46.181Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:05:46.211Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:05:47.627Z] Route file loaded
+[2026-03-06T17:05:50.012Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:05:51.252Z] Route file loaded
+[2026-03-06T17:05:52.734Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:05:53.977Z] Route file loaded
+[2026-03-06T17:09:31.034Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:09:32.575Z] Route file loaded
+[2026-03-06T17:09:44.453Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:09:44.896Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:09:45.910Z] Route file loaded
+[2026-03-06T17:09:54.012Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:09:54.559Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:09:55.502Z] Route file loaded
+[2026-03-06T17:10:36.432Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:37.903Z] Route file loaded
+[2026-03-06T17:10:47.830Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:48.268Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:48.813Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:49.270Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:49.477Z] Route file loaded
+[2026-03-06T17:10:50.050Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:50.661Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:10:51.622Z] Route file loaded
+[2026-03-06T17:11:05.217Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:11:06.547Z] Route file loaded
+[2026-03-06T17:11:31.304Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:11:32.920Z] Route file loaded
+[2026-03-06T17:11:38.814Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:11:40.317Z] Route file loaded
+[2026-03-06T17:11:42.191Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:11:42.704Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:11:43.179Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:11:43.582Z] Route file loaded
+[2026-03-06T17:11:43.617Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:12:32.200Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:12:33.584Z] Route file loaded
+[2026-03-06T17:12:36.159Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:12:37.839Z] Route file loaded
+[2026-03-06T17:20:47.349Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:20:49.108Z] Route file loaded
+[2026-03-06T17:21:15.360Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:21:15.817Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:21:16.775Z] Route file loaded
+[2026-03-06T17:21:34.331Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:21:35.865Z] Route file loaded
+[2026-03-06T17:22:15.075Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:22:16.556Z] Route file loaded
+[2026-03-06T17:27:20.284Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:21.620Z] Route file loaded
+[2026-03-06T17:27:37.000Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:37.434Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:37.873Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:38.321Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:38.555Z] Route file loaded
+[2026-03-06T17:27:38.941Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:40.047Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:40.486Z] Route file loaded
+[2026-03-06T17:27:51.701Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:27:52.925Z] Route file loaded
+[2026-03-06T17:28:07.512Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:28:08.861Z] Route file loaded
+[2026-03-06T17:28:15.317Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:28:16.837Z] Route file loaded
+[2026-03-06T17:28:18.205Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:28:18.643Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:28:19.070Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:28:19.784Z] Route file loaded
+[2026-03-06T17:28:20.021Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:28:21.577Z] Route file loaded
+[2026-03-06T17:37:43.183Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:37:44.661Z] Route file loaded
+[2026-03-06T17:37:56.205Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:37:56.713Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:37:57.728Z] Route file loaded
+[2026-03-06T17:39:02.976Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:04.366Z] Route file loaded
+[2026-03-06T17:39:10.137Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:10.571Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:11.009Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:11.439Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:11.688Z] Route file loaded
+[2026-03-06T17:39:12.228Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:12.941Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:14.010Z] Route file loaded
+[2026-03-06T17:39:20.310Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:21.789Z] Route file loaded
+[2026-03-06T17:39:36.120Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:37.414Z] Route file loaded
+[2026-03-06T17:39:44.012Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:45.363Z] Route file loaded
+[2026-03-06T17:39:47.266Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:47.791Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:48.299Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:48.602Z] Route file loaded
+[2026-03-06T17:39:48.874Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T17:39:50.755Z] Route file loaded
+[2026-03-06T18:32:14.666Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:32:16.162Z] Route file loaded
+[2026-03-06T18:32:28.768Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:32:29.216Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:32:30.336Z] Route file loaded
+[2026-03-06T18:33:08.107Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:10.197Z] Route file loaded
+[2026-03-06T18:33:13.788Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:14.230Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:14.664Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:15.132Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:15.719Z] Route file loaded
+[2026-03-06T18:33:15.796Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:16.597Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:17.391Z] Route file loaded
+[2026-03-06T18:33:26.869Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:28.269Z] Route file loaded
+[2026-03-06T18:33:42.063Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:43.819Z] Route file loaded
+[2026-03-06T18:33:49.400Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:50.927Z] Route file loaded
+[2026-03-06T18:33:53.033Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:53.786Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:54.335Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:54.487Z] Route file loaded
+[2026-03-06T18:33:54.817Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:33:56.279Z] Route file loaded
+[2026-03-06T18:49:51.132Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:49:58.119Z] Route file loaded
+[2026-03-06T18:56:04.457Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:07.299Z] Route file loaded
+[2026-03-06T18:56:29.159Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:29.625Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:31.907Z] Route file loaded
+[2026-03-06T18:56:44.451Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:44.962Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:45.553Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:46.096Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:46.742Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:47.116Z] Route file loaded
+[2026-03-06T18:56:47.266Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-06T18:56:50.288Z] Route file loaded
+[2026-03-07T03:07:53.516Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:07:56.493Z] Route file loaded
+[2026-03-07T03:22:27.416Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:28.941Z] Route file loaded
+[2026-03-07T03:22:29.883Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:30.381Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:30.818Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:31.282Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:31.577Z] Route file loaded
+[2026-03-07T03:22:32.966Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:34.052Z] Route file loaded
+[2026-03-07T03:22:41.583Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:42.047Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:22:42.810Z] Route file loaded
+[2026-03-07T03:23:40.019Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:23:41.237Z] Route file loaded
+[2026-03-07T03:32:59.667Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:01.069Z] Route file loaded
+[2026-03-07T03:33:02.215Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:02.681Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:03.098Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:03.672Z] Route file loaded
+[2026-03-07T03:33:11.397Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:12.603Z] Route file loaded
+[2026-03-07T03:33:42.119Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:43.222Z] Route file loaded
+[2026-03-07T03:33:51.160Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:51.613Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:52.067Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:52.502Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:52.522Z] Route file loaded
+[2026-03-07T03:33:53.168Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:53.973Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:33:54.328Z] Route file loaded
+[2026-03-07T03:34:00.367Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:01.660Z] Route file loaded
+[2026-03-07T03:34:17.549Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:18.810Z] Route file loaded
+[2026-03-07T03:34:24.931Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:26.276Z] Route file loaded
+[2026-03-07T03:34:27.740Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:28.162Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:28.617Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:28.959Z] Route file loaded
+[2026-03-07T03:34:29.104Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:34:30.228Z] Route file loaded
+[2026-03-07T03:35:08.785Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:35:10.016Z] Route file loaded
+[2026-03-07T03:45:04.282Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:45:06.048Z] Route file loaded
+[2026-03-07T03:45:45.941Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:45:47.812Z] Route file loaded
+[2026-03-07T03:45:59.897Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:46:00.334Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:46:01.637Z] Route file loaded
+[2026-03-07T03:46:48.828Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:46:50.568Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:46:51.028Z] Route file loaded
+[2026-03-07T03:54:42.806Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:54:43.907Z] Route file loaded
+[2026-03-07T03:54:49.815Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:54:50.267Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:54:50.710Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:54:50.993Z] Route file loaded
+[2026-03-07T03:54:51.156Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:54:52.566Z] Route file loaded
+[2026-03-07T03:55:26.142Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:27.255Z] Route file loaded
+[2026-03-07T03:55:33.988Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:34.419Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:34.840Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:35.274Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:35.276Z] Route file loaded
+[2026-03-07T03:55:35.965Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:36.473Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:37.566Z] Route file loaded
+[2026-03-07T03:55:48.300Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:55:49.491Z] Route file loaded
+[2026-03-07T03:56:11.926Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:56:13.190Z] Route file loaded
+[2026-03-07T03:56:17.706Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:56:18.905Z] Route file loaded
+[2026-03-07T03:56:20.760Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:56:21.193Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:56:21.661Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:56:22.041Z] Route file loaded
+[2026-03-07T03:56:22.104Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:56:23.220Z] Route file loaded
+[2026-03-07T03:59:32.485Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T03:59:33.584Z] Route file loaded
+[2026-03-07T06:11:52.280Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:11:55.165Z] Route file loaded
+[2026-03-07T06:12:41.962Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:12:43.493Z] Route file loaded
+[2026-03-07T06:13:01.307Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:01.836Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:02.670Z] Route file loaded
+[2026-03-07T06:13:07.357Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:08.919Z] Route file loaded
+[2026-03-07T06:13:15.258Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:15.703Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:16.159Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:16.664Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:16.835Z] Route file loaded
+[2026-03-07T06:13:17.275Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:17.973Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:19.014Z] Route file loaded
+[2026-03-07T06:13:33.154Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:13:34.809Z] Route file loaded
+[2026-03-07T06:21:24.782Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:21:26.348Z] Route file loaded
+[2026-03-07T06:22:19.225Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:22:20.970Z] Route file loaded
+[2026-03-07T06:23:18.361Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:23:19.959Z] Route file loaded
+[2026-03-07T06:24:05.264Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:24:07.244Z] Route file loaded
+[2026-03-07T06:25:19.361Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:25:21.129Z] Route file loaded
+[2026-03-07T06:25:51.307Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:25:53.115Z] Route file loaded
+[2026-03-07T06:27:47.000Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:27:48.686Z] Route file loaded
+[2026-03-07T06:29:26.899Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:29:28.491Z] Route file loaded
+[2026-03-07T06:30:55.449Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:30:57.163Z] Route file loaded
+[2026-03-07T06:31:25.340Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:25.987Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:26.421Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:26.765Z] Route file loaded
+[2026-03-07T06:31:26.859Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:27.461Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:28.347Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:28.522Z] Route file loaded
+[2026-03-07T06:31:43.590Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:31:44.833Z] Route file loaded
+[2026-03-07T06:31:58.716Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:32:00.347Z] Route file loaded
+[2026-03-07T06:32:04.355Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:32:05.760Z] Route file loaded
+[2026-03-07T06:32:07.355Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:32:07.785Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:32:08.433Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:32:08.877Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:32:09.098Z] Route file loaded
+[2026-03-07T06:43:54.540Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:43:56.698Z] Route file loaded
+[2026-03-07T06:43:57.262Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:43:57.696Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:43:58.114Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:43:58.710Z] Route file loaded
+[2026-03-07T06:44:50.403Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:44:50.878Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:44:51.326Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:44:51.794Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:44:51.917Z] Route file loaded
+[2026-03-07T06:45:08.654Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:10.205Z] Route file loaded
+[2026-03-07T06:45:18.273Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:19.832Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:20.038Z] Route file loaded
+[2026-03-07T06:45:20.420Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:22.246Z] Route file loaded
+[2026-03-07T06:45:25.380Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:26.873Z] Route file loaded
+[2026-03-07T06:45:32.819Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:33.268Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:33.702Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:34.127Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:34.247Z] Route file loaded
+[2026-03-07T06:45:34.847Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:35.578Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:36.438Z] Route file loaded
+[2026-03-07T06:45:44.921Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:46.366Z] Route file loaded
+[2026-03-07T06:45:52.220Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:45:53.600Z] Route file loaded
+[2026-03-07T06:45:59.497Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:00.916Z] Route file loaded
+[2026-03-07T06:46:12.033Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:13.378Z] Route file loaded
+[2026-03-07T06:46:19.261Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:20.556Z] Route file loaded
+[2026-03-07T06:46:22.809Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:23.225Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:23.715Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:24.186Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:46:24.557Z] Route file loaded
+[2026-03-07T06:49:14.961Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:16.578Z] Route file loaded
+[2026-03-07T06:49:39.878Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:40.451Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:41.463Z] Route file loaded
+[2026-03-07T06:49:46.153Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:47.376Z] Route file loaded
+[2026-03-07T06:49:52.291Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:52.731Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:53.289Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:53.760Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:53.909Z] Route file loaded
+[2026-03-07T06:49:54.460Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:55.189Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:49:56.198Z] Route file loaded
+[2026-03-07T06:50:04.934Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:50:06.304Z] Route file loaded
+[2026-03-07T06:51:38.380Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:51:39.596Z] Route file loaded
+[2026-03-07T06:51:52.796Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:51:54.343Z] Route file loaded
+[2026-03-07T06:52:01.634Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:52:02.974Z] Route file loaded
+[2026-03-07T06:54:07.283Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T06:54:08.789Z] Route file loaded
+[2026-03-07T07:00:09.146Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:00:11.332Z] Route file loaded
+[2026-03-07T07:00:11.936Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:00:13.549Z] Route file loaded
+[2026-03-07T07:00:18.152Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:00:19.828Z] Route file loaded
+[2026-03-07T07:00:36.053Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:00:37.837Z] Route file loaded
+[2026-03-07T07:01:48.310Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:01:49.768Z] Route file loaded
+[2026-03-07T07:02:05.729Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:07.381Z] Route file loaded
+[2026-03-07T07:02:15.339Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:15.776Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:16.248Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:17.126Z] Route file loaded
+[2026-03-07T07:02:29.254Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:29.710Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:30.649Z] Route file loaded
+[2026-03-07T07:02:37.091Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:38.553Z] Route file loaded
+[2026-03-07T07:02:44.452Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:44.934Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:45.368Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:45.771Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:46.119Z] Route file loaded
+[2026-03-07T07:02:46.375Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:47.120Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:47.736Z] Route file loaded
+[2026-03-07T07:02:55.809Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:02:57.205Z] Route file loaded
+[2026-03-07T07:03:04.093Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:05.288Z] Route file loaded
+[2026-03-07T07:03:23.678Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:25.353Z] Route file loaded
+[2026-03-07T07:03:33.673Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:34.240Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:34.701Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:35.436Z] Route file loaded
+[2026-03-07T07:03:44.520Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:44.960Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:46.036Z] Route file loaded
+[2026-03-07T07:03:50.576Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:51.981Z] Route file loaded
+[2026-03-07T07:03:57.522Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:57.944Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:58.372Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:58.873Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:03:59.142Z] Route file loaded
+[2026-03-07T07:03:59.484Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:04:00.590Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:04:01.293Z] Route file loaded
+[2026-03-07T07:04:13.375Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:04:14.600Z] Route file loaded
+[2026-03-07T07:05:28.265Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:05:29.892Z] Route file loaded
+[2026-03-07T07:05:33.820Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:05:35.252Z] Route file loaded
+[2026-03-07T07:05:38.494Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:05:39.050Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:05:39.449Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:05:39.845Z] Route file loaded
+[2026-03-07T07:05:39.870Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:06:26.424Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:06:27.887Z] Route file loaded
+[2026-03-07T07:06:33.753Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:06:35.545Z] Route file loaded
+[2026-03-07T07:10:08.799Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:10:10.323Z] Route file loaded
+[2026-03-07T07:13:38.824Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:13:40.522Z] Route file loaded
+[2026-03-07T07:24:06.179Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:24:07.908Z] Route file loaded
+[2026-03-07T07:35:57.303Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T07:35:58.868Z] Route file loaded
+[2026-03-07T08:22:28.094Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:22:30.666Z] Route file loaded
+[2026-03-07T08:22:48.553Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:22:51.394Z] Route file loaded
+[2026-03-07T08:23:56.691Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:23:57.129Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:23:57.762Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:23:58.257Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:24:00.108Z] Route file loaded
+[2026-03-07T08:24:32.276Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:24:35.018Z] Route file loaded
+[2026-03-07T08:31:44.567Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:31:47.433Z] Route file loaded
+[2026-03-07T08:35:13.831Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T08:35:16.694Z] Route file loaded
+[2026-03-07T16:20:21.838Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:20:26.109Z] Route file loaded
+[2026-03-07T16:22:49.061Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:22:50.399Z] Route file loaded
+[2026-03-07T16:25:46.019Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:25:47.532Z] Route file loaded
+[2026-03-07T16:25:50.568Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:25:52.444Z] Route file loaded
+[2026-03-07T16:27:01.030Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:27:01.456Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:27:02.286Z] Route file loaded
+[2026-03-07T16:28:08.850Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:28:09.309Z] GET http://localhost:3000/api/auth/get-session
+[2026-03-07T16:28:10.332Z] Route file loaded

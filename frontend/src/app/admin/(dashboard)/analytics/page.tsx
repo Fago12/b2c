@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
                         </div>
                         <div>
                             <p className="text-green-100">Total Revenue</p>
-                            <p className="text-4xl font-bold">{formatPrice(data.orders.totalRevenue || 0, 'NGN')}</p>
+                            <p className="text-4xl font-bold">{formatPrice(data.orders.totalRevenue || 0, 'USD')}</p>
                         </div>
                     </div>
                 </CardContent>

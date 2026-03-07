@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
     const cards = [
         {
             title: "Total Revenue",
-            value: formatPrice(stats?.revenue.total || 0, 'NGN'), // Default to Naira for Admin in NG context
+            value: formatPrice(stats?.revenue.total || 0, 'USD'),
             change: stats?.revenue.change || 0,
             icon: DollarSign,
         },
@@ -142,13 +142,13 @@ export default function AdminDashboardPage() {
                                     tickMargin={10}
                                 />
                                 <YAxis
-                                    tickFormatter={(value) => `₦${value.toLocaleString()}`}
+                                    tickFormatter={(value) => `$${value.toLocaleString()}`}
                                     tickLine={false}
                                     axisLine={false}
                                     tickMargin={10}
                                 />
                                 <Tooltip
-                                    formatter={(value: number | string | undefined) => [`₦${Number(value || 0).toLocaleString()}`, "Revenue"]}
+                                    formatter={(value: number | string | undefined) => [`$${Number(value || 0).toLocaleString()}`, "Revenue"]}
                                     labelFormatter={(label) => new Date(label).toLocaleDateString()}
                                 />
                                 <Area

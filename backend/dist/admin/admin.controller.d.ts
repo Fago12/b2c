@@ -3,13 +3,13 @@ export declare class AdminController {
     private readonly adminService;
     constructor(adminService: AdminService);
     getTeam(): Promise<{
-        name: string | null;
-        id: string;
         email: string;
-        emailVerified: boolean;
-        image: string | null;
-        createdAt: Date;
+        id: string;
         role: string;
+        image: string | null;
+        name: string | null;
+        createdAt: Date;
+        emailVerified: boolean;
         isVerified: boolean;
     }[]>;
     invite(email: string, req: any): Promise<{

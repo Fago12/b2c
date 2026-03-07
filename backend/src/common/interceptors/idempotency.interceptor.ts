@@ -45,6 +45,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
     }
 
     const idempotencyKey = request.headers['idempotency-key'];
+    this.logger.debug(`[IDEMPOTENCY] Checking key: ${idempotencyKey} for ${request.method} ${request.url}`);
 
     if (!idempotencyKey) {
       throw new HttpException(
@@ -64,6 +65,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
 
     // Check if key exists
     const existingData = await this.redisService.getIdempotencyKey(idempotencyKey);
+    this.logger.debug(`[IDEMPOTENCY] Existing data found: ${!!existingData}`);
 
     if (existingData) {
       const parsed: IdempotencyData = JSON.parse(existingData);
@@ -86,6 +88,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
 
     // Try to acquire processing lock
     const acquired = await this.redisService.setIdempotencyProcessing(idempotencyKey);
+    this.logger.debug(`[IDEMPOTENCY] Processing lock acquired: ${acquired}`);
 
     if (!acquired) {
       throw new HttpException(

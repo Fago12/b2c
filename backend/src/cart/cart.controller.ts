@@ -28,6 +28,7 @@ export class CartController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
+        path: '/',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
     }
@@ -182,6 +183,45 @@ export class CartController {
     };
   }
 
+  @Post('coupon')
+  async applyCoupon(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() body: { code: string },
+  ) {
+    const sessionId = this.getSessionId(req, res);
+    const regionCode = this.getRegionCode(req);
+    
+    try {
+      const cart = await this.cartService.applyCoupon(sessionId, body.code, regionCode);
+      const totals = this.cartService.getCartTotal(cart);
+      
+      return {
+        ...cart,
+        ...totals,
+      };
+    } catch (error: any) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Delete('coupon')
+  async removeCoupon(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const sessionId = this.getSessionId(req, res);
+    const regionCode = this.getRegionCode(req);
+    
+    const cart = await this.cartService.removeCoupon(sessionId, regionCode);
+    const totals = this.cartService.getCartTotal(cart);
+    
+    return {
+      ...cart,
+      ...totals,
+    };
+  }
+
   @Post('region')
   async updateRegion(
     @Req() req: Request,
@@ -196,6 +236,7 @@ export class CartController {
       httpOnly: false, // Allow client-side access if needed
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 

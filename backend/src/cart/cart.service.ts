@@ -6,6 +6,7 @@ import { ShippingService } from '../commerce/shipping/shipping.service';
 import { CustomizationService } from '../commerce/customization/customization.service';
 import { CurrencyService } from '../commerce/currency/currency.service';
 import { RegionService } from '../commerce/region/region.service';
+import { CouponsService } from '../coupons/coupons.service';
 import DecimalJS from 'decimal.js';
 
 export interface CartItem {
@@ -40,6 +41,10 @@ export interface Cart {
   
   exchangeRateUsed: string;
   shippingCost: number; // cents
+  
+  couponCode?: string;
+  discountAmount?: number; // cents (Regionalized)
+  
   updatedAt: Date;
 }
 
@@ -56,6 +61,7 @@ export class CartService {
     private customizationService: CustomizationService,
     private currencyService: CurrencyService,
     private readonly regionService: RegionService,
+    private readonly couponsService: CouponsService,
   ) {}
 
   /**
@@ -195,12 +201,19 @@ export class CartService {
     if (existingItemIndex >= 0) {
       const totalRequested = cart.items[existingItemIndex].quantity + quantity;
       if (variantStock < totalRequested) {
+        this.logger.warn(`[addItem] Stock check failed for existing item ${productId}/${variantId}. Requested: ${totalRequested}, Available: ${variantStock}`);
         throw new Error(`Cannot add more. Only ${variantStock} items available in total.`);
       }
       cart.items[existingItemIndex].quantity = totalRequested;
       cart.items[existingItemIndex].customization = customization || cart.items[existingItemIndex].customization;
       cart.items[existingItemIndex].name = displayName;
+      this.logger.debug(`[addItem] Updated quantity for existing item ${productId}/${variantId} to ${totalRequested}`);
     } else {
+      // Check stock for new items
+      if (variantStock < quantity) {
+        this.logger.warn(`[addItem] Stock check failed for new item ${productId}/${variantId}. Requested: ${quantity}, Available: ${variantStock}`);
+        throw new Error(`Cannot add. Only ${variantStock} items available.`);
+      }
       cart.items.push({
         productId,
         variantId,
@@ -216,6 +229,7 @@ export class CartService {
         name: displayName,
         image: variantImage,
       });
+      this.logger.debug(`[addItem] Added new item ${productId}/${variantId} with quantity ${quantity}`);
     }
     return this.recalculateCart(sessionId, cart);
   }
@@ -224,6 +238,7 @@ export class CartService {
    * Update item quantity
    */
   async updateQuantity(sessionId: string, productId: string, quantity: number, regionCode: string = 'US', variantId?: string): Promise<Cart> {
+    this.logger.debug(`[updateQuantity] Updating cart ${sessionId}: Product ${productId}, Variant ${variantId || 'N/A'}, New Quantity ${quantity}`);
     const cart = await this.getCart(sessionId, regionCode);
     
     // Find item precisely by product + variant
@@ -232,10 +247,12 @@ export class CartService {
     );
 
     if (itemIndex < 0) {
+      this.logger.warn(`[updateQuantity] Item not found in cart ${sessionId}: ${productId}/${variantId}`);
       throw new Error('Item not in cart');
     }
 
     if (quantity <= 0) {
+      this.logger.debug(`[updateQuantity] Removing item ${productId}/${variantId} from cart ${sessionId} due to quantity <= 0.`);
       cart.items.splice(itemIndex, 1);
     } else {
       const product = (await this.prisma.product.findUnique({
@@ -243,7 +260,10 @@ export class CartService {
         include: { variants: true }
       })) as any;
 
-      if (!product) throw new Error('Product not found');
+      if (!product) {
+        this.logger.warn(`[updateQuantity] Product not found for ID: ${productId}`);
+        throw new Error('Product not found');
+      }
 
       // Validate against relevant stock (variant or product)
       const hasVariants = (product as any).hasVariants || false;
@@ -254,14 +274,17 @@ export class CartService {
         if (variant) availableStock = variant.stock;
       } else if (hasVariants) {
           // This should ideally not happen if cart is consistent, but for safety:
+          this.logger.warn(`[updateQuantity] Attempted to update base product ${productId} which has variants without specifying a variant.`);
           throw new Error('Selection requires a variant');
       }
 
       if (quantity > availableStock) {
+        this.logger.warn(`[updateQuantity] Stock check failed for ${productId}/${variantId}. Requested: ${quantity}, Available: ${availableStock}`);
         throw new Error(`Only ${availableStock} items available`);
       }
 
       cart.items[itemIndex].quantity = quantity;
+      this.logger.debug(`[updateQuantity] Updated quantity for ${productId}/${variantId} to ${quantity}`);
     }
 
     return this.recalculateCart(sessionId, cart);
@@ -276,13 +299,13 @@ export class CartService {
     
     let region = await this.regionService.getRegion(cart.regionCode);
     if (!region) {
-      this.logger.warn(`Region ${cart.regionCode} not found, falling back to US.`);
+      this.logger.warn(`[RECALC] Region ${cart.regionCode} not found, falling back to US.`);
       cart.regionCode = 'US';
       region = await this.regionService.getRegion('US');
     }
     
     if (!region) {
-        this.logger.error(`CRITICAL: US region also missing from DB!`);
+        this.logger.error(`[RECALC] CRITICAL: US region also missing from DB!`);
         throw new Error('Fallback region missing');
     }
 
@@ -292,6 +315,7 @@ export class CartService {
     
     // FAIL FAST: Ensure exchange rate is valid
     if (!frozenRate || isNaN(Number(frozenRate))) {
+      this.logger.error(`[RECALC] Invalid exchange rate for ${region.currency}: ${frozenRate}`);
       throw new Error(`Invalid exchange rate for ${region.currency}: ${frozenRate}`);
     }
 
@@ -307,13 +331,15 @@ export class CartService {
       // ... (existing productId check and product fetch)
       const isObjectId = /^[0-9a-fA-F]{24}$/.test(item.productId);
       if (!isObjectId) {
-        this.logger.warn(`Skipping malformed productId in cart: ${item.productId}`);
+        this.logger.warn(`[RECALC] Skipping malformed productId in cart: ${item.productId}`);
         continue;
       }
 
       const product = (await this.prisma.product.findUnique({ where: { id: item.productId } })) as any;
       if (!product) {
-        this.logger.warn(`Product not found for ID: ${item.productId}`);
+        this.logger.warn(`[RECALC] Product not found for ID: ${item.productId}. Removing from cart.`);
+        // Optionally remove item from cart if product no longer exists
+        cart.items = cart.items.filter(i => i.productId !== item.productId);
         continue;
       }
 
@@ -354,6 +380,7 @@ export class CartService {
       // Track USD canonical subtotal (Pure Integer Addition from SNAPSHOT)
       const lineSubtotalUSD = (frozenUSD + extraUSD_cents) * item.quantity;
       if (isNaN(lineSubtotalUSD)) {
+          this.logger.error(`[RECALC] Line total is NaN for product ${product.id}`);
           throw new Error(`Line total is NaN for product ${product.id}`);
       }
       subtotalUSD_cents += lineSubtotalUSD;
@@ -365,16 +392,46 @@ export class CartService {
       .mul(rateDec)
       .toDecimalPlaces(0, DecimalJS.ROUND_HALF_UP)
       .toNumber();
+    this.logger.debug(`[RECALC] Calculated shipping cost: ${cart.shippingCost} cents for ${totalWeightKg}kg`);
 
     // 4. Update Cart Totals
     cart.displaySubtotal = displaySubtotal_cents;
-    cart.displayTotal = displaySubtotal_cents + cart.shippingCost;
+
+    let discountRegional_cents = 0;
+    if (cart.couponCode) {
+      this.logger.debug(`[RECALC] Applying coupon ${cart.couponCode} to subtotal ${cart.displaySubtotal}`);
+      const validation = await this.couponsService.validateCoupon(cart.couponCode, cart.displaySubtotal);
+      if (validation.valid) {
+        discountRegional_cents = validation.discount!;
+        cart.discountAmount = discountRegional_cents;
+        this.logger.debug(`[RECALC] Coupon ${cart.couponCode} applied. Discount: ${discountRegional_cents}`);
+      } else {
+        // Coupon no longer valid (e.g. min amount not met after item changes)
+        this.logger.warn(`[RECALC] Coupon ${cart.couponCode} no longer valid: ${validation.error}. Removing from cart.`);
+        cart.couponCode = undefined;
+        cart.discountAmount = 0;
+      }
+    } else {
+      cart.discountAmount = 0;
+    }
+
+    // 5. Final Grand Total
+    // FIX: Apply discount to subtotal, then add shipping
+    cart.displayTotal = cart.displaySubtotal - discountRegional_cents + cart.shippingCost;
 
     // 5. USD Canonical Base (Total cents)
-    const canonicalTotalUSD_cents = subtotalUSD_cents + baseShippingUSD_cents;
+    let canonicalTotalUSD_cents = subtotalUSD_cents + baseShippingUSD_cents;
+    if (discountRegional_cents > 0) {
+      const discountUSD_cents = new DecimalJS(discountRegional_cents)
+        .div(rateDec)
+        .toDecimalPlaces(0, DecimalJS.ROUND_HALF_UP)
+        .toNumber();
+      canonicalTotalUSD_cents -= discountUSD_cents;
+    }
 
     // FAIL SAFE: Final NaN check
     if (isNaN(cart.displayTotal) || isNaN(cart.displaySubtotal)) {
+        this.logger.error(`[RECALC] Final calculation resulted in NaN. Session: ${sessionId}`);
         throw new Error(`Final calculation resulted in NaN. Session: ${sessionId}`);
     }
 
@@ -388,7 +445,7 @@ export class CartService {
     } else {
       cart.chargeCurrency = 'USD';
       cart.chargeTotal = canonicalTotalUSD_cents;
-      this.logger.log(`[STRATEGY] Currency ${region.currency} unsupported. Falling back to USD: ${cart.chargeTotal} cents.`);
+      this.logger.log(`[RECALC] [STRATEGY] Currency ${region.currency} unsupported. Falling back to USD: ${cart.chargeTotal} cents.`);
     }
 
     cart.updatedAt = new Date();
@@ -414,10 +471,17 @@ export class CartService {
    * Remove item from cart
    */
   async removeItem(sessionId: string, productId: string, regionCode: string = 'US', variantId?: string): Promise<Cart> {
+    this.logger.debug(`[removeItem] Removing item from cart ${sessionId}: Product ${productId}, Variant ${variantId || 'N/A'}`);
     const cart = await this.getCart(sessionId, regionCode);
+    const initialItemCount = cart.items.length;
     cart.items = cart.items.filter(
       (item) => !(item.productId === productId && item.variantId === variantId)
     );
+    if (cart.items.length < initialItemCount) {
+      this.logger.debug(`[removeItem] Item ${productId}/${variantId} removed from cart ${sessionId}.`);
+    } else {
+      this.logger.warn(`[removeItem] Item ${productId}/${variantId} not found in cart ${sessionId} to remove.`);
+    }
     return this.recalculateCart(sessionId, cart);
   }
 
@@ -425,6 +489,7 @@ export class CartService {
    * Clear entire cart
    */
   async clearCart(sessionId: string): Promise<void> {
+    this.logger.log(`[clearCart] Clearing cart for session ${sessionId}`);
     await this.redisService.deleteCart(sessionId);
   }
 
@@ -432,6 +497,7 @@ export class CartService {
    * Merge guest cart into user cart
    */
   async mergeCart(fromSessionId: string, toSessionId: string, regionCode: string = 'US'): Promise<Cart> {
+    this.logger.log(`[mergeCart] Merging guest cart ${fromSessionId} into user cart ${toSessionId}`);
     const [guestCart, userCart] = await Promise.all([
       this.getCart(fromSessionId, regionCode),
       this.getCart(toSessionId, regionCode),
@@ -439,18 +505,45 @@ export class CartService {
 
     for (const guestItem of guestCart.items) {
       const existingIndex = userCart.items.findIndex(
-        (item) => item.productId === guestItem.productId,
+        (item) => item.productId === guestItem.productId && item.variantId === guestItem.variantId
       );
 
       if (existingIndex >= 0) {
         userCart.items[existingIndex].quantity += guestItem.quantity;
+        this.logger.debug(`[mergeCart] Merged item ${guestItem.productId}/${guestItem.variantId}: updated quantity to ${userCart.items[existingIndex].quantity}`);
       } else {
         userCart.items.push(guestItem);
+        this.logger.debug(`[mergeCart] Merged item ${guestItem.productId}/${guestItem.variantId}: added as new item.`);
       }
     }
 
     // Use current session's region for merged cart
     return this.recalculateCart(toSessionId, userCart);
+  }
+
+  /**
+   * Apply a coupon to the cart
+   */
+  async applyCoupon(sessionId: string, code: string, regionCode: string = 'US'): Promise<Cart> {
+    const cart = await this.getCart(sessionId, regionCode);
+    
+    const validation = await this.couponsService.validateCoupon(code, cart.displayTotal);
+    if (!validation.valid) {
+      throw new Error(validation.error || 'Invalid coupon code');
+    }
+
+    cart.couponCode = code;
+    return this.recalculateCart(sessionId, cart);
+  }
+
+  /**
+   * Remove a coupon from the cart
+   */
+  async removeCoupon(sessionId: string, regionCode: string = 'US'): Promise<Cart> {
+    const cart = await this.getCart(sessionId, regionCode);
+    cart.couponCode = undefined;
+    cart.discountAmount = 0;
+    return this.recalculateCart(sessionId, cart);
   }
 
   /**

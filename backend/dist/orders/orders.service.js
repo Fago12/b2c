@@ -23,6 +23,8 @@ const shipping_service_1 = require("../commerce/shipping/shipping.service");
 const currency_service_1 = require("../commerce/currency/currency.service");
 const region_service_1 = require("../commerce/region/region.service");
 const mail_service_1 = require("../mail/mail.service");
+const queue_service_1 = require("../queues/queue.service");
+const coupons_service_1 = require("../coupons/coupons.service");
 const decimal_js_1 = __importDefault(require("decimal.js"));
 let OrdersService = OrdersService_1 = class OrdersService {
     prisma;
@@ -32,8 +34,10 @@ let OrdersService = OrdersService_1 = class OrdersService {
     currencyService;
     regionService;
     mailService;
+    queueService;
+    couponsService;
     logger = new common_1.Logger(OrdersService_1.name);
-    constructor(prisma, lockService, pricingService, shippingService, currencyService, regionService, mailService) {
+    constructor(prisma, lockService, pricingService, shippingService, currencyService, regionService, mailService, queueService, couponsService) {
         this.prisma = prisma;
         this.lockService = lockService;
         this.pricingService = pricingService;
@@ -41,17 +45,24 @@ let OrdersService = OrdersService_1 = class OrdersService {
         this.currencyService = currencyService;
         this.regionService = regionService;
         this.mailService = mailService;
+        this.queueService = queueService;
+        this.couponsService = couponsService;
     }
     async create(data) {
-        const { items, email, shippingAddress, userId, isCustomOrder, customerPhone } = data;
+        const { items, email, shippingAddress, userId, isCustomOrder, customerPhone, couponCode } = data;
         const productIds = items.map((item) => item.productId);
         const lockKey = `order:${productIds.sort().join(',')}`;
+        this.logger.debug(`[CREATE ORDER] Acquiring lock for key: ${lockKey}`);
         try {
+            const lockStartTime = Date.now();
             return await this.lockService.withLock(lockKey, async () => {
+                this.logger.debug(`[CREATE ORDER] Lock acquired in ${Date.now() - lockStartTime}ms`);
+                this.logger.debug(`[CREATE ORDER] Step 1: Verifying products... Keys: ${lockKey}`);
                 const products = (await this.prisma.product.findMany({
                     where: { id: { in: productIds } },
                     select: { id: true, name: true, stock: true, basePriceUSD_cents: true, customizationOptions: true, hasVariants: true, variants: { include: { color: true, pattern: true } } },
                 }));
+                this.logger.debug(`[CREATE ORDER] Found ${products.length} products.`);
                 for (const item of items) {
                     const product = products.find((p) => p.id === item.productId);
                     if (!product) {
@@ -75,12 +86,13 @@ let OrdersService = OrdersService_1 = class OrdersService {
                         throw new common_1.HttpException(`Insufficient stock for ${product.name}${item.variantId ? ` (${item.variantId})` : ''}`, common_1.HttpStatus.BAD_REQUEST);
                     }
                 }
-                const regionCode = data.regionCode || 'US';
+                const regionCode = data.regionCode || shippingAddress?.country || 'US';
                 const region = await this.regionService.getRegion(regionCode);
                 if (!region)
                     throw new common_1.HttpException(`Region ${regionCode} not found`, common_1.HttpStatus.NOT_FOUND);
                 const frozenRate = await this.currencyService.getRate(region.currency);
                 const rateDec = new decimal_js_1.default(frozenRate);
+                this.logger.debug(`[CREATE ORDER] Step 2: Calculations for region ${regionCode}...`);
                 let totalWeightKg = 0;
                 for (const item of items) {
                     const product = products.find(p => p.id === item.productId);
@@ -116,14 +128,43 @@ let OrdersService = OrdersService_1 = class OrdersService {
                     subtotalUSD_cents += itemPriceUSD_cents * item.quantity;
                 }
                 const canonicalTotalUSD_cents = subtotalUSD_cents + baseShippingUSD_cents;
-                const displayTotalRegional_cents = new decimal_js_1.default(canonicalTotalUSD_cents)
+                const displaySubtotalRegional_cents = new decimal_js_1.default(subtotalUSD_cents)
                     .mul(rateDec)
                     .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
                     .toNumber();
+                const shippingRegional_cents = new decimal_js_1.default(baseShippingUSD_cents)
+                    .mul(rateDec)
+                    .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
+                    .toNumber();
+                let discountRegional_cents = 0;
+                let displayTotalRegional_cents = displaySubtotalRegional_cents + shippingRegional_cents;
+                let appliedCouponId = null;
+                if (couponCode) {
+                    const validation = await this.couponsService.validateCoupon(couponCode, displaySubtotalRegional_cents);
+                    if (!validation.valid || !validation.coupon) {
+                        throw new common_1.HttpException(validation.error || 'Invalid coupon', common_1.HttpStatus.BAD_REQUEST);
+                    }
+                    discountRegional_cents = validation.discount;
+                    displayTotalRegional_cents = displaySubtotalRegional_cents - discountRegional_cents + shippingRegional_cents;
+                    appliedCouponId = validation.coupon.id;
+                }
                 const isSupported = this.currencyService.isStripeSupported(region.currency);
                 const chargeCurrency = isSupported ? region.currency : 'USD';
-                const chargeTotal_cents = isSupported ? displayTotalRegional_cents : canonicalTotalUSD_cents;
+                const discountUSD_cents = couponCode ? new decimal_js_1.default(discountRegional_cents)
+                    .div(rateDec)
+                    .toDecimalPlaces(0, decimal_js_1.default.ROUND_HALF_UP)
+                    .toNumber() : 0;
+                const totalUSD_cents = canonicalTotalUSD_cents - discountUSD_cents;
+                let chargeTotal_cents = 0;
+                if (isSupported) {
+                    chargeTotal_cents = displayTotalRegional_cents;
+                }
+                else {
+                    chargeTotal_cents = totalUSD_cents;
+                }
+                this.logger.debug(`[CREATE ORDER] Step 6: Starting transaction...`);
                 return this.prisma.$transaction(async (tx) => {
+                    this.logger.debug(`[CREATE ORDER] Inside transaction...`);
                     for (const item of items) {
                         const product = (await tx.product.findUnique({
                             where: { id: item.productId },
@@ -131,22 +172,26 @@ let OrdersService = OrdersService_1 = class OrdersService {
                         }));
                         if (!product)
                             continue;
-                        if (item.variantId && product.variants && product.hasVariants) {
-                            const variants = product.variants.map(v => {
-                                if (v.id === item.variantId || v.sku === item.variantId) {
-                                    return { ...v, stock: Math.max(0, parseInt(v.stock?.toString() || '0') - item.quantity) };
-                                }
-                                return v;
-                            });
-                            await tx.product.update({
-                                where: { id: item.productId },
-                                data: { variants },
-                            });
+                        if (item.variantId && product.hasVariants) {
+                            const variant = product.variants.find(v => v.id === item.variantId || v.sku === item.variantId);
+                            if (variant) {
+                                this.logger.debug(`[CREATE ORDER] Decrementing variant stock: ${variant.id || variant._id}`);
+                                await tx.variant.update({
+                                    where: { id: variant.id || variant._id },
+                                    data: { stock: { decrement: item.quantity } },
+                                });
+                            }
                         }
                         else {
                             await tx.product.update({
                                 where: { id: item.productId },
                                 data: { stock: { decrement: item.quantity } },
+                            });
+                        }
+                        if (appliedCouponId) {
+                            await tx.coupon.update({
+                                where: { id: appliedCouponId },
+                                data: { usedCount: { increment: 1 } },
                             });
                         }
                     }
@@ -160,19 +205,24 @@ let OrdersService = OrdersService_1 = class OrdersService {
                         data: {
                             status: types_1.OrderStatus.PENDING,
                             email,
-                            shippingAddress,
-                            userId: finalUserId || null,
-                            isCustomOrder: isCustomOrder || false,
-                            customerPhone,
+                            customerPhone: customerPhone || shippingAddress?.phone || null,
+                            shippingAddress: {
+                                ...(typeof shippingAddress === 'object' ? shippingAddress : {}),
+                                firstName: data.firstName || shippingAddress?.firstName,
+                                lastName: data.lastName || shippingAddress?.lastName,
+                            },
                             displayCurrency: region.currency,
                             displayTotal: displayTotalRegional_cents,
                             chargeCurrency,
                             chargeTotal: chargeTotal_cents,
+                            totalUSD: totalUSD_cents,
                             total: displayTotalRegional_cents,
                             currency: region.currency,
                             shippingCost: shippingCostRegional_cents,
                             exchangeRateUsed: frozenRate,
                             regionCode: regionCode,
+                            couponCode: couponCode || null,
+                            discountAmount: discountRegional_cents,
                             items: {
                                 create: orderItemsData.map((oid, idx) => ({
                                     ...oid,
@@ -183,6 +233,7 @@ let OrdersService = OrdersService_1 = class OrdersService {
                         include: { items: true },
                     });
                     this.logger.log(`Created order: ${order.id} (${chargeTotal_cents} ${chargeCurrency})`);
+                    this.logger.debug(`[CREATE ORDER] Transaction complete.`);
                     return order;
                 });
             }, { duration: 5000 });
@@ -200,13 +251,26 @@ let OrdersService = OrdersService_1 = class OrdersService {
         });
     }
     async findOne(id) {
-        return this.prisma.order.findUnique({
+        const order = await this.prisma.order.findUnique({
             where: { id },
             include: {
                 items: { include: { product: true } },
-                user: true
+                user: true,
+                region: true
             }
         });
+        if (!order)
+            return null;
+        const rate = parseFloat(order.exchangeRateUsed) || 1;
+        const totalUSD = order.totalUSD || Math.round(order.total / rate);
+        return {
+            ...order,
+            totalUSD,
+            items: order.items.map(item => ({
+                ...item,
+                totalUSD: Math.round(item.price / rate)
+            }))
+        };
     }
     async attachGuestOrders(email, userId) {
         return this.prisma.order.updateMany({
@@ -244,7 +308,13 @@ let OrdersService = OrdersService_1 = class OrdersService {
             this.prisma.order.findMany({
                 where,
                 include: {
-                    items: { include: { product: true } },
+                    items: {
+                        include: {
+                            product: {
+                                include: { variants: true }
+                            }
+                        }
+                    },
                     user: true
                 },
                 orderBy: { createdAt: 'desc' },
@@ -254,7 +324,18 @@ let OrdersService = OrdersService_1 = class OrdersService {
             this.prisma.order.count({ where }),
         ]);
         return {
-            orders,
+            orders: orders.map(order => {
+                const rate = parseFloat(order.exchangeRateUsed) || 1;
+                const totalUSD = order.totalUSD || Math.round(order.total / rate);
+                return {
+                    ...order,
+                    totalUSD,
+                    items: order.items.map(item => ({
+                        ...item,
+                        totalUSD: Math.round(item.price / rate)
+                    }))
+                };
+            }),
             pagination: {
                 page,
                 limit,
@@ -291,21 +372,53 @@ let OrdersService = OrdersService_1 = class OrdersService {
         const updatedOrder = await this.prisma.order.update({
             where: { id },
             data: updateData,
-            include: { items: { include: { product: true } }, user: true },
+            include: {
+                items: {
+                    include: {
+                        product: {
+                            include: { variants: true }
+                        }
+                    }
+                },
+                user: true
+            },
         });
         try {
             if (newStatus === types_1.OrderStatus.PAID) {
-                await this.mailService.sendPurchaseReceipt(updatedOrder.email, updatedOrder.id, updatedOrder.displayTotal, updatedOrder.items.map(item => ({
-                    name: item.product.name,
-                    quantity: item.quantity,
-                    price: item.unitPriceFinal,
-                })));
+                const subtotal = updatedOrder.displayTotal - updatedOrder.shippingCost + (updatedOrder.discountAmount || 0);
+                const addr = updatedOrder.shippingAddress;
+                const firstName = addr.firstName || updatedOrder.user?.firstName || updatedOrder.customerName?.split(' ')[0] || '';
+                const lastName = addr.lastName || updatedOrder.user?.lastName || updatedOrder.customerName?.split(' ').slice(1).join(' ') || '';
+                await this.queueService.sendPurchaseReceipt(updatedOrder.email, updatedOrder.id, updatedOrder.displayTotal, updatedOrder.items.map(item => {
+                    const variant = item.product.variants?.find(v => v.id === item.variantId || v.sku === item.variantId);
+                    const variantDetails = variant?.options ?
+                        Object.entries(variant.options).map(([k, v]) => `${k}: ${v}`).join(', ') :
+                        undefined;
+                    return {
+                        name: item.product.name,
+                        quantity: item.quantity,
+                        price: item.unitPriceFinal,
+                        variantDetails,
+                        customization: item.customization
+                    };
+                }), subtotal, updatedOrder.shippingCost, updatedOrder.discountAmount || 0, updatedOrder.displayCurrency, {
+                    firstName,
+                    lastName,
+                    phone: updatedOrder.customerPhone || addr.phone || addr.customerPhone || 'Not available',
+                    date: updatedOrder.createdAt.toLocaleDateString(),
+                    shippingAddress: {
+                        line1: addr.line1 || addr.address || '',
+                        city: addr.city || '',
+                        state: addr.state || '',
+                        country: addr.country || ''
+                    }
+                });
             }
             else if (newStatus === types_1.OrderStatus.SHIPPED) {
-                await this.mailService.sendShippingEmail(updatedOrder);
+                await this.queueService.sendShippingNotification(updatedOrder);
             }
             else if (newStatus === types_1.OrderStatus.DELIVERED) {
-                await this.mailService.sendDeliveredEmail(updatedOrder);
+                await this.queueService.sendDeliveryConfirmation(updatedOrder);
             }
         }
         catch (error) {
@@ -324,12 +437,12 @@ let OrdersService = OrdersService_1 = class OrdersService {
         ]);
         const revenue = await this.prisma.order.aggregate({
             where: { status: { in: [types_1.OrderStatus.PAID, types_1.OrderStatus.SHIPPED, types_1.OrderStatus.DELIVERED] } },
-            _sum: { total: true },
+            _sum: { totalUSD: true },
         });
         return {
             total,
             byStatus: { pending, paid, shipped, delivered, cancelled },
-            revenue: revenue._sum.total || 0,
+            totalRevenue: revenue._sum.totalUSD || 0,
         };
     }
 };
@@ -342,6 +455,8 @@ exports.OrdersService = OrdersService = OrdersService_1 = __decorate([
         shipping_service_1.ShippingService,
         currency_service_1.CurrencyService,
         region_service_1.RegionService,
-        mail_service_1.MailService])
+        mail_service_1.MailService,
+        queue_service_1.QueueService,
+        coupons_service_1.CouponsService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

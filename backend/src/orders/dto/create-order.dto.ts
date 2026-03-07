@@ -2,21 +2,25 @@ import { IsString, IsEmail, IsArray, IsOptional, IsNotEmpty, ValidateNested, IsB
 import { Type } from 'class-transformer';
 
 class CustomizationDto {
-  @IsBoolean()
+  @IsString()
   @IsOptional()
-  allowEmbroidery?: boolean;
+  embroideryName?: string;
 
   @IsString()
   @IsOptional()
-  embroideryText?: string;
+  customColorRequest?: string;
 
   @IsString()
   @IsOptional()
-  customColor?: string;
+  specificInstructions?: string;
 
   @IsString()
   @IsOptional()
-  instructions?: string;
+  contactEmail?: string;
+
+  @IsString()
+  @IsOptional()
+  contactPhone?: string;
 }
 
 class OrderItemDto {
@@ -69,4 +73,16 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   regionCode?: string;
+
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 }

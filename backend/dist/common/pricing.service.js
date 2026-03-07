@@ -39,8 +39,12 @@ let PricingService = class PricingService {
         }
         if (customization && product.customizationOptions) {
             const options = product.customizationOptions;
-            if (customization.embroidery?.enabled && options.allowEmbroidery) {
-                finalPriceUSD_cents += options.embroideryPriceUSD || 0;
+            const hasEmbroidery = !!customization.embroideryName ||
+                !!customization.embroidery?.enabled ||
+                !!customization.embroideryText;
+            if (hasEmbroidery && (options.embroidery?.enabled || options.allowEmbroidery)) {
+                const embroideryPriceCents = (options.embroidery?.price || options.embroideryPriceUSD || 0) * 100;
+                finalPriceUSD_cents += embroideryPriceCents;
             }
         }
         return finalPriceUSD_cents;

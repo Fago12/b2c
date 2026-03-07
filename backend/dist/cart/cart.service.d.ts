@@ -5,6 +5,7 @@ import { ShippingService } from '../commerce/shipping/shipping.service';
 import { CustomizationService } from '../commerce/customization/customization.service';
 import { CurrencyService } from '../commerce/currency/currency.service';
 import { RegionService } from '../commerce/region/region.service';
+import { CouponsService } from '../coupons/coupons.service';
 export interface CartItem {
     productId: string;
     variantId?: string;
@@ -31,6 +32,8 @@ export interface Cart {
     chargeTotal: number;
     exchangeRateUsed: string;
     shippingCost: number;
+    couponCode?: string;
+    discountAmount?: number;
     updatedAt: Date;
 }
 export declare class CartService {
@@ -41,9 +44,10 @@ export declare class CartService {
     private customizationService;
     private currencyService;
     private readonly regionService;
+    private readonly couponsService;
     private readonly logger;
     private readonly CART_TTL;
-    constructor(redisService: RedisService, prisma: PrismaService, pricingService: CommercePricingService, shippingService: ShippingService, customizationService: CustomizationService, currencyService: CurrencyService, regionService: RegionService);
+    constructor(redisService: RedisService, prisma: PrismaService, pricingService: CommercePricingService, shippingService: ShippingService, customizationService: CustomizationService, currencyService: CurrencyService, regionService: RegionService, couponsService: CouponsService);
     getCart(sessionId: string, regionCode?: string): Promise<Cart>;
     addItem(sessionId: string, productId: string, quantity: number, customization?: any, regionCode?: string, variantId?: string): Promise<Cart>;
     updateQuantity(sessionId: string, productId: string, quantity: number, regionCode?: string, variantId?: string): Promise<Cart>;
@@ -51,6 +55,8 @@ export declare class CartService {
     removeItem(sessionId: string, productId: string, regionCode?: string, variantId?: string): Promise<Cart>;
     clearCart(sessionId: string): Promise<void>;
     mergeCart(fromSessionId: string, toSessionId: string, regionCode?: string): Promise<Cart>;
+    applyCoupon(sessionId: string, code: string, regionCode?: string): Promise<Cart>;
+    removeCoupon(sessionId: string, regionCode?: string): Promise<Cart>;
     setRegion(sessionId: string, regionCode: string): Promise<Cart>;
     getCartTotal(cart: Cart): {
         itemCount: number;

@@ -16,6 +16,7 @@ const currency_module_1 = require("../commerce/currency/currency.module");
 const shipping_module_1 = require("../commerce/shipping/shipping.module");
 const region_module_1 = require("../commerce/region/region.module");
 const customization_module_1 = require("../commerce/customization/customization.module");
+const coupons_module_1 = require("../coupons/coupons.module");
 let CartModule = class CartModule {
 };
 exports.CartModule = CartModule;
@@ -28,6 +29,7 @@ exports.CartModule = CartModule = __decorate([
             shipping_module_1.CommerceShippingModule,
             region_module_1.CommerceRegionModule,
             customization_module_1.CommerceCustomizationModule,
+            coupons_module_1.CouponsModule,
         ],
         controllers: [cart_controller_1.CartController],
         providers: [cart_service_1.CartService],

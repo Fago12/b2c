@@ -19,12 +19,12 @@ export declare class CouponsController {
             createdAt: Date;
             isActive: boolean;
             code: string;
-            expiresAt: Date | null;
             discountType: import(".prisma/client").$Enums.DiscountType;
             value: number;
             minOrderAmount: number | null;
             maxUses: number | null;
             usedCount: number;
+            expiresAt: Date | null;
         };
         discount: number;
         finalTotal: number;
@@ -36,12 +36,12 @@ export declare class CouponsController {
             createdAt: Date;
             isActive: boolean;
             code: string;
-            expiresAt: Date | null;
             discountType: import(".prisma/client").$Enums.DiscountType;
             value: number;
             minOrderAmount: number | null;
             maxUses: number | null;
             usedCount: number;
+            expiresAt: Date | null;
         }[];
         pagination: {
             page: number;
@@ -61,12 +61,12 @@ export declare class CouponsController {
         createdAt: Date;
         isActive: boolean;
         code: string;
-        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
         maxUses: number | null;
         usedCount: number;
+        expiresAt: Date | null;
     } | null>;
     create(data: {
         code: string;
@@ -81,12 +81,12 @@ export declare class CouponsController {
         createdAt: Date;
         isActive: boolean;
         code: string;
-        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
         maxUses: number | null;
         usedCount: number;
+        expiresAt: Date | null;
     }>;
     update(id: string, data: {
         code?: string;
@@ -101,23 +101,23 @@ export declare class CouponsController {
         createdAt: Date;
         isActive: boolean;
         code: string;
-        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
         maxUses: number | null;
         usedCount: number;
+        expiresAt: Date | null;
     }>;
     delete(id: string): Promise<{
         id: string;
         createdAt: Date;
         isActive: boolean;
         code: string;
-        expiresAt: Date | null;
         discountType: import(".prisma/client").$Enums.DiscountType;
         value: number;
         minOrderAmount: number | null;
         maxUses: number | null;
         usedCount: number;
+        expiresAt: Date | null;
     }>;
 }

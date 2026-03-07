@@ -8,13 +8,13 @@ export declare class AdminService {
     private readonly logger;
     constructor(usersService: UsersService, mailService: MailService, prisma: PrismaService);
     getTeam(): Promise<{
-        name: string | null;
-        id: string;
         email: string;
-        emailVerified: boolean;
-        image: string | null;
-        createdAt: Date;
+        id: string;
         role: string;
+        image: string | null;
+        name: string | null;
+        createdAt: Date;
+        emailVerified: boolean;
         isVerified: boolean;
     }[]>;
     inviteAdmin(email: string, inviterName: string): Promise<{

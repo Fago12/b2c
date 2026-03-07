@@ -28,6 +28,7 @@ interface Order {
     email: string;
     status: string;
     total: number;
+    totalUSD: number;
     createdAt: string;
     shippingAddress: any;
     user?: { email: string } | null;
@@ -42,8 +43,9 @@ interface Order {
         id: string;
         quantity: number;
         price: number;
+        variantId?: string;
         customization?: any;
-        product: { name: string; images: string[] };
+        product: { name: string; images: string[]; variants?: any[] };
     }>;
 }
 
@@ -201,13 +203,13 @@ export default function OrdersPage() {
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                                        <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                                             Loading orders...
                                         </td>
                                     </tr>
                                 ) : orders.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                                        <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                                             No orders found
                                         </td>
                                     </tr>
@@ -233,7 +235,7 @@ export default function OrdersPage() {
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 font-semibold">{formatPrice(order.total, order.currency || 'NGN')}</td>
+                                            <td className="px-4 py-3 font-semibold">{formatPrice(order.totalUSD, 'USD')}</td>
                                             <td className="px-4 py-3 text-sm text-muted-foreground">
                                                 {new Date(order.createdAt).toLocaleDateString()}
                                             </td>
@@ -343,16 +345,22 @@ export default function OrdersPage() {
                                 {/* Shipping Address */}
                                 <div>
                                     <h3 className="text-sm font-medium text-muted-foreground mb-2">Shipping Address</h3>
-                                    <div className="bg-slate-50 p-3 rounded-lg text-sm">
+                                    <div className="bg-slate-50 p-4 rounded-lg text-sm space-y-1">
                                         {selectedOrder.shippingAddress ? (
                                             <>
-                                                <p>{selectedOrder.shippingAddress.name}</p>
-                                                <p>{selectedOrder.shippingAddress.address}</p>
-                                                <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
-                                                <p>{selectedOrder.shippingAddress.phone}</p>
+                                                <p className="font-bold text-slate-900">{selectedOrder.shippingAddress.name}</p>
+                                                <p>{selectedOrder.shippingAddress.line1 || selectedOrder.shippingAddress.address}</p>
+                                                {selectedOrder.shippingAddress.line2 && <p>{selectedOrder.shippingAddress.line2}</p>}
+                                                <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.zip || selectedOrder.shippingAddress.postalCode}</p>
+                                                <p className="uppercase font-bold text-[10px] tracking-widest text-[#480100] pt-1">{selectedOrder.shippingAddress.country}</p>
+                                                {selectedOrder.shippingAddress.phone && (
+                                                    <p className="text-[11px] text-muted-foreground pt-2 border-t mt-2">
+                                                        <b>Tel:</b> {selectedOrder.shippingAddress.phone}
+                                                    </p>
+                                                )}
                                             </>
                                         ) : (
-                                            <p className="text-muted-foreground">No address provided</p>
+                                            <p className="text-muted-foreground italic">No address provided</p>
                                         )}
                                     </div>
                                 </div>
@@ -366,27 +374,51 @@ export default function OrdersPage() {
                                                 <div className="flex justify-between items-center p-3 border-b bg-white">
                                                     <div>
                                                         <p className="font-bold text-sm font-vogue">{item.product.name}</p>
-                                                        <p className="text-[10px] text-muted-foreground font-sans">Qty: {item.quantity} | Price: {formatPrice(item.price, selectedOrder.currency || 'NGN')}</p>
+                                                        <div className="flex flex-wrap gap-2 mt-1">
+                                                            <p className="text-[10px] text-muted-foreground font-sans">Qty: {item.quantity}</p>
+                                                            {/* Display Variant Options */}
+                                                            {(() => {
+                                                                const variant = (item.product as any).variants?.find((v: any) => v.id === item.variantId || v.sku === item.variantId);
+                                                                if (variant?.options) {
+                                                                    return Object.entries(variant.options).map(([key, value]) => (
+                                                                        <Badge key={key} variant="outline" className="text-[9px] h-4 uppercase tracking-tighter bg-slate-50">
+                                                                            {key}: {value as string}
+                                                                        </Badge>
+                                                                    ));
+                                                                }
+                                                                return null;
+                                                            })()}
+                                                        </div>
                                                     </div>
-                                                    <p className="font-bold font-sans">{formatPrice(item.price * item.quantity, selectedOrder.currency || 'NGN')}</p>
+                                                    <p className="font-bold font-sans text-sm">{formatPrice((item as any).totalUSD || (item.price * item.quantity), 'USD')}</p>
                                                 </div>
                                                 {item.customization && (
                                                     <div className="p-3 bg-muted/30 space-y-2">
                                                         <h4 className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Customization Details:</h4>
                                                         <div className="grid grid-cols-1 gap-2">
-                                                            {item.customization.embroidery && (
+                                                            {item.customization.embroideryName && (
                                                                 <div className="text-xs bg-white p-2 rounded shadow-sm border border-[#480100]/10 flex justify-between">
-                                                                    <span>Embroidery: <b className="text-[#480100]">{item.customization.embroidery}</b></span>
+                                                                    <span>Embroidery: <b className="text-[#480100]">{item.customization.embroideryName}</b></span>
                                                                 </div>
                                                             )}
-                                                            {item.customization.customColor && (
+                                                            {item.customization.customColorRequest && (
                                                                 <div className="text-xs bg-white p-2 rounded shadow-sm border border-[#480100]/10">
-                                                                    <span>Custom Color: <b>{item.customization.customColor}</b></span>
+                                                                    <span>Custom Color: <b>{item.customization.customColorRequest}</b></span>
                                                                 </div>
                                                             )}
-                                                            {item.customization.note && (
+                                                            {item.customization.specificInstructions && (
                                                                 <div className="text-xs bg-white p-2 rounded shadow-sm border border-[#480100]/10 italic">
-                                                                    &ldquo;{item.customization.note}&rdquo;
+                                                                    &ldquo;{item.customization.specificInstructions}&rdquo;
+                                                                </div>
+                                                            )}
+                                                            {(item.customization.contactEmail || item.customization.contactPhone) && (
+                                                                <div className="text-[10px] bg-white p-2 rounded shadow-sm border border-[#480100]/5 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
+                                                                    {item.customization.contactEmail && (
+                                                                        <span><b>Custom Email:</b> {item.customization.contactEmail}</span>
+                                                                    )}
+                                                                    {item.customization.contactPhone && (
+                                                                        <span><b>Custom Phone:</b> {item.customization.contactPhone}</span>
+                                                                    )}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -400,7 +432,7 @@ export default function OrdersPage() {
                                 {/* Total */}
                                 <div className="flex justify-between items-center pt-4 border-t">
                                     <span className="font-bold">Total</span>
-                                    <span className="text-xl font-bold text-[#480100]">{formatPrice(selectedOrder.total, selectedOrder.currency || 'NGN')}</span>
+                                    <span className="text-xl font-bold text-[#480100]">{formatPrice(selectedOrder.totalUSD, 'USD')}</span>
                                 </div>
 
                                 {/* Actions */}

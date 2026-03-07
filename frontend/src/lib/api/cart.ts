@@ -82,6 +82,25 @@ export const cartApi = {
       body: JSON.stringify({ fromSessionId }),
     });
   },
+
+  /**
+   * Apply a coupon to the cart
+   */
+  async applyCoupon(code: string): Promise<ServerCart> {
+    return fetchApi('/cart/coupon', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  /**
+   * Remove a coupon from the cart
+   */
+  async removeCoupon(): Promise<ServerCart> {
+    return fetchApi('/cart/coupon', {
+      method: 'DELETE',
+    });
+  },
 };
 
 export default cartApi;

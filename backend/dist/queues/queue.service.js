@@ -48,14 +48,23 @@ let QueueService = QueueService_1 = class QueueService {
             data: { orderId, total, name },
         }, 1);
     }
-    async sendPurchaseReceipt(email, orderId, total, items) {
+    async sendPurchaseReceipt(email, orderId, total, items, subtotal, shippingCost, discountAmount = 0, currency = 'NGN', customerInfo) {
         await this.sendEmail({
             to: email,
             subject: `Order Receipt: ${orderId}`,
             html: '',
             template: 'purchase-receipt',
-            data: { orderId, total, items },
-        }, 1);
+            data: {
+                orderId,
+                total,
+                items,
+                subtotal,
+                shippingCost,
+                discountAmount,
+                currency,
+                customerInfo
+            },
+        });
     }
     async sendPasswordResetEmail(email, resetUrl) {
         await this.sendEmail({
@@ -65,6 +74,24 @@ let QueueService = QueueService_1 = class QueueService {
             template: 'password-reset',
             data: { resetUrl },
         }, 2);
+    }
+    async sendShippingNotification(order) {
+        await this.sendEmail({
+            to: order.email,
+            subject: `Your order has shipped! - #${order.id}`,
+            html: '',
+            template: 'shipping-notification',
+            data: { order },
+        }, 1);
+    }
+    async sendDeliveryConfirmation(order) {
+        await this.sendEmail({
+            to: order.email,
+            subject: `Your order has been delivered! - #${order.id}`,
+            html: '',
+            template: 'delivery-confirmation',
+            data: { order },
+        }, 1);
     }
     async sendVerificationEmail(email, verifyUrl) {
         await this.sendEmail({

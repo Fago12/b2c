@@ -46,7 +46,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], StripeController.prototype, "handleStripeWebhook", null);
 exports.StripeController = StripeController = __decorate([
-    (0, common_1.Controller)('webhook'),
+    (0, common_1.Controller)('webhooks'),
     __metadata("design:paramtypes", [stripe_service_1.StripeService])
 ], StripeController);
 //# sourceMappingURL=stripe.controller.js.map

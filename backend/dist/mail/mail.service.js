@@ -131,14 +131,28 @@ let MailService = class MailService {
             console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
         return info;
     }
-    async sendPurchaseReceipt(email, orderId, total, items) {
+    async sendPurchaseReceipt(email, orderId, total, items, subtotal, shippingCost, discountAmount = 0, currency = 'NGN', customerInfo) {
         if (!this.transporter)
             await this.createTransporter();
-        const emailHtml = await (0, render_1.render)((0, PurchaseReceipt_1.PurchaseReceipt)({ orderId, total, items }));
+        const emailHtml = await (0, render_1.render)((0, PurchaseReceipt_1.PurchaseReceipt)({
+            orderId,
+            date: customerInfo.date,
+            total,
+            items,
+            subtotal,
+            shippingCost,
+            discountAmount,
+            currency,
+            firstName: customerInfo.firstName,
+            lastName: customerInfo.lastName,
+            phone: customerInfo.phone,
+            email,
+            shippingAddress: customerInfo.shippingAddress
+        }));
         const info = await this.transporter.sendMail({
             from: '"Woven Kulture" <noreply@wovenkulture.com>',
             to: email,
-            subject: `Order Receipt: ${orderId}`,
+            subject: `Congratulations, your order has been confirmed - #${orderId}`,
             html: emailHtml,
         });
         console.log('Purchase Receipt sent: %s', info.messageId);

@@ -30,39 +30,27 @@ export declare class AuthController {
     }>;
     getProfile(req: any): Promise<{
         id: string;
+        createdAt: Date;
         email: string;
         emailVerified: boolean;
-        createdAt: Date;
         role: string;
         isVerified: boolean;
         orders: ({
             items: {
                 id: string;
-                weightKG: number | null;
-                productId: string;
+                exchangeRateUsed: string;
                 variantId: string | null;
                 quantity: number;
-                customization: import("@prisma/client/runtime/library").JsonValue | null;
-                price: number;
-                exchangeRateUsed: string;
-                orderId: string;
                 unitPriceUSD: number;
                 unitPriceFinal: number;
+                weightKG: number | null;
+                price: number;
+                customization: import("@prisma/client/runtime/library").JsonValue | null;
+                productId: string;
+                orderId: string;
             }[];
         } & {
             id: string;
-            email: string;
-            createdAt: Date;
-            userId: string | null;
-            total: number;
-            currency: string;
-            isCustomOrder: boolean;
-            customerPhone: string | null;
-            shippingAddress: import("@prisma/client/runtime/library").JsonValue;
-            regionCode: string;
-            exchangeRateUsed: string;
-            chargeCurrency: string;
-            chargeTotal: number;
             status: import(".prisma/client").$Enums.OrderStatus;
             carrier: string | null;
             trackingNumber: string | null;
@@ -71,9 +59,23 @@ export declare class AuthController {
             deliveredAt: Date | null;
             displayCurrency: string;
             displayTotal: number;
+            chargeCurrency: string;
+            chargeTotal: number;
             totalUSD: number;
+            total: number;
+            currency: string;
             paymentId: string | null;
+            createdAt: Date;
+            email: string;
+            shippingAddress: import("@prisma/client/runtime/library").JsonValue;
+            exchangeRateUsed: string;
             shippingCost: number;
+            isCustomOrder: boolean;
+            customerPhone: string | null;
+            couponCode: string | null;
+            discountAmount: number | null;
+            userId: string | null;
+            regionCode: string;
         })[];
     } | null>;
     logout(req: any, res: any): Promise<{

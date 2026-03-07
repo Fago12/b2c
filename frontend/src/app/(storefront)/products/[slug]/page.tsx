@@ -171,6 +171,12 @@ export default function ProductDetailPage() {
             return;
         }
 
+        const hasCustomization = !!customization.embroideryName || !!customization.customColorRequest || !!customization.specificInstructions;
+        if (hasCustomization && (!customization.contactEmail || !customization.contactPhone)) {
+            toast.error("Please provide contact email and phone for your custom request so we can reach out if needed.");
+            return;
+        }
+
         await addItem(product.id, quantity, customization, activeVariant?.id);
         // Note: addItem now triggers setOpen(true) internally on success
     };
@@ -190,8 +196,12 @@ export default function ProductDetailPage() {
         }
     }
 
+    const embroideryPriceUSD_cents = (customization.embroideryName && product.customizationOptions?.embroidery?.enabled)
+        ? (product.customizationOptions.embroidery.price || 0)
+        : 0;
+
     const currentPriceRegional_cents = Math.round(activeUSD_cents * rate);
-    const totalPrice_cents = currentPriceRegional_cents * quantity;
+    const totalPrice_cents = Math.round((activeUSD_cents + embroideryPriceUSD_cents) * rate) * quantity;
 
     return (
         <div className="bg-white min-h-screen">

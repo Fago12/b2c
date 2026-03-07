@@ -36,12 +36,17 @@ interface CartState {
   shippingCost: number;
   isLoading: boolean;
   isOpen: boolean;
+
+  couponCode?: string;
+  discountAmount?: number;
   
   fetchCart: () => Promise<void>;
   addItem: (productId: string, quantity?: number, customization?: any, variantId?: string) => Promise<void>;
   removeItem: (productId: string, variantId?: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number, variantId?: string) => Promise<void>;
   clearCart: () => Promise<void>;
+  applyCoupon: (code: string) => Promise<void>;
+  removeCoupon: () => Promise<void>;
   getTotalItems: () => number;
   setOpen: (open: boolean) => void;
 }
@@ -75,6 +80,8 @@ const mapServerCartToState = (cart: any) => ({
   
   shippingCost: Number(cart.shippingCost || 0),
   regionCode: cart.regionCode || 'US',
+  couponCode: cart.couponCode,
+  discountAmount: cart.discountAmount,
 });
 
 export const useCart = create<CartState>()(
@@ -149,9 +156,34 @@ export const useCart = create<CartState>()(
         set({ isLoading: true });
         try {
           await cartApi.clearCart();
-          set({ items: [], subtotal: 0, shippingCost: 0, total: 0 });
+          set({ items: [], subtotal: 0, shippingCost: 0, total: 0, couponCode: undefined, discountAmount: 0 });
         } catch (error) {
           console.error('Failed to clear cart', error);
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      applyCoupon: async (code: string) => {
+        set({ isLoading: true });
+        try {
+          const cart = await cartApi.applyCoupon(code);
+          set(mapServerCartToState(cart));
+          toast.success("Coupon applied!");
+        } catch (error: any) {
+          toast.error(error.message || "Failed to apply coupon");
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      removeCoupon: async () => {
+        set({ isLoading: true });
+        try {
+          const cart = await cartApi.removeCoupon();
+          set(mapServerCartToState(cart));
+        } catch (error: any) {
+          toast.error("Failed to remove coupon");
         } finally {
           set({ isLoading: false });
         }

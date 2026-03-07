@@ -197,6 +197,17 @@ model Coupon {
   @@map("coupon")
 }
 
+model NewsletterSubscriber {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  source    String?  // e.g., "footer", "checkout"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_subscriber")
+}
+
 model Region {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -412,6 +423,10 @@ model Order {
   customerPhone    String?
   
   region           Region      @relation(fields: [regionCode], references: [code])
+
+  // Coupon tracking
+  couponCode       String?
+  discountAmount   Int?        // (cents)
 
   @@map("order")
 }

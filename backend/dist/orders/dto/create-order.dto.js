@@ -13,31 +13,37 @@ exports.CreateOrderDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 class CustomizationDto {
-    allowEmbroidery;
-    embroideryText;
-    customColor;
-    instructions;
+    embroideryName;
+    customColorRequest;
+    specificInstructions;
+    contactEmail;
+    contactPhone;
 }
 __decorate([
-    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CustomizationDto.prototype, "allowEmbroidery", void 0);
+    __metadata("design:type", String)
+], CustomizationDto.prototype, "embroideryName", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CustomizationDto.prototype, "embroideryText", void 0);
+], CustomizationDto.prototype, "customColorRequest", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CustomizationDto.prototype, "customColor", void 0);
+], CustomizationDto.prototype, "specificInstructions", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CustomizationDto.prototype, "instructions", void 0);
+], CustomizationDto.prototype, "contactEmail", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CustomizationDto.prototype, "contactPhone", void 0);
 class OrderItemDto {
     productId;
     variantId;
@@ -73,6 +79,9 @@ class CreateOrderDto {
     userId;
     currency;
     regionCode;
+    couponCode;
+    firstName;
+    lastName;
 }
 exports.CreateOrderDto = CreateOrderDto;
 __decorate([
@@ -115,4 +124,19 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "regionCode", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "couponCode", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "firstName", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "lastName", void 0);
 //# sourceMappingURL=create-order.dto.js.map

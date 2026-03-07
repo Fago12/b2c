@@ -36,6 +36,7 @@ let IdempotencyInterceptor = IdempotencyInterceptor_1 = class IdempotencyInterce
             return next.handle();
         }
         const idempotencyKey = request.headers['idempotency-key'];
+        this.logger.debug(`[IDEMPOTENCY] Checking key: ${idempotencyKey} for ${request.method} ${request.url}`);
         if (!idempotencyKey) {
             throw new common_1.HttpException('Idempotency-Key header is required for this request', common_1.HttpStatus.BAD_REQUEST);
         }
@@ -44,6 +45,7 @@ let IdempotencyInterceptor = IdempotencyInterceptor_1 = class IdempotencyInterce
             throw new common_1.HttpException('Idempotency-Key must be a valid UUID v4', common_1.HttpStatus.BAD_REQUEST);
         }
         const existingData = await this.redisService.getIdempotencyKey(idempotencyKey);
+        this.logger.debug(`[IDEMPOTENCY] Existing data found: ${!!existingData}`);
         if (existingData) {
             const parsed = JSON.parse(existingData);
             if (parsed.status === 'processing') {
@@ -56,6 +58,7 @@ let IdempotencyInterceptor = IdempotencyInterceptor_1 = class IdempotencyInterce
             }
         }
         const acquired = await this.redisService.setIdempotencyProcessing(idempotencyKey);
+        this.logger.debug(`[IDEMPOTENCY] Processing lock acquired: ${acquired}`);
         if (!acquired) {
             throw new common_1.HttpException('Request is already being processed. Please retry later.', common_1.HttpStatus.CONFLICT);
         }

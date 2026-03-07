@@ -10,8 +10,10 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ limit: '50mb', extended: true }));
+  // When rawBody: true is set in NestFactory.create, 
+  // NestJS 10+ automatically configures the underlying body-parsers 
+  // to preserve the raw body as a Buffer on the request object.
+  // We do NOT need to manually add json() or urlencoded() middleware here.
 
   app.use(cookieParser());
   

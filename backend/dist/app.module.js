@@ -29,6 +29,7 @@ const mail_module_1 = require("./mail/mail.module");
 const prisma_module_1 = require("./prisma/prisma.module");
 const redis_module_1 = require("./redis/redis.module");
 const common_module_1 = require("./common/common.module");
+const newsletter_module_1 = require("./newsletter/newsletter.module");
 const cart_module_1 = require("./cart/cart.module");
 const queue_module_1 = require("./queues/queue.module");
 const media_module_1 = require("./media/media.module");
@@ -105,6 +106,7 @@ exports.AppModule = AppModule = __decorate([
             reviews_module_1.ReviewsModule,
             mail_module_1.MailModule,
             cart_module_1.CartModule,
+            newsletter_module_1.NewsletterModule,
             media_module_1.MediaModule,
             chat_module_1.ChatModule,
             payments_module_1.PaymentsModule,

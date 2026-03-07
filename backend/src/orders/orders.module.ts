@@ -5,6 +5,8 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { CommerceCurrencyModule } from '../commerce/currency/currency.module';
 import { CommerceRegionModule } from '../commerce/region/region.module';
 import { CommerceShippingModule } from '../commerce/shipping/shipping.module';
+import { CouponsModule } from '../coupons/coupons.module';
+import { QueueModule } from '../queues/queue.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { CommerceShippingModule } from '../commerce/shipping/shipping.module';
     CommerceCurrencyModule,
     CommerceRegionModule,
     CommerceShippingModule,
+    CouponsModule,
+    QueueModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

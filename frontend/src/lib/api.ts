@@ -1,10 +1,19 @@
 import { authClient } from "@/lib/auth-client";
 import { adminAuthClient } from "@/lib/admin-auth-client";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
 
 export async function fetchApi(path: string, options: RequestInit = {}) {
-  const url = `${apiUrl}${path}`;
+  let url = `${apiUrl}${path}`;
+  
+  // Server-side fetch optimization: Node.js sometimes fails to resolve 'localhost'
+  // correctly during SSR. We use 127.0.0.1 explicitly on the server.
+  if (typeof window === 'undefined') {
+    url = url.replace('localhost', '127.0.0.1').replace('http://[::1]', 'http://127.0.0.1');
+    console.log(`[API] Server-side URL normalization: ${url}`);
+  } else {
+    console.log(`[API] Client-side fetch detected: ${url}`);
+  }
   
   // Get session token for storefront
   const { data } = await authClient.getSession();

@@ -42,8 +42,15 @@ export class PricingService {
       const options = product.customizationOptions as any;
 
       // Handle Embroidery Price
-      if (customization.embroidery?.enabled && options.allowEmbroidery) {
-        finalPriceUSD_cents += options.embroideryPriceUSD || 0;
+      // Frontend sends 'embroideryName', backend DTO might have 'embroidery' object or 'embroideryText'
+      const hasEmbroidery = !!(customization as any).embroideryName || 
+                           !!customization.embroidery?.enabled || 
+                           !!(customization as any).embroideryText;
+
+      if (hasEmbroidery && (options.embroidery?.enabled || options.allowEmbroidery)) {
+        // Fix: embroideryPriceUSD is in dollars, must convert to cents
+        const embroideryPriceCents = (options.embroidery?.price || options.embroideryPriceUSD || 0) * 100;
+        finalPriceUSD_cents += embroideryPriceCents;
       }
     }
 

@@ -14,12 +14,12 @@ export class AnalyticsService {
 
     // 1. Revenue
     const totalRevenue = await this.prisma.order.aggregate({
-      _sum: { total: true },
+      _sum: { totalUSD: true },
       where: { status: { not: 'CANCELLED' } }, // Assuming we count pending/paid
     });
 
     const todayRevenue = await this.prisma.order.aggregate({
-      _sum: { total: true },
+      _sum: { totalUSD: true },
       where: { 
         status: { not: 'CANCELLED' },
         createdAt: { gte: today }
@@ -27,7 +27,7 @@ export class AnalyticsService {
     });
 
     const yesterdayRevenue = await this.prisma.order.aggregate({
-      _sum: { total: true },
+      _sum: { totalUSD: true },
       where: { 
         status: { not: 'CANCELLED' },
         createdAt: { gte: yesterday, lt: today }
@@ -64,7 +64,7 @@ export class AnalyticsService {
     return {
         revenue: {
             total: (totalRevenue._sum as any).totalUSD || 0,
-            today: (todayRevenue._sum as any).totalUSD || 0,
+            today: (todayRevenue._sum as any).todayTotalUSD || (todayRevenue._sum as any).totalUSD || 0,
             change: revenueChange
         },
         orders: {

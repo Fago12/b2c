@@ -19,6 +19,8 @@ export declare class CartController {
         displaySubtotal: number;
         displayTotal: number;
         exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
         updatedAt: Date;
     }>;
     addItem(req: Request, res: Response, body: {
@@ -39,6 +41,8 @@ export declare class CartController {
         displaySubtotal: number;
         displayTotal: number;
         exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
         updatedAt: Date;
     }>;
     updateItem(req: Request, res: Response, productId: string, body: {
@@ -57,6 +61,8 @@ export declare class CartController {
         displaySubtotal: number;
         displayTotal: number;
         exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
         updatedAt: Date;
     }>;
     removeItem(req: Request, res: Response, productId: string): Promise<{
@@ -72,6 +78,8 @@ export declare class CartController {
         displaySubtotal: number;
         displayTotal: number;
         exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
         updatedAt: Date;
     }>;
     clearCart(req: Request, res: Response): Promise<{
@@ -97,6 +105,44 @@ export declare class CartController {
         displaySubtotal: number;
         displayTotal: number;
         exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
+        updatedAt: Date;
+    }>;
+    applyCoupon(req: Request, res: Response, body: {
+        code: string;
+    }): Promise<{
+        itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
+        items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
+        updatedAt: Date;
+    }>;
+    removeCoupon(req: Request, res: Response): Promise<{
+        itemCount: number;
+        shippingCost: number;
+        total: number;
+        currency: string;
+        chargeTotal: number;
+        chargeCurrency: string;
+        items: import("./cart.service").CartItem[];
+        regionCode: string;
+        displayCurrency: string;
+        displaySubtotal: number;
+        displayTotal: number;
+        exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
         updatedAt: Date;
     }>;
     updateRegion(req: Request, res: Response, body: {
@@ -114,6 +160,8 @@ export declare class CartController {
         displaySubtotal: number;
         displayTotal: number;
         exchangeRateUsed: string;
+        couponCode?: string;
+        discountAmount?: number;
         updatedAt: Date;
     }>;
 }

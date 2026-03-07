@@ -7,6 +7,7 @@ import { CommerceCurrencyModule } from '../commerce/currency/currency.module';
 import { CommerceShippingModule } from '../commerce/shipping/shipping.module';
 import { CommerceRegionModule } from '../commerce/region/region.module';
 import { CommerceCustomizationModule } from '../commerce/customization/customization.module';
+import { CouponsModule } from '../coupons/coupons.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CommerceCustomizationModule } from '../commerce/customization/customiza
     CommerceShippingModule,
     CommerceRegionModule,
     CommerceCustomizationModule,
+    CouponsModule,
   ],
   controllers: [CartController],
   providers: [CartService],

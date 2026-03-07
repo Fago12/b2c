@@ -127,6 +127,7 @@ export declare class UsersService {
             customerPhone: string | null;
             shippingAddress: Prisma.JsonValue;
             regionCode: string;
+            couponCode: string | null;
             exchangeRateUsed: string;
             chargeCurrency: string;
             chargeTotal: number;
@@ -141,6 +142,7 @@ export declare class UsersService {
             totalUSD: number;
             paymentId: string | null;
             shippingCost: number;
+            discountAmount: number | null;
         })[];
     } | null>;
     updateRole(id: string, role: Role): Promise<{

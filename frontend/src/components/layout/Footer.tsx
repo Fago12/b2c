@@ -144,6 +144,51 @@ export function Footer() {
                             </ul>
                         </div>
                     </div>
+
+                    {/* Newsletter Section */}
+                    <div className="w-full lg:w-1/3 space-y-4">
+                        <h4 className="font-vogue text-[15px] font-bold uppercase tracking-[0.2em] text-black">Stay in the Loop</h4>
+                        <p className="text-[13px] text-black/60 font-sans">
+                            Get updates on new collections and exclusive offers.
+                        </p>
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const form = e.currentTarget;
+                                const email = new FormData(form).get('email') as string;
+                                try {
+                                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/newsletter/subscribe`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ email, source: 'footer' })
+                                    });
+                                    if (res.ok) {
+                                        alert('Thanks for subscribing!');
+                                        form.reset();
+                                    } else {
+                                        alert('Failed to subscribe. Please try again.');
+                                    }
+                                } catch (err) {
+                                    alert('An error occurred. Please try again.');
+                                }
+                            }}
+                            className="flex flex-col sm:flex-row gap-2 mt-4"
+                        >
+                            <input
+                                type="email"
+                                name="email"
+                                required
+                                placeholder="YOUR EMAIL ADDRESS"
+                                className="flex-1 bg-white/50 border border-black/10 px-4 py-3 text-[12px] uppercase font-bold tracking-[0.1em] focus:outline-none focus:border-black/30 placeholder:text-black/30 w-full"
+                            />
+                            <button
+                                type="submit"
+                                className="bg-[#480100] text-white px-8 py-3 text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-black transition-colors duration-300"
+                            >
+                                Subscribe
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 {/* Bottom Bar */}

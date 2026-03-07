@@ -29,6 +29,7 @@ let CartController = class CartController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
+                path: '/',
                 maxAge: 30 * 24 * 60 * 60 * 1000,
             });
         }
@@ -121,6 +122,31 @@ let CartController = class CartController {
             ...totals,
         };
     }
+    async applyCoupon(req, res, body) {
+        const sessionId = this.getSessionId(req, res);
+        const regionCode = this.getRegionCode(req);
+        try {
+            const cart = await this.cartService.applyCoupon(sessionId, body.code, regionCode);
+            const totals = this.cartService.getCartTotal(cart);
+            return {
+                ...cart,
+                ...totals,
+            };
+        }
+        catch (error) {
+            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
+    async removeCoupon(req, res) {
+        const sessionId = this.getSessionId(req, res);
+        const regionCode = this.getRegionCode(req);
+        const cart = await this.cartService.removeCoupon(sessionId, regionCode);
+        const totals = this.cartService.getCartTotal(cart);
+        return {
+            ...cart,
+            ...totals,
+        };
+    }
     async updateRegion(req, res, body) {
         const sessionId = this.getSessionId(req, res);
         const cart = await this.cartService.setRegion(sessionId, body.regionCode);
@@ -128,6 +154,7 @@ let CartController = class CartController {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
+            path: '/',
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
         const totals = this.cartService.getCartTotal(cart);
@@ -191,6 +218,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], CartController.prototype, "mergeCart", null);
+__decorate([
+    (0, common_1.Post)('coupon'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], CartController.prototype, "applyCoupon", null);
+__decorate([
+    (0, common_1.Delete)('coupon'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], CartController.prototype, "removeCoupon", null);
 __decorate([
     (0, common_1.Post)('region'),
     __param(0, (0, common_1.Req)()),

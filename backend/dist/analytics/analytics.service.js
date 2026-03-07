@@ -23,18 +23,18 @@ let AnalyticsService = class AnalyticsService {
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const totalRevenue = await this.prisma.order.aggregate({
-            _sum: { total: true },
+            _sum: { totalUSD: true },
             where: { status: { not: 'CANCELLED' } },
         });
         const todayRevenue = await this.prisma.order.aggregate({
-            _sum: { total: true },
+            _sum: { totalUSD: true },
             where: {
                 status: { not: 'CANCELLED' },
                 createdAt: { gte: today }
             },
         });
         const yesterdayRevenue = await this.prisma.order.aggregate({
-            _sum: { total: true },
+            _sum: { totalUSD: true },
             where: {
                 status: { not: 'CANCELLED' },
                 createdAt: { gte: yesterday, lt: today }
@@ -57,7 +57,7 @@ let AnalyticsService = class AnalyticsService {
         return {
             revenue: {
                 total: totalRevenue._sum.totalUSD || 0,
-                today: todayRevenue._sum.totalUSD || 0,
+                today: todayRevenue._sum.todayTotalUSD || todayRevenue._sum.totalUSD || 0,
                 change: revenueChange
             },
             orders: {

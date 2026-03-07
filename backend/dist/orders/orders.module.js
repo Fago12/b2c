@@ -14,6 +14,8 @@ const prisma_module_1 = require("../prisma/prisma.module");
 const currency_module_1 = require("../commerce/currency/currency.module");
 const region_module_1 = require("../commerce/region/region.module");
 const shipping_module_1 = require("../commerce/shipping/shipping.module");
+const coupons_module_1 = require("../coupons/coupons.module");
+const queue_module_1 = require("../queues/queue.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
@@ -24,6 +26,8 @@ exports.OrdersModule = OrdersModule = __decorate([
             currency_module_1.CommerceCurrencyModule,
             region_module_1.CommerceRegionModule,
             shipping_module_1.CommerceShippingModule,
+            coupons_module_1.CouponsModule,
+            queue_module_1.QueueModule,
         ],
         controllers: [orders_controller_1.OrdersController],
         providers: [orders_service_1.OrdersService],

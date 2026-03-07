@@ -9,8 +9,10 @@ async function run() {
         id: true,
         name: true,
         slug: true,
+        basePriceUSD_cents: true,
         variants: true,
         options: true,
+        customizationOptions: true,
         isActive: true
       }
     });

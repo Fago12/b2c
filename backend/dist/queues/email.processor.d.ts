@@ -6,7 +6,7 @@ export interface EmailJobData {
     to: string;
     subject: string;
     html: string;
-    template?: 'welcome' | 'order-confirmation' | 'password-reset' | 'verification' | 'purchase-receipt';
+    template?: 'welcome' | 'order-confirmation' | 'password-reset' | 'verification' | 'purchase-receipt' | 'shipping-notification' | 'delivery-confirmation';
     data?: Record<string, any>;
 }
 export declare class EmailProcessor extends WorkerHost {

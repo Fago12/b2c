@@ -13,5 +13,8 @@ export declare class CreateOrderDto {
     userId?: string;
     currency?: string;
     regionCode?: string;
+    couponCode?: string;
+    firstName?: string;
+    lastName?: string;
 }
 export {};
